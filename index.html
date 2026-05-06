@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Bancario</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy:       #0a1f44;
+      --navy-light: #122c5e;
+      --navy-mid:   #1a3a6b;
+      --accent:     #2563eb;
+      --accent-glow:#3b82f6;
+      --white:      #ffffff;
+      --off-white:  #f0f4fb;
+      --muted:      #94a3b8;
+      --success:    #10b981;
+      --danger:     #ef4444;
+      --warning:    #f59e0b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--off-white);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(10,31,68,.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .header-brand svg {
+      flex-shrink: 0;
+    }
+
+    .header-brand h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .header-meta {
+      font-size: .78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .header-meta span {
+      display: block;
+    }
+
+    /* ── Main layout ─────────────────────────────────────── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .section-title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── KPI Grid ────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 1px 4px rgba(10,31,68,.08), 0 4px 16px rgba(10,31,68,.06);
+      border-top: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      transition: transform .2s ease, box-shadow .2s ease;
+      cursor: default;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(10,31,68,.14);
+    }
+
+    .kpi-card.blue   { border-top-color: var(--accent); }
+    .kpi-card.green  { border-top-color: var(--success); }
+    .kpi-card.red    { border-top-color: var(--danger); }
+    .kpi-card.gold   { border-top-color: var(--warning); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .kpi-label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-icon.blue   { background: rgba(37,99,235,.1);  color: var(--accent); }
+    .kpi-icon.green  { background: rgba(16,185,129,.1); color: var(--success); }
+    .kpi-icon.red    { background: rgba(239,68,68,.1);  color: var(--danger); }
+    .kpi-icon.gold   { background: rgba(245,158,11,.1); color: var(--warning); }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+
+    .kpi-footer {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .2rem;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .badge.up   { background: rgba(16,185,129,.12); color: var(--success); }
+    .badge.down { background: rgba(239,68,68,.12);  color: var(--danger); }
+    .badge.warn { background: rgba(245,158,11,.12); color: var(--warning); }
+
+    /* ── Charts placeholder row ──────────────────────────── */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .chart-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 1px 4px rgba(10,31,68,.08), 0 4px 16px rgba(10,31,68,.06);
+    }
+
+    .chart-card-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1.2rem;
+    }
+
+    /* Sparkline bars (CSS-only mini bar chart) */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 100px;
+    }
+
+    .bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, var(--accent-glow), var(--navy-mid));
+      transition: height .6s cubic-bezier(.22,1,.36,1);
+    }
+
+    .bar-label {
+      font-size: .62rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Donut chart (CSS) */
+    .donut-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .donut {
+      position: relative;
+      width: 130px;
+      height: 130px;
+    }
+
+    .donut svg {
+      transform: rotate(-90deg);
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-pct {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .donut-sub {
+      font-size: .65rem;
+      color: var(--muted);
+    }
+
+    .legend {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .75rem;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: .4rem;
+      flex-shrink: 0;
+    }
+
+    .legend-label {
+      display: flex;
+      align-items: center;
+      color: var(--navy);
+    }
+
+    .legend-value {
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .chart-row {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-value {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ────────────────────────────────────────── -->
+  <header>
+    <div class="header-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="7" fill="#2563eb"/>
+        <path d="M5 10.5L14 5L23 10.5V11H5V10.5Z" fill="white"/>
+        <rect x="6.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="12.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="18.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="5" y="21.5" width="18" height="1.5" rx=".75" fill="white"/>
+      </svg>
+      <h1>BancoVista &mdash; Panel Ejecutivo</h1>
+    </div>
+    <div class="header-meta">
+      <span id="live-date"></span>
+      <span>Datos al cierre del día</span>
+    </div>
+  </header>
+
+  <!-- ── Main ──────────────────────────────────────────── -->
+  <main>
+
+    <p class="section-title">Indicadores clave de desempe&ntilde;o</p>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+
+      <!-- Cartera Total -->
+      <div class="kpi-card blue">
+        <div class="kpi-header">
+          <span class="kpi-label">Cartera Total</span>
+          <span class="kpi-icon blue">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 6h18M3 12h18M3 18h18"/>
+            </svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="val-cartera">$0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 3.2%</span>
+          <span>vs mes anterior</span>
+        </div>
+      </div>
+
+      <!-- Clientes Activos -->
+      <div class="kpi-card green">
+        <div class="kpi-header">
+          <span class="kpi-label">Clientes Activos</span>
+          <span class="kpi-icon green">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="val-clientes">0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 1.8%</span>
+          <span>nuevos registros</span>
+        </div>
+      </div>
+
+      <!-- Tasa de Morosidad -->
+      <div class="kpi-card red">
+        <div class="kpi-header">
+          <span class="kpi-label">Tasa de Morosidad</span>
+          <span class="kpi-icon red">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="val-morosidad">0%</div>
+        <div class="kpi-footer">
+          <span class="badge warn">&#x25BC; 0.4%</span>
+          <span>vs trimestre previo</span>
+        </div>
+      </div>
+
+      <!-- Captación del Mes -->
+      <div class="kpi-card gold">
+        <div class="kpi-header">
+          <span class="kpi-label">Captaci&oacute;n del Mes</span>
+          <span class="kpi-icon gold">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1M4.22 4.22l.71.71M19.07 4.22l-.71.71M1 12h1m20 0h1M4.22 19.78l.71-.71M19.07 19.78l-.71-.71"/>
+            </svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="val-captacion">$0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 7.5%</span>
+          <span>meta mensual alcanzada</span>
+        </div>
+      </div>
+
+    </div><!-- /kpi-grid -->
+
+    <!-- Charts row -->
+    <div class="chart-row">
+
+      <!-- Bar chart: cartera mensual -->
+      <div class="chart-card">
+        <div class="chart-card-title">Evolución de Cartera &mdash; Últimos 6 meses</div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+
+      <!-- Donut: distribución cartera -->
+      <div class="chart-card">
+        <div class="chart-card-title">Distribución por Segmento</div>
+        <div class="donut-wrapper">
+          <div class="donut">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="50" fill="none" stroke="#e2e8f0" stroke-width="18"/>
+              <!-- Empresas 42% -->
+              <circle id="seg-empresas" cx="65" cy="65" r="50"
+                fill="none" stroke="#2563eb" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+              <!-- PYME 33% -->
+              <circle id="seg-pyme" cx="65" cy="65" r="50"
+                fill="none" stroke="#10b981" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+              <!-- Personas 25% -->
+              <circle id="seg-personas" cx="65" cy="65" r="50"
+                fill="none" stroke="#f59e0b" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <span class="donut-pct">3</span>
+              <span class="donut-sub">segmentos</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#2563eb"></span>Empresas
+              </span>
+              <span class="legend-value">42%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#10b981"></span>PYME
+              </span>
+              <span class="legend-value">33%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#f59e0b"></span>Personas
+              </span>
+              <span class="legend-value">25%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /chart-row -->
+
+  </main>
+
+  <footer>
+    &copy; 2026 BancoVista S.A. &mdash; Uso interno confidencial
+  </footer>
+
+  <script>
+    /* ── Live date ──────────────────────────────────────── */
+    (function () {
+      const el = document.getElementById('live-date');
+      const fmt = new Intl.DateTimeFormat('es-MX', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      el.textContent = fmt.format(new Date());
+    })();
+
+    /* ── Counter animation ──────────────────────────────── */
+    function animateCounter(id, target, prefix, suffix, decimals, duration) {
+      const el = document.getElementById(id);
+      const start = performance.now();
+      function step(now) {
+        const p = Math.min((now - start) / duration, 1);
+        // ease out cubic
+        const ease = 1 - Math.pow(1 - p, 3);
+        const val = ease * target;
+        el.textContent = prefix + formatNumber(val, decimals) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function formatNumber(n, decimals) {
+      if (n >= 1e9) return (n / 1e9).toFixed(decimals) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(decimals) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+      return n.toFixed(decimals);
+    }
+
+    /* ── KPI values ─────────────────────────────────────── */
+    animateCounter('val-cartera',   4820000000, '$', '',  2, 1800);  // $4.82B
+    animateCounter('val-clientes',  127400,     '',  '',  0, 1600);  // 127K
+    animateCounter('val-morosidad', 3.7,        '',  '%', 1, 1400);  // 3.7%
+    animateCounter('val-captacion', 312000000,  '$', '',  2, 2000);  // $312M
+
+    /* ── Bar chart ──────────────────────────────────────── */
+    (function () {
+      const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
+      const values = [3.8, 4.0, 4.1, 4.4, 4.6, 4.82];   // in billions
+      const max    = Math.max(...values);
+      const container = document.getElementById('bar-chart');
+
+      months.forEach((m, i) => {
+        const heightPct = (values[i] / max) * 100;
+        const wrap = document.createElement('div');
+        wrap.className = 'bar-wrap';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '0px';
+        bar.title = `$${values[i]}B`;
+
+        const label = document.createElement('span');
+        label.className = 'bar-label';
+        label.textContent = m;
+
+        wrap.appendChild(bar);
+        wrap.appendChild(label);
+        container.appendChild(wrap);
+
+        // Animate bars after a short stagger
+        setTimeout(() => {
+          bar.style.height = `${heightPct}%`;
+        }, 200 + i * 80);
+      });
+    })();
+
+    /* ── Donut animation ────────────────────────────────── */
+    (function () {
+      const circumference = 2 * Math.PI * 50;  // ≈ 314.16
+      const segments = [
+        { id: 'seg-empresas', pct: 42, offset: 0 },
+        { id: 'seg-pyme',     pct: 33, offset: 42 },
+        { id: 'seg-personas', pct: 25, offset: 75 },
+      ];
+
+      segments.forEach(({ id, pct, offset }) => {
+        const el = document.getElementById(id);
+        const dash = (pct / 100) * circumference;
+        // gap = rest of circumference
+        const gap  = circumference - dash;
+        // rotate by offset percentage
+        const rotation = (offset / 100) * circumference;
+
+        // Set stroke-dashoffset to rotate the segment start
+        el.setAttribute('stroke-dashoffset', -rotation);
+
+        // Animate dash
+        const start = performance.now();
+        const duration = 1200;
+        function step(now) {
+          const p    = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          const d    = ease * dash;
+          const g    = circumference - d;
+          el.setAttribute('stroke-dasharray', `${d} ${g}`);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        setTimeout(() => requestAnimationFrame(step), 400);
+      });
+    })();
+  </script>
+</body>
+</html>

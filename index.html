@@ -740,6 +740,37 @@
     .tab-badge.tbg { background: rgba(16,185,129,.12); color: #059669; }
     .tab-badge.tbr { background: rgba(239,68,68,.12);  color: #dc2626; }
 
+    /* ── Captación modal extras ──────────────────────────── */
+    .kpi-icon-btn.gold {
+      background: rgba(245,158,11,.1);
+      color: var(--warning);
+    }
+
+    .kpi-icon-btn.gold:hover {
+      box-shadow: 0 0 0 4px rgba(245,158,11,.22);
+    }
+
+    /* Captación product & plazo tags */
+    .tag.vst  { background: rgba(37,99,235,.1);   color: var(--accent); }
+    .tag.pag  { background: rgba(124,58,237,.12); color: #7c3aed; }
+    .tag.p30  { background: rgba(245,158,11,.12); color: #d97706; font-size:.62rem; }
+    .tag.p6m  { background: rgba(16,185,129,.12); color: #059669; font-size:.62rem; }
+    .tag.p1a  { background: rgba(249,115,22,.12); color: #ea580c; font-size:.62rem; }
+
+    /* Tarjeta de crédito indicator */
+    .tc-si { color: #059669; font-weight: 700; }
+    .tc-no { color: #cbd5e1; }
+
+    /* Captación tab active colors */
+    .tab-btn.tab-vista.active   { color: var(--accent);  border-bottom-color: var(--accent); }
+    .tab-btn.tab-pagare.active  { color: #7c3aed;         border-bottom-color: #7c3aed; }
+    .tab-badge.tbb { background: rgba(37,99,235,.12);   color: var(--accent); }
+    .tab-badge.tbp { background: rgba(124,58,237,.12);  color: #7c3aed; }
+
+    /* Zero-balance row (castigado clients) */
+    .row-saldo-cero td         { color: #94a3b8 !important; font-style: italic; }
+    .row-saldo-cero:hover td   { background: #f8f9fa !important; }
+
     /* ── Footer ──────────────────────────────────────────── */
     footer {
       text-align: center;
@@ -849,12 +880,14 @@
       <div class="kpi-card gold">
         <div class="kpi-header">
           <span class="kpi-label">Captaci&oacute;n del Mes</span>
-          <span class="kpi-icon gold">
+          <button class="kpi-icon-btn gold" id="btn-captacion"
+                  data-tooltip="Ver detalle de captaci&oacute;n"
+                  aria-label="Ver detalle de captaci&oacute;n" title="Ver detalle de captaci&oacute;n">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1M4.22 4.22l.71.71M19.07 4.22l-.71.71M1 12h1m20 0h1M4.22 19.78l.71-.71M19.07 19.78l-.71-.71"/>
             </svg>
-          </span>
+          </button>
         </div>
         <div class="kpi-value" id="val-captacion">$0</div>
         <div class="kpi-footer">
@@ -1133,6 +1166,139 @@
               d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
           </svg>
           Morosidad muestra: 3.70%
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Captación Detail Modal ───────────────────────── -->
+  <div id="cap-backdrop" class="modal-backdrop" role="dialog" aria-modal="true"
+       aria-labelledby="cap-modal-title">
+    <div class="modal-panel">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-title" id="cap-modal-title">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1M4.22 4.22l.71.71M19.07 4.22l-.71.71M1 12h1m20 0h1M4.22 19.78l.71-.71M19.07 19.78l-.71-.71"/>
+          </svg>
+          Detalle de Captaci&oacute;n
+          <small>26 cuentas a la vista &middot; 12 pagar&eacute;s</small>
+        </div>
+        <button class="btn-close" id="cap-close" aria-label="Cerrar">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Summary strip -->
+      <div class="modal-summary">
+        <div class="summary-stat">
+          <span class="ss-label">Captaci&oacute;n Total</span>
+          <span class="ss-value blue" id="cs-total">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">A la Vista</span>
+          <span class="ss-value green" id="cs-vista">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 30 d&iacute;as</span>
+          <span class="ss-value" style="color:#d97706" id="cs-p30">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 6 meses</span>
+          <span class="ss-value green" id="cs-p6m">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 1 a&ntilde;o</span>
+          <span class="ss-value" style="color:#ea580c" id="cs-p1a">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Clientes Vista</span>
+          <span class="ss-value blue" id="cs-cnt-vista">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Clientes Pagar&eacute;</span>
+          <span class="ss-value" style="color:#7c3aed" id="cs-cnt-pag">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Con Tarjeta</span>
+          <span class="ss-value green" id="cs-cnt-tc">—</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar" role="tablist" aria-label="Producto de captaci&oacute;n">
+        <button class="tab-btn tab-vista active" id="cap-tab-vista"
+                role="tab" aria-selected="true">
+          A la Vista
+          <span class="tab-badge tbb" id="cap-tc-vista">26</span>
+        </button>
+        <button class="tab-btn tab-pagare" id="cap-tab-pagare"
+                role="tab" aria-selected="false">
+          Pagar&eacute;s
+          <span class="tab-badge tbp" id="cap-tc-pagare">12</span>
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="modal-filters">
+        <select class="filter-select" id="cap-filter-origen" aria-label="Filtrar por origen">
+          <option value="">Todos los or&iacute;genes</option>
+          <option value="Hipotecario">Hipotecario</option>
+          <option value="Automotriz">Automotriz</option>
+          <option value="Personal">Personal</option>
+          <option value="Pagar&eacute;">Pagar&eacute; (nuevo cliente)</option>
+        </select>
+        <select class="filter-select" id="cap-filter-plazo" aria-label="Filtrar por plazo">
+          <option value="">Todos los plazos</option>
+          <option value="30 d&iacute;as">30 d&iacute;as</option>
+          <option value="6 meses">6 meses</option>
+          <option value="1 a&ntilde;o">1 a&ntilde;o</option>
+        </select>
+        <input class="search-input" id="cap-search" type="search"
+               placeholder="&#128269; Buscar por nombre o n&uacute;m. de cuenta&hellip;"
+               aria-label="Buscar cliente captaci&oacute;n" />
+        <span class="filter-results" id="cap-filter-results">
+          Mostrando <strong>38</strong> de 38
+        </span>
+      </div>
+
+      <!-- Table -->
+      <div class="modal-table-wrap">
+        <table class="detail-table" id="cap-table">
+          <thead>
+            <tr>
+              <th data-col="id">#<span class="sa"></span></th>
+              <th data-col="nombre">Nombre<span class="sa"></span></th>
+              <th data-col="cuenta">N&uacute;m. de Cuenta<span class="sa"></span></th>
+              <th data-col="producto">Producto<span class="sa"></span></th>
+              <th data-col="origen">Origen<span class="sa"></span></th>
+              <th data-col="plazo">Plazo<span class="sa"></span></th>
+              <th data-col="tarjeta">Tarjeta<span class="sa"></span></th>
+              <th data-col="saldoPromedio">Saldo Prom. Diario<span class="sa"></span></th>
+              <th data-col="saldoCierre">Saldo Cierre<span class="sa"></span></th>
+            </tr>
+          </thead>
+          <tbody id="cap-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <span>
+          <strong>26</strong> cuentas a la vista (10 hip. &middot; 10 aut. &middot; 6 per.) &mdash;
+          <strong>12</strong> pagar&eacute;s nuevos &mdash; Datos ilustrativos.
+        </span>
+        <span class="mora-pill" style="background:rgba(245,158,11,.1);color:#d97706">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1"/>
+          </svg>
+          Captaci&oacute;n total cierre: $11,597,000
         </span>
       </div>
 
@@ -1754,6 +1920,246 @@
 
     /* Initial sort arrow on #-column */
     document.querySelector('.detail-table th[data-col="id"]').classList.add('asc');
+
+    /* ════════════════════════════════════════════════════
+       CAPTACIÓN SECTION
+       Vista total cierre:  $2,563,000  (26 clientes)
+       Pagaré total cierre: $9,034,000  (12 clientes)
+       Captación total:    $11,597,000
+       Reglas de negocio:
+         · Hipotecario (10) + Automotriz (10) → vista obligatoria
+         · Personal (6/10, 60%) → vista; excluidos: 25,26,29,30
+         · Clientes con montoCastigado > 0 → saldo vista = 0
+         · Pagaré: clientes nuevos, sin crédito; pueden tener TC
+       ════════════════════════════════════════════════════ */
+    const CAPTACION_DATA = [
+      /* ── Cuenta a la Vista — Hipotecario (10) ─────────── */
+      { id:1,  nombre:'María González López',        cuenta:'0042-8731-5294', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:125000,  saldoCierre:132000,  castigado:false },
+      { id:2,  nombre:'Carlos Hernández Ruiz',       cuenta:'1837-5209-4821', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:210000,  saldoCierre:198000,  castigado:false },
+      { id:3,  nombre:'Ana Patricia Méndez Vargas',  cuenta:'3021-6478-9035', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:89000,   saldoCierre:95000,   castigado:false },
+      { id:4,  nombre:'Roberto Jiménez Castro',      cuenta:'5519-2843-1076', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:380000,  saldoCierre:412000,  castigado:false },
+      { id:5,  nombre:'Laura Beatriz Torres Vega',   cuenta:'7214-9052-3867', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:45000,   saldoCierre:38000,   castigado:false },
+      { id:6,  nombre:'Miguel Ángel Flores Reyes',   cuenta:'2983-5671-4028', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:275000,  saldoCierre:290000,  castigado:false },
+      { id:7,  nombre:'Sofía Ramírez Ortiz',         cuenta:'8342-1097-6543', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:62000,   saldoCierre:58000,   castigado:false },
+      { id:8,  nombre:'José Luis Morales García',    cuenta:'1765-4302-8219', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:148000,  saldoCierre:155000,  castigado:false },
+      { id:9,  nombre:'Patricia Elena Gutiérrez Soto', cuenta:'6490-3817-5024', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,   tarjeta:false, saldoPromedio:0,       saldoCierre:0,       castigado:true  },
+      { id:10, nombre:'Fernando Adolfo Díaz Mendoza', cuenta:'9283-7146-0391', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,    tarjeta:false, saldoPromedio:450000,  saldoCierre:478000,  castigado:false },
+      /* ── Cuenta a la Vista — Automotriz (10) ───────────── */
+      { id:11, nombre:'Gabriela Ramos Peña',         cuenta:'4821-0563-7942', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:35000,   saldoCierre:38000,   castigado:false },
+      { id:12, nombre:'Alejandro Cruz Herrera',      cuenta:'3047-9821-6534', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:52000,   saldoCierre:47000,   castigado:false },
+      { id:13, nombre:'Claudia Noemí Vargas Campos', cuenta:'7163-2490-5817', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:78000,   saldoCierre:82000,   castigado:false },
+      { id:14, nombre:'Ricardo Sánchez Núñez',       cuenta:'5892-4713-0286', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:28000,   saldoCierre:31000,   castigado:false },
+      { id:15, nombre:'Diana Esperanza Rojas Lima',  cuenta:'2047-8361-9524', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:42000,   saldoCierre:45000,   castigado:false },
+      { id:16, nombre:'Eduardo Martínez Blanco',     cuenta:'8312-0547-6893', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:115000,  saldoCierre:122000,  castigado:false },
+      { id:17, nombre:'Valentina Castillo Mora',     cuenta:'1624-9083-5471', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:33000,   saldoCierre:29000,   castigado:false },
+      { id:18, nombre:'Pablo Aguilar Torres',        cuenta:'6931-4258-7014', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:67000,   saldoCierre:71000,   castigado:false },
+      { id:19, nombre:'Mónica Reyes Alvarado',       cuenta:'3849-7126-4502', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:22000,   saldoCierre:19000,   castigado:false },
+      { id:20, nombre:'Sergio Medina Fuentes',       cuenta:'7205-3891-6147', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:95000,   saldoCierre:88000,   castigado:false },
+      /* ── Cuenta a la Vista — Personal (6/10, 60%) ──────── */
+      { id:21, nombre:'Carmen Delgado Espinoza',     cuenta:'5041-8372-9163', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:18000,   saldoCierre:21000,   castigado:false },
+      { id:22, nombre:'Andrés Ríos Contreras',       cuenta:'9382-1047-5628', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:12000,   saldoCierre:9000,    castigado:false },
+      { id:23, nombre:'Beatriz Salas Navarro',       cuenta:'2716-5930-8241', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:0,       saldoCierre:0,       castigado:true  },
+      { id:24, nombre:'Daniel Montes Herrera',       cuenta:'6483-2019-7534', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:35000,   saldoCierre:38000,   castigado:false },
+      { id:25, nombre:'Marisol Ávila Coronado',      cuenta:'8047-5219-3486', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:24000,   saldoCierre:22000,   castigado:false },
+      { id:26, nombre:'Enrique Pacheco Villanueva',  cuenta:'3862-0741-9523', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:42000,   saldoCierre:45000,   castigado:false },
+      /* ── Pagaré — 30 días (4 clientes nuevos) ──────────── */
+      { id:27, nombre:'Raúl Espinoza Montoya',       cuenta:'PAG-2025-00127', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:true,  saldoPromedio:320000,  saldoCierre:322000,  castigado:false },
+      { id:28, nombre:'Gabriela Orozco Vidal',       cuenta:'PAG-2024-00089', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:false, saldoPromedio:180000,  saldoCierre:181000,  castigado:false },
+      { id:29, nombre:'Javier Rueda Palomino',       cuenta:'PAG-2025-00134', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:true,  saldoPromedio:500000,  saldoCierre:500000,  castigado:false },
+      { id:30, nombre:'Cristina Peña Espinosa',      cuenta:'PAG-2025-00141', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:false, saldoPromedio:120000,  saldoCierre:121000,  castigado:false },
+      /* ── Pagaré — 6 meses (4 clientes nuevos) ──────────── */
+      { id:31, nombre:'Rodrigo Salazar Ureña',       cuenta:'PAG-2025-00098', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:true,  saldoPromedio:750000,  saldoCierre:755000,  castigado:false },
+      { id:32, nombre:'Alicia Noriega Campos',       cuenta:'PAG-2024-00076', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:true,  saldoPromedio:450000,  saldoCierre:452000,  castigado:false },
+      { id:33, nombre:'Francisco Bravo Méndez',      cuenta:'PAG-2025-00112', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:false, saldoPromedio:1200000, saldoCierre:1205000, castigado:false },
+      { id:34, nombre:'Verónica Zamora Gutiérrez',   cuenta:'PAG-2024-00081', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:false, saldoPromedio:380000,  saldoCierre:382000,  castigado:false },
+      /* ── Pagaré — 1 año (4 clientes nuevos) ────────────── */
+      { id:35, nombre:'Ignacio Moreno Padilla',      cuenta:'PAG-2024-00054', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:true,  saldoPromedio:2100000, saldoCierre:2108000, castigado:false },
+      { id:36, nombre:'Susana Domínguez Ríos',       cuenta:'PAG-2023-00041', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:false, saldoPromedio:1500000, saldoCierre:1503000, castigado:false },
+      { id:37, nombre:'Bernardo Lagos Fuentes',      cuenta:'PAG-2024-00063', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:true,  saldoPromedio:850000,  saldoCierre:853000,  castigado:false },
+      { id:38, nombre:'Elvira Cárdenas Montiel',     cuenta:'PAG-2023-00037', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:false, saldoPromedio:650000,  saldoCierre:652000,  castigado:false },
+    ];
+
+    /* ── Populate captación summary strip ────────────────── */
+    (function () {
+      const fmtC = n => '$' + n.toLocaleString('es-MX');
+      const d = CAPTACION_DATA;
+      const vista  = d.filter(r => r.producto === 'Cuenta a la Vista');
+      const pagare = d.filter(r => r.producto === 'Pagaré');
+      const p30    = pagare.filter(r => r.plazo === '30 días');
+      const p6m    = pagare.filter(r => r.plazo === '6 meses');
+      const p1a    = pagare.filter(r => r.plazo === '1 año');
+      const sum    = arr => arr.reduce((s, r) => s + r.saldoCierre, 0);
+
+      document.getElementById('cs-total').textContent    = fmtC(sum(d));
+      document.getElementById('cs-vista').textContent    = fmtC(sum(vista));
+      document.getElementById('cs-p30').textContent      = fmtC(sum(p30));
+      document.getElementById('cs-p6m').textContent      = fmtC(sum(p6m));
+      document.getElementById('cs-p1a').textContent      = fmtC(sum(p1a));
+      document.getElementById('cs-cnt-vista').textContent = vista.length + ' clientes';
+      document.getElementById('cs-cnt-pag').textContent   = pagare.length + ' clientes';
+      document.getElementById('cs-cnt-tc').textContent    = d.filter(r => r.tarjeta).length + ' clientes';
+      document.getElementById('cap-tc-vista').textContent  = vista.length;
+      document.getElementById('cap-tc-pagare').textContent = pagare.length;
+    })();
+
+    /* ── Captación table helpers ──────────────────────────── */
+    const capProductoTag = r => {
+      if (r.producto === 'Cuenta a la Vista') {
+        const ot = r.origen === 'Hipotecario' ? '<span class="tag hip" style="font-size:.62rem">Hip.</span>'
+                 : r.origen === 'Automotriz'  ? '<span class="tag aut" style="font-size:.62rem">Aut.</span>'
+                 :                              '<span class="tag per" style="font-size:.62rem">Per.</span>';
+        return `<span class="tag vst">A la Vista</span>&nbsp;${ot}`;
+      }
+      return '<span class="tag pag">Pagaré</span>';
+    };
+
+    const capOrigenTxt = r => r.origen
+      ? `<span style="font-size:.73rem;color:var(--muted)">${r.origen}</span>`
+      : '<span class="amt-zero">—</span>';
+
+    const capPlazoTag = r => {
+      if (!r.plazo) return '<span class="amt-zero">—</span>';
+      const cls = r.plazo === '30 días' ? 'p30' : r.plazo === '6 meses' ? 'p6m' : 'p1a';
+      return `<span class="tag ${cls}">${r.plazo}</span>`;
+    };
+
+    const capTarjeta = r => r.producto === 'Pagaré'
+      ? (r.tarjeta ? '<span class="tc-si">✓ Sí</span>' : '<span class="tc-no">No</span>')
+      : '<span class="amt-zero">N/A</span>';
+
+    /* ── Captación sort/tab state ─────────────────────────── */
+    let capSortCol = 'id', capSortDir = 'asc', capActiveTab = 'vista';
+
+    /* ── Render captación table ───────────────────────────── */
+    function renderCapTable(data) {
+      const tbody = document.getElementById('cap-tbody');
+      const res   = document.getElementById('cap-filter-results');
+
+      tbody.innerHTML = data.map(r => {
+        const cls = r.castigado ? ' class="row-saldo-cero"' : '';
+        return `<tr${cls}>
+          <td>${r.id}</td>
+          <td><strong>${r.nombre}</strong>${r.castigado ? ' <span style="font-size:.65rem;color:#ef4444">(castigado)</span>' : ''}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.cuenta}</td>
+          <td>${capProductoTag(r)}</td>
+          <td>${capOrigenTxt(r)}</td>
+          <td>${capPlazoTag(r)}</td>
+          <td style="text-align:center">${capTarjeta(r)}</td>
+          <td style="text-align:right">${r.saldoPromedio === 0 && r.castigado
+            ? '<span class="amt-mora">$0</span>'
+            : '$' + r.saldoPromedio.toLocaleString('es-MX')
+          }</td>
+          <td style="text-align:right"><strong>${r.saldoCierre === 0 && r.castigado
+            ? '<span class="amt-mora">$0</span>'
+            : '$' + r.saldoCierre.toLocaleString('es-MX')
+          }</strong></td>
+        </tr>`;
+      }).join('');
+
+      res.innerHTML = `Mostrando <strong>${data.length}</strong> de ${CAPTACION_DATA.length}`;
+    }
+
+    /* ── Apply captación filters ──────────────────────────── */
+    function applyCapFilters() {
+      const origen = document.getElementById('cap-filter-origen').value;
+      const plazo  = document.getElementById('cap-filter-plazo').value;
+      const query  = document.getElementById('cap-search').value.toLowerCase().trim();
+
+      let data = CAPTACION_DATA.slice();
+
+      /* Tab filter first */
+      if (capActiveTab === 'vista')   data = data.filter(r => r.producto === 'Cuenta a la Vista');
+      if (capActiveTab === 'pagare')  data = data.filter(r => r.producto === 'Pagaré');
+
+      if (origen) {
+        if (origen === 'Pagaré') data = data.filter(r => r.producto === 'Pagaré');
+        else                      data = data.filter(r => r.origen === origen);
+      }
+      if (plazo) data = data.filter(r => r.plazo === plazo);
+      if (query) data = data.filter(r =>
+        r.nombre.toLowerCase().includes(query) ||
+        r.cuenta.toLowerCase().includes(query)
+      );
+
+      data.sort((a, b) => {
+        let va = a[capSortCol] ?? '', vb = b[capSortCol] ?? '';
+        if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+        if (va < vb) return capSortDir === 'asc' ? -1 : 1;
+        if (va > vb) return capSortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
+
+      renderCapTable(data);
+    }
+
+    /* ── Captación column sort ────────────────────────────── */
+    document.getElementById('cap-table').querySelector('thead').addEventListener('click', e => {
+      const th = e.target.closest('th[data-col]');
+      if (!th) return;
+      const col = th.dataset.col;
+      capSortDir = col === capSortCol ? (capSortDir === 'asc' ? 'desc' : 'asc') : 'asc';
+      capSortCol = col;
+      document.querySelectorAll('#cap-table th').forEach(t => t.classList.remove('asc','desc'));
+      th.classList.add(capSortDir);
+      applyCapFilters();
+    });
+
+    /* ── Captación filter/search events ──────────────────── */
+    document.getElementById('cap-filter-origen').addEventListener('change', applyCapFilters);
+    document.getElementById('cap-filter-plazo').addEventListener('change', applyCapFilters);
+    document.getElementById('cap-search').addEventListener('input', applyCapFilters);
+
+    /* ── Captación tab handlers ───────────────────────────── */
+    document.querySelectorAll('#cap-backdrop .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        capActiveTab = btn.id === 'cap-tab-vista' ? 'vista' : 'pagare';
+        document.querySelectorAll('#cap-backdrop .tab-btn').forEach(b => {
+          const active = b.id === btn.id;
+          b.classList.toggle('active', active);
+          b.setAttribute('aria-selected', active);
+        });
+        /* Pagaré tab: disable origen filter irrelevant options */
+        const origenSel = document.getElementById('cap-filter-origen');
+        origenSel.value = '';
+        document.getElementById('cap-filter-plazo').value = '';
+        applyCapFilters();
+      });
+    });
+
+    /* ── Captación modal open / close ────────────────────── */
+    const capBackdrop = document.getElementById('cap-backdrop');
+
+    function openCapModal() {
+      capActiveTab = 'vista';
+      document.getElementById('cap-tab-vista').classList.add('active');
+      document.getElementById('cap-tab-vista').setAttribute('aria-selected', 'true');
+      document.getElementById('cap-tab-pagare').classList.remove('active');
+      document.getElementById('cap-tab-pagare').setAttribute('aria-selected', 'false');
+      document.getElementById('cap-filter-origen').value = '';
+      document.getElementById('cap-filter-plazo').value  = '';
+      document.getElementById('cap-search').value        = '';
+      document.querySelector('#cap-table th[data-col="id"]').classList.add('asc');
+      applyCapFilters();
+      capBackdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('cap-search').focus();
+    }
+
+    function closeCapModal() {
+      capBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('btn-captacion').addEventListener('click', openCapModal);
+    document.getElementById('cap-close').addEventListener('click', closeCapModal);
+
+    capBackdrop.addEventListener('click', e => {
+      if (e.target === capBackdrop) closeCapModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && capBackdrop.classList.contains('open')) closeCapModal();
+    });
   </script>
 </body>
 </html>

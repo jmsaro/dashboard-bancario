@@ -301,6 +301,337 @@
       color: var(--navy);
     }
 
+    /* ── Clientes icon as button ─────────────────────────── */
+    .kpi-icon-btn {
+      all: unset;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .15s ease, box-shadow .15s ease;
+      position: relative;
+    }
+
+    .kpi-icon-btn.green {
+      background: rgba(16,185,129,.1);
+      color: var(--success);
+    }
+
+    .kpi-icon-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 0 0 4px rgba(16,185,129,.22);
+    }
+
+    .kpi-icon-btn:focus-visible {
+      outline: 2px solid var(--success);
+      outline-offset: 2px;
+    }
+
+    .kpi-icon-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      right: 0;
+      background: var(--navy);
+      color: var(--white);
+      font-size: .68rem;
+      padding: .25rem .55rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .15s, transform .15s;
+    }
+
+    .kpi-icon-btn:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Modal backdrop ──────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,31,68,.55);
+      backdrop-filter: blur(3px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── Modal panel ─────────────────────────────────────── */
+    .modal-panel {
+      background: var(--white);
+      border-radius: 18px;
+      width: min(97vw, 1180px);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(10,31,68,.32);
+      transform: translateY(22px) scale(.97);
+      transition: transform .28s cubic-bezier(.22,1,.36,1);
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-panel {
+      transform: translateY(0) scale(1);
+    }
+
+    /* ── Modal header ────────────────────────────────────── */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 1.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .modal-title svg { opacity: .85; }
+
+    .modal-title small {
+      font-size: .72rem;
+      font-weight: 400;
+      opacity: .65;
+      margin-left: .2rem;
+    }
+
+    .btn-close {
+      all: unset;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.7);
+      transition: background .15s, color .15s;
+    }
+
+    .btn-close:hover { background: rgba(255,255,255,.15); color: var(--white); }
+
+    /* ── Modal filters ───────────────────────────────────── */
+    .modal-filters {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .8rem 1.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .filter-select,
+    .search-input {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: .38rem .75rem;
+      font-size: .8rem;
+      color: var(--navy);
+      background: var(--white);
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .filter-select:focus,
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .search-input { flex: 1; min-width: 180px; }
+
+    .filter-results {
+      margin-left: auto;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .filter-results strong { color: var(--navy); }
+
+    /* ── Modal summary strip ─────────────────────────────── */
+    .modal-summary {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .summary-stat {
+      display: flex;
+      flex-direction: column;
+      gap: .12rem;
+      padding: .7rem 1.4rem;
+      border-right: 1px solid #e2e8f0;
+      min-width: max-content;
+    }
+
+    .summary-stat:last-child { border-right: none; }
+
+    .ss-label {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .ss-value {
+      font-size: .92rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .ss-value.red    { color: var(--danger); }
+    .ss-value.green  { color: var(--success); }
+    .ss-value.blue   { color: var(--accent); }
+    .ss-value.gold   { color: var(--warning); }
+
+    /* ── Table wrapper ───────────────────────────────────── */
+    .modal-table-wrap {
+      overflow: auto;
+      flex: 1;
+    }
+
+    /* ── Detail table ────────────────────────────────────── */
+    .detail-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: .76rem;
+      white-space: nowrap;
+    }
+
+    .detail-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .detail-table th {
+      background: var(--navy);
+      color: var(--white);
+      padding: .55rem .9rem;
+      text-align: left;
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .detail-table th:hover { background: var(--navy-mid); }
+
+    .detail-table th .sa {
+      margin-left: .3rem;
+      font-size: .6rem;
+      opacity: .45;
+    }
+
+    .detail-table th.asc  .sa { opacity: 1; }
+    .detail-table th.asc  .sa::after  { content: '▲'; }
+    .detail-table th.desc .sa { opacity: 1; }
+    .detail-table th.desc .sa::after { content: '▼'; }
+    .detail-table th:not(.asc):not(.desc) .sa::after { content: '⇅'; }
+
+    .detail-table td {
+      padding: .5rem .9rem;
+      color: var(--navy);
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .detail-table tbody tr:nth-child(even) td { background: #fafbfe; }
+    .detail-table tbody tr:hover td { background: #eef2ff !important; }
+    .detail-table tbody tr.row-mora td { background: #fff5f5 !important; }
+    .detail-table tbody tr.row-mora:hover td { background: #fee2e2 !important; }
+
+    /* ── Product tags ────────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      padding: .12rem .5rem;
+      border-radius: 999px;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .tag.hip { background: rgba(37,99,235,.12);  color: var(--accent); }
+    .tag.aut { background: rgba(16,185,129,.12); color: var(--success); }
+    .tag.per { background: rgba(245,158,11,.12); color: var(--warning); }
+
+    /* ── Amount coloring ─────────────────────────────────── */
+    .amt-mora   { color: var(--danger); font-weight: 700; }
+    .amt-cas    { color: #b45309; font-weight: 700; }
+    .amt-qbr    { color: #7c3aed; font-weight: 700; }
+    .amt-zero   { color: #cbd5e1; }
+
+    /* ── Modal footer ────────────────────────────────────── */
+    .modal-footer {
+      padding: .65rem 1.75rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: .72rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .modal-footer strong { color: var(--navy); }
+
+    .mora-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(239,68,68,.1);
+      color: var(--danger);
+      border-radius: 999px;
+      padding: .15rem .65rem;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    /* ── Responsive modal ────────────────────────────────── */
+    @media (max-width: 640px) {
+      .modal-panel {
+        border-radius: 14px 14px 0 0;
+        max-height: 93vh;
+        align-self: flex-end;
+        width: 100%;
+      }
+
+      .modal-backdrop { align-items: flex-end; }
+    }
+
     /* ── Footer ──────────────────────────────────────────── */
     footer {
       text-align: center;
@@ -372,12 +703,14 @@
       <div class="kpi-card green">
         <div class="kpi-header">
           <span class="kpi-label">Clientes Activos</span>
-          <span class="kpi-icon green">
+          <button class="kpi-icon-btn green" id="btn-clientes"
+                  data-tooltip="Ver detalle de clientes"
+                  aria-label="Ver detalle de clientes" title="Ver detalle de clientes">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-5a4 4 0 11-8 0 4 4 0 018 0z"/>
             </svg>
-          </span>
+          </button>
         </div>
         <div class="kpi-value" id="val-clientes">0</div>
         <div class="kpi-footer">
@@ -485,6 +818,130 @@
 
   </main>
 
+  <!-- ── Client Detail Modal ──────────────────────────── -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true"
+       aria-labelledby="modal-title">
+    <div class="modal-panel">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          Detalle de Clientes Activos
+          <small>muestra representativa &mdash; 30 registros</small>
+        </div>
+        <button class="btn-close" id="modal-close" aria-label="Cerrar">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="modal-filters">
+        <select class="filter-select" id="filter-product" aria-label="Filtrar por producto">
+          <option value="">Todos los productos</option>
+          <option value="Cr&eacute;dito Hipotecario">Cr&eacute;dito Hipotecario</option>
+          <option value="Cr&eacute;dito Automotriz">Cr&eacute;dito Automotriz</option>
+          <option value="Cr&eacute;dito Personal">Cr&eacute;dito Personal</option>
+        </select>
+        <select class="filter-select" id="filter-mora" aria-label="Filtrar por estado de mora">
+          <option value="">Todos los estados</option>
+          <option value="mora">Con mora</option>
+          <option value="al-dia">Al d&iacute;a</option>
+        </select>
+        <input class="search-input" id="search-client" type="search"
+               placeholder="&#128269; Buscar por nombre o n&uacute;m. de cr&eacute;dito&hellip;"
+               aria-label="Buscar cliente" />
+        <span class="filter-results" id="filter-results">
+          Mostrando <strong>30</strong> de 30
+        </span>
+      </div>
+
+      <!-- Summary strip -->
+      <div class="modal-summary" id="modal-summary">
+        <div class="summary-stat">
+          <span class="ss-label">Total cartera muestra</span>
+          <span class="ss-value blue" id="ss-total">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Hipotecario</span>
+          <span class="ss-value blue" id="ss-hip">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Automotriz</span>
+          <span class="ss-value green" id="ss-aut">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Personal</span>
+          <span class="ss-value gold" id="ss-per">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cartera en mora</span>
+          <span class="ss-value red" id="ss-mora">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Tasa de morosidad</span>
+          <span class="ss-value red" id="ss-tasa">0.00%</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Monto castigado</span>
+          <span class="ss-value" id="ss-cas">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Monto quebranto</span>
+          <span class="ss-value" id="ss-qbr">$0</span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="modal-table-wrap">
+        <table class="detail-table" id="detail-table">
+          <thead>
+            <tr>
+              <th data-col="id">#<span class="sa"></span></th>
+              <th data-col="nombre">Nombre del Cliente<span class="sa"></span></th>
+              <th data-col="edad">Edad<span class="sa"></span></th>
+              <th data-col="producto">Producto<span class="sa"></span></th>
+              <th data-col="cuenta">N&uacute;m. de Cuenta<span class="sa"></span></th>
+              <th data-col="credito">N&uacute;m. de Cr&eacute;dito<span class="sa"></span></th>
+              <th data-col="fechaInicio">Fecha Inicio<span class="sa"></span></th>
+              <th data-col="fechaFin">Fecha Fin<span class="sa"></span></th>
+              <th data-col="montoAutorizado">Mto. Autorizado<span class="sa"></span></th>
+              <th data-col="montoConcedido">Mto. Concedido<span class="sa"></span></th>
+              <th data-col="montoPorPagar">Mto. por Pagar<span class="sa"></span></th>
+              <th data-col="pagoMensual">Pago Mensual<span class="sa"></span></th>
+              <th data-col="cuotasPendientes">Cuotas Pend.<span class="sa"></span></th>
+              <th data-col="montoMora">En Mora<span class="sa"></span></th>
+              <th data-col="montoCastigado">Castigado<span class="sa"></span></th>
+              <th data-col="montoQuebranto">Quebranto<span class="sa"></span></th>
+            </tr>
+          </thead>
+          <tbody id="detail-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <span>
+          Muestra de <strong>30</strong> de <strong>127,400</strong> clientes activos totales.
+          Los datos son ilustrativos.
+        </span>
+        <span class="mora-pill">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          Morosidad muestra: 3.70%
+        </span>
+      </div>
+
+    </div>
+  </div>
+
   <footer>
     &copy; 2026 BancoVista S.A. &mdash; Uso interno confidencial
   </footer>
@@ -561,7 +1018,7 @@
 
     /* ── Donut animation ────────────────────────────────── */
     (function () {
-      const circumference = 2 * Math.PI * 50;  // ≈ 314.16
+      const circumference = 2 * Math.PI * 50;
       const segments = [
         { id: 'seg-empresas', pct: 42, offset: 0 },
         { id: 'seg-pyme',     pct: 33, offset: 42 },
@@ -571,15 +1028,8 @@
       segments.forEach(({ id, pct, offset }) => {
         const el = document.getElementById(id);
         const dash = (pct / 100) * circumference;
-        // gap = rest of circumference
-        const gap  = circumference - dash;
-        // rotate by offset percentage
         const rotation = (offset / 100) * circumference;
-
-        // Set stroke-dashoffset to rotate the segment start
         el.setAttribute('stroke-dashoffset', -rotation);
-
-        // Animate dash
         const start = performance.now();
         const duration = 1200;
         function step(now) {
@@ -593,6 +1043,449 @@
         setTimeout(() => requestAnimationFrame(step), 400);
       });
     })();
+
+    /* ════════════════════════════════════════════════════
+       CLIENT DETAIL MODAL
+       Total monto por pagar: $22,632,000
+       Total mora:            $   837,000  → 3.699 % ≈ 3.7 %
+       ════════════════════════════════════════════════════ */
+    const CLIENT_DATA = [
+      /* ── Crédito Hipotecario ──────────────────────────── */
+      {
+        id: 1, nombre: 'María González López', edad: 42,
+        producto: 'Crédito Hipotecario',
+        cuenta: '0042-8731-5294', credito: 'CH-2022-04728',
+        fechaInicio: '2022-03-15', fechaFin: '2042-03-15',
+        montoAutorizado: 1800000, montoConcedido: 1750000,
+        montoPorPagar: 1580000, pagoMensual: 9200,
+        cuotasPendientes: 192, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 2, nombre: 'Carlos Hernández Ruiz', edad: 38,
+        producto: 'Crédito Hipotecario',
+        cuenta: '1837-5209-4821', credito: 'CH-2020-03412',
+        fechaInicio: '2020-07-01', fechaFin: '2040-07-01',
+        montoAutorizado: 2200000, montoConcedido: 2150000,
+        montoPorPagar: 1950000, pagoMensual: 12400,
+        cuotasPendientes: 170, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 3, nombre: 'Ana Patricia Méndez Vargas', edad: 45,
+        producto: 'Crédito Hipotecario',
+        cuenta: '3021-6478-9035', credito: 'CH-2019-02187',
+        fechaInicio: '2019-09-10', fechaFin: '2039-09-10',
+        montoAutorizado: 1500000, montoConcedido: 1450000,
+        montoPorPagar: 1200000, pagoMensual: 8100,
+        cuotasPendientes: 160, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 4, nombre: 'Roberto Jiménez Castro', edad: 51,
+        producto: 'Crédito Hipotecario',
+        cuenta: '5519-2843-1076', credito: 'CH-2021-05639',
+        fechaInicio: '2021-01-20', fechaFin: '2041-01-20',
+        montoAutorizado: 3200000, montoConcedido: 3100000,
+        montoPorPagar: 2800000, pagoMensual: 17300,
+        cuotasPendientes: 176, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 5, nombre: 'Laura Beatriz Torres Vega', edad: 36,
+        producto: 'Crédito Hipotecario',
+        cuenta: '7214-9052-3867', credito: 'CH-2023-07841',
+        fechaInicio: '2023-05-08', fechaFin: '2043-05-08',
+        montoAutorizado: 1200000, montoConcedido: 1180000,
+        montoPorPagar: 1050000, pagoMensual: 6800,
+        cuotasPendientes: 204, montoMora: 380000, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 6, nombre: 'Miguel Ángel Flores Reyes', edad: 48,
+        producto: 'Crédito Hipotecario',
+        cuenta: '2983-5671-4028', credito: 'CH-2018-01254',
+        fechaInicio: '2018-11-15', fechaFin: '2038-11-15',
+        montoAutorizado: 2500000, montoConcedido: 2450000,
+        montoPorPagar: 2200000, pagoMensual: 13700,
+        cuotasPendientes: 152, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 7, nombre: 'Sofía Ramírez Ortiz', edad: 33,
+        producto: 'Crédito Hipotecario',
+        cuenta: '8342-1097-6543', credito: 'CH-2024-09312',
+        fechaInicio: '2024-02-01', fechaFin: '2044-02-01',
+        montoAutorizado: 900000, montoConcedido: 880000,
+        montoPorPagar: 840000, pagoMensual: 5100,
+        cuotasPendientes: 213, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 8, nombre: 'José Luis Morales García', edad: 44,
+        producto: 'Crédito Hipotecario',
+        cuenta: '1765-4302-8219', credito: 'CH-2021-06428',
+        fechaInicio: '2021-08-22', fechaFin: '2041-08-22',
+        montoAutorizado: 1650000, montoConcedido: 1600000,
+        montoPorPagar: 1450000, pagoMensual: 9500,
+        cuotasPendientes: 184, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 9, nombre: 'Patricia Elena Gutiérrez Soto', edad: 40,
+        producto: 'Crédito Hipotecario',
+        cuenta: '6490-3817-5024', credito: 'CH-2022-05831',
+        fechaInicio: '2022-06-14', fechaFin: '2042-06-14',
+        montoAutorizado: 2800000, montoConcedido: 2750000,
+        montoPorPagar: 2400000, pagoMensual: 15200,
+        cuotasPendientes: 194, montoMora: 200000, montoCastigado: 80000, montoQuebranto: 35000,
+      },
+      {
+        id: 10, nombre: 'Fernando Adolfo Díaz Mendoza', edad: 55,
+        producto: 'Crédito Hipotecario',
+        cuenta: '9283-7146-0391', credito: 'CH-2017-00892',
+        fechaInicio: '2017-03-05', fechaFin: '2037-03-05',
+        montoAutorizado: 4500000, montoConcedido: 4350000,
+        montoPorPagar: 3800000, pagoMensual: 23500,
+        cuotasPendientes: 131, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      /* ── Crédito Automotriz ───────────────────────────── */
+      {
+        id: 11, nombre: 'Gabriela Ramos Peña', edad: 29,
+        producto: 'Crédito Automotriz',
+        cuenta: '4821-0563-7942', credito: 'CA-2023-08742',
+        fechaInicio: '2023-01-15', fechaFin: '2028-01-15',
+        montoAutorizado: 350000, montoConcedido: 340000,
+        montoPorPagar: 280000, pagoMensual: 6200,
+        cuotasPendientes: 20, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 12, nombre: 'Alejandro Cruz Herrera', edad: 34,
+        producto: 'Crédito Automotriz',
+        cuenta: '3047-9821-6534', credito: 'CA-2022-07314',
+        fechaInicio: '2022-08-20', fechaFin: '2027-08-20',
+        montoAutorizado: 280000, montoConcedido: 275000,
+        montoPorPagar: 210000, pagoMensual: 5800,
+        cuotasPendientes: 27, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 13, nombre: 'Claudia Noemí Vargas Campos', edad: 41,
+        producto: 'Crédito Automotriz',
+        cuenta: '7163-2490-5817', credito: 'CA-2024-10521',
+        fechaInicio: '2024-03-10', fechaFin: '2028-03-10',
+        montoAutorizado: 450000, montoConcedido: 440000,
+        montoPorPagar: 390000, pagoMensual: 9100,
+        cuotasPendientes: 22, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 14, nombre: 'Ricardo Sánchez Núñez', edad: 37,
+        producto: 'Crédito Automotriz',
+        cuenta: '5892-4713-0286', credito: 'CA-2024-11083',
+        fechaInicio: '2024-04-05', fechaFin: '2028-04-05',
+        montoAutorizado: 180000, montoConcedido: 175000,
+        montoPorPagar: 148000, pagoMensual: 4200,
+        cuotasPendientes: 23, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 15, nombre: 'Diana Esperanza Rojas Lima', edad: 28,
+        producto: 'Crédito Automotriz',
+        cuenta: '2047-8361-9524', credito: 'CA-2023-09217',
+        fechaInicio: '2023-03-22', fechaFin: '2028-03-22',
+        montoAutorizado: 320000, montoConcedido: 310000,
+        montoPorPagar: 240000, pagoMensual: 6100,
+        cuotasPendientes: 22, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 16, nombre: 'Eduardo Martínez Blanco', edad: 45,
+        producto: 'Crédito Automotriz',
+        cuenta: '8312-0547-6893', credito: 'CA-2022-06891',
+        fechaInicio: '2022-07-18', fechaFin: '2027-07-18',
+        montoAutorizado: 520000, montoConcedido: 510000,
+        montoPorPagar: 420000, pagoMensual: 8700,
+        cuotasPendientes: 14, montoMora: 200000, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 17, nombre: 'Valentina Castillo Mora', edad: 31,
+        producto: 'Crédito Automotriz',
+        cuenta: '1624-9083-5471', credito: 'CA-2024-12304',
+        fechaInicio: '2024-01-30', fechaFin: '2028-01-30',
+        montoAutorizado: 220000, montoConcedido: 215000,
+        montoPorPagar: 170000, pagoMensual: 5000,
+        cuotasPendientes: 20, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 18, nombre: 'Pablo Aguilar Torres', edad: 39,
+        producto: 'Crédito Automotriz',
+        cuenta: '6931-4258-7014', credito: 'CA-2023-08156',
+        fechaInicio: '2023-02-14', fechaFin: '2028-02-14',
+        montoAutorizado: 380000, montoConcedido: 370000,
+        montoPorPagar: 290000, pagoMensual: 7300,
+        cuotasPendientes: 21, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 19, nombre: 'Mónica Reyes Alvarado', edad: 26,
+        producto: 'Crédito Automotriz',
+        cuenta: '3849-7126-4502', credito: 'CA-2025-13742',
+        fechaInicio: '2025-04-08', fechaFin: '2029-04-08',
+        montoAutorizado: 150000, montoConcedido: 145000,
+        montoPorPagar: 135000, pagoMensual: 3800,
+        cuotasPendientes: 47, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 20, nombre: 'Sergio Medina Fuentes', edad: 43,
+        producto: 'Crédito Automotriz',
+        cuenta: '7205-3891-6147', credito: 'CA-2022-07029',
+        fechaInicio: '2022-09-25', fechaFin: '2027-09-25',
+        montoAutorizado: 420000, montoConcedido: 410000,
+        montoPorPagar: 330000, pagoMensual: 8200,
+        cuotasPendientes: 16, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      /* ── Crédito Personal ────────────────────────────── */
+      {
+        id: 21, nombre: 'Carmen Delgado Espinoza', edad: 32,
+        producto: 'Crédito Personal',
+        cuenta: '5041-8372-9163', credito: 'CP-2024-14512',
+        fechaInicio: '2024-06-01', fechaFin: '2027-06-01',
+        montoAutorizado: 85000, montoConcedido: 82000,
+        montoPorPagar: 62000, pagoMensual: 2700,
+        cuotasPendientes: 13, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 22, nombre: 'Andrés Ríos Contreras', edad: 27,
+        producto: 'Crédito Personal',
+        cuenta: '9382-1047-5628', credito: 'CP-2025-16234',
+        fechaInicio: '2025-03-15', fechaFin: '2028-03-15',
+        montoAutorizado: 45000, montoConcedido: 43000,
+        montoPorPagar: 38000, pagoMensual: 1400,
+        cuotasPendientes: 34, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 23, nombre: 'Beatriz Salas Navarro', edad: 38,
+        producto: 'Crédito Personal',
+        cuenta: '2716-5930-8241', credito: 'CP-2023-11847',
+        fechaInicio: '2023-08-20', fechaFin: '2026-08-20',
+        montoAutorizado: 120000, montoConcedido: 115000,
+        montoPorPagar: 60000, pagoMensual: 3800,
+        cuotasPendientes: 3, montoMora: 57000, montoCastigado: 28000, montoQuebranto: 12000,
+      },
+      {
+        id: 24, nombre: 'Daniel Montes Herrera', edad: 46,
+        producto: 'Crédito Personal',
+        cuenta: '6483-2019-7534', credito: 'CP-2024-15089',
+        fechaInicio: '2024-02-12', fechaFin: '2027-02-12',
+        montoAutorizado: 150000, montoConcedido: 145000,
+        montoPorPagar: 105000, pagoMensual: 4600,
+        cuotasPendientes: 21, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 25, nombre: 'Lorena Vázquez Paredes', edad: 29,
+        producto: 'Crédito Personal',
+        cuenta: '4817-3092-6541', credito: 'CP-2025-17341',
+        fechaInicio: '2025-01-20', fechaFin: '2028-01-20',
+        montoAutorizado: 60000, montoConcedido: 58000,
+        montoPorPagar: 51000, pagoMensual: 1700,
+        cuotasPendientes: 35, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 26, nombre: 'Héctor Ibáñez Lara', edad: 52,
+        producto: 'Crédito Personal',
+        cuenta: '1293-7648-5021', credito: 'CP-2023-12608',
+        fechaInicio: '2023-11-05', fechaFin: '2026-11-05',
+        montoAutorizado: 200000, montoConcedido: 195000,
+        montoPorPagar: 114000, pagoMensual: 5400,
+        cuotasPendientes: 6, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 27, nombre: 'Marisol Ávila Coronado', edad: 34,
+        producto: 'Crédito Personal',
+        cuenta: '8047-5219-3486', credito: 'CP-2024-13891',
+        fechaInicio: '2024-09-18', fechaFin: '2027-09-18',
+        montoAutorizado: 80000, montoConcedido: 77000,
+        montoPorPagar: 63000, pagoMensual: 2200,
+        cuotasPendientes: 28, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 28, nombre: 'Enrique Pacheco Villanueva', edad: 41,
+        producto: 'Crédito Personal',
+        cuenta: '3862-0741-9523', credito: 'CP-2024-14256',
+        fechaInicio: '2024-04-07', fechaFin: '2027-04-07',
+        montoAutorizado: 130000, montoConcedido: 125000,
+        montoPorPagar: 89000, pagoMensual: 3700,
+        cuotasPendientes: 23, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 29, nombre: 'Isabel Guerrero Domínguez', edad: 35,
+        producto: 'Crédito Personal',
+        cuenta: '7549-2183-6047', credito: 'CP-2024-13102',
+        fechaInicio: '2024-07-14', fechaFin: '2027-07-14',
+        montoAutorizado: 95000, montoConcedido: 92000,
+        montoPorPagar: 74000, pagoMensual: 3100,
+        cuotasPendientes: 26, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 30, nombre: 'Arturo Mendoza Salazar', edad: 50,
+        producto: 'Crédito Personal',
+        cuenta: '0381-6927-4815', credito: 'CP-2023-10423',
+        fechaInicio: '2023-10-30', fechaFin: '2026-10-30',
+        montoAutorizado: 180000, montoConcedido: 175000,
+        montoPorPagar: 93000, pagoMensual: 5600,
+        cuotasPendientes: 5, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+    ];
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    const peso = n =>
+      n === 0
+        ? '<span class="amt-zero">—</span>'
+        : '$' + n.toLocaleString('es-MX');
+
+    const pesoRaw = n => '$' + n.toLocaleString('es-MX');
+
+    const tagHtml = p => {
+      if (p === 'Crédito Hipotecario') return '<span class="tag hip">Hipotecario</span>';
+      if (p === 'Crédito Automotriz')  return '<span class="tag aut">Automotriz</span>';
+      return '<span class="tag per">Personal</span>';
+    };
+
+    const fmtDate = s => {
+      const [y, m, d] = s.split('-');
+      return `${d}/${m}/${y}`;
+    };
+
+    /* ── Sort state ───────────────────────────────────────── */
+    let sortCol = 'id', sortDir = 'asc';
+
+    /* ── Render table ─────────────────────────────────────── */
+    function renderTable(data) {
+      const tbody  = document.getElementById('detail-tbody');
+      const resEl  = document.getElementById('filter-results');
+
+      tbody.innerHTML = data.map(r => {
+        const hasMora = r.montoMora > 0;
+        const rowCls  = hasMora ? ' class="row-mora"' : '';
+        return `<tr${rowCls}>
+          <td>${r.id}</td>
+          <td><strong>${r.nombre}</strong></td>
+          <td style="text-align:center">${r.edad}</td>
+          <td>${tagHtml(r.producto)}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.cuenta}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.credito}</td>
+          <td>${fmtDate(r.fechaInicio)}</td>
+          <td>${fmtDate(r.fechaFin)}</td>
+          <td style="text-align:right">${pesoRaw(r.montoAutorizado)}</td>
+          <td style="text-align:right">${pesoRaw(r.montoConcedido)}</td>
+          <td style="text-align:right"><strong>${pesoRaw(r.montoPorPagar)}</strong></td>
+          <td style="text-align:right">${pesoRaw(r.pagoMensual)}</td>
+          <td style="text-align:center">${r.cuotasPendientes}</td>
+          <td style="text-align:right">${hasMora
+            ? `<span class="amt-mora">${pesoRaw(r.montoMora)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+          <td style="text-align:right">${r.montoCastigado > 0
+            ? `<span class="amt-cas">${pesoRaw(r.montoCastigado)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+          <td style="text-align:right">${r.montoQuebranto > 0
+            ? `<span class="amt-qbr">${pesoRaw(r.montoQuebranto)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+        </tr>`;
+      }).join('');
+
+      resEl.innerHTML = `Mostrando <strong>${data.length}</strong> de ${CLIENT_DATA.length}`;
+    }
+
+    /* ── Update summary strip ─────────────────────────────── */
+    function updateSummary(data) {
+      const totalPorPagar = data.reduce((s, r) => s + r.montoPorPagar, 0);
+      const totalMora     = data.reduce((s, r) => s + r.montoMora, 0);
+      const totalCas      = data.reduce((s, r) => s + r.montoCastigado, 0);
+      const totalQbr      = data.reduce((s, r) => s + r.montoQuebranto, 0);
+      const hip = data.filter(r => r.producto === 'Crédito Hipotecario').length;
+      const aut = data.filter(r => r.producto === 'Crédito Automotriz').length;
+      const per = data.filter(r => r.producto === 'Crédito Personal').length;
+      const tasa = totalPorPagar > 0 ? (totalMora / totalPorPagar * 100) : 0;
+
+      document.getElementById('ss-total').textContent = pesoRaw(totalPorPagar);
+      document.getElementById('ss-hip').textContent   = `${hip} registro${hip !== 1 ? 's' : ''}`;
+      document.getElementById('ss-aut').textContent   = `${aut} registro${aut !== 1 ? 's' : ''}`;
+      document.getElementById('ss-per').textContent   = `${per} registro${per !== 1 ? 's' : ''}`;
+      document.getElementById('ss-mora').textContent  = pesoRaw(totalMora);
+      document.getElementById('ss-tasa').textContent  = tasa.toFixed(2) + '%';
+      document.getElementById('ss-cas').textContent   = pesoRaw(totalCas);
+      document.getElementById('ss-qbr').textContent   = pesoRaw(totalQbr);
+    }
+
+    /* ── Filter + search + sort pipeline ─────────────────── */
+    function applyFilters() {
+      const prod   = document.getElementById('filter-product').value;
+      const mora   = document.getElementById('filter-mora').value;
+      const query  = document.getElementById('search-client').value.toLowerCase().trim();
+
+      let data = CLIENT_DATA.slice();
+
+      if (prod)  data = data.filter(r => r.producto === prod);
+      if (mora === 'mora')  data = data.filter(r => r.montoMora > 0);
+      if (mora === 'al-dia') data = data.filter(r => r.montoMora === 0);
+      if (query) data = data.filter(r =>
+        r.nombre.toLowerCase().includes(query) ||
+        r.credito.toLowerCase().includes(query) ||
+        r.cuenta.includes(query)
+      );
+
+      data.sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+        if (va < vb) return sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return sortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
+
+      renderTable(data);
+      updateSummary(data);
+    }
+
+    /* ── Column sort clicks ───────────────────────────────── */
+    document.getElementById('detail-table').querySelector('thead').addEventListener('click', e => {
+      const th = e.target.closest('th[data-col]');
+      if (!th) return;
+      const col = th.dataset.col;
+      if (col === sortCol) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortCol = col;
+        sortDir = 'asc';
+      }
+      document.querySelectorAll('.detail-table th').forEach(t => t.classList.remove('asc','desc'));
+      th.classList.add(sortDir);
+      applyFilters();
+    });
+
+    /* ── Filter/search events ─────────────────────────────── */
+    document.getElementById('filter-product').addEventListener('change', applyFilters);
+    document.getElementById('filter-mora').addEventListener('change', applyFilters);
+    document.getElementById('search-client').addEventListener('input', applyFilters);
+
+    /* ── Modal open / close ───────────────────────────────── */
+    const backdrop = document.getElementById('modal-backdrop');
+
+    function openModal() {
+      applyFilters();
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('search-client').focus();
+    }
+
+    function closeModal() {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('btn-clientes').addEventListener('click', openModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    backdrop.addEventListener('click', e => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && backdrop.classList.contains('open')) closeModal();
+    });
+
+    /* Initial sort arrow on #-column */
+    document.querySelector('.detail-table th[data-col="id"]').classList.add('asc');
   </script>
 </body>
 </html>

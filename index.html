@@ -1,1902 +1,2165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KYC Risk Monitor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Bancario</title>
   <style>
-    /* ================================================================
-       VARIABLES Y RESET
-       ================================================================ */
-    :root {
-      --azul-marino:    #1a3a5c;
-      --azul-medio:     #2c5f8a;
-      --azul-claro:     #4a90c4;
-      --azul-hover:     #3a7ab0;
-      --blanco:         #ffffff;
-      --gris-fondo:     #f0f4f8;
-      --gris-borde:     #dde3ea;
-      --gris-texto:     #6b7280;
-      --gris-claro:     #f8fafc;
-      --texto-primario: #1e2d3d;
-      --rojo:           #e74c3c;
-      --rojo-bg:        #fdecea;
-      --amarillo:       #f39c12;
-      --amarillo-bg:    #fef6e7;
-      --verde:          #27ae60;
-      --verde-bg:       #e8f8ef;
-      --violeta:        #8e44ad;
-      --violeta-bg:     #f4eafb;
-      --sombra-sm:      0 1px 3px rgba(0,0,0,0.08);
-      --sombra-md:      0 4px 12px rgba(0,0,0,0.10);
-      --radio:          10px;
-      --radio-sm:       6px;
-    }
-
     *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+    }
+
+    :root {
+      --navy:       #0a1f44;
+      --navy-light: #122c5e;
+      --navy-mid:   #1a3a6b;
+      --accent:     #2563eb;
+      --accent-glow:#3b82f6;
+      --white:      #ffffff;
+      --off-white:  #f0f4fb;
+      --muted:      #94a3b8;
+      --success:    #10b981;
+      --danger:     #ef4444;
+      --warning:    #f59e0b;
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--gris-fondo);
-      color: var(--texto-primario);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--off-white);
+      color: var(--navy);
       min-height: 100vh;
-      font-size: 14px;
-      line-height: 1.5;
     }
 
-    /* ================================================================
-       HEADER
-       ================================================================ */
-    .header {
-      background: linear-gradient(135deg, var(--azul-marino) 0%, var(--azul-medio) 100%);
-      color: var(--blanco);
-      padding: 0 32px;
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+      padding: 0 2rem;
       height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 12px rgba(10,31,68,.4);
       position: sticky;
       top: 0;
       z-index: 100;
     }
 
-    .header-logo {
+    .header-brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: .75rem;
     }
 
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: -0.5px;
+    .header-brand svg {
       flex-shrink: 0;
     }
 
-    .header-title h1 {
-      font-size: 17px;
+    .header-brand h1 {
+      font-size: 1.1rem;
       font-weight: 700;
-      letter-spacing: 0.3px;
-      line-height: 1.2;
+      letter-spacing: .02em;
     }
 
-    .header-title p {
-      font-size: 11px;
-      opacity: 0.65;
-      font-weight: 400;
-      margin-top: 1px;
+    .header-meta {
+      font-size: .78rem;
+      color: var(--muted);
+      text-align: right;
     }
 
-    .header-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
+    .header-meta span {
+      display: block;
     }
 
-    .header-fecha {
-      font-size: 12px;
-      opacity: 0.75;
-    }
-
-    .header-badge {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-    }
-
-    /* ================================================================
-       LAYOUT PRINCIPAL
-       ================================================================ */
-    .main {
-      max-width: 1440px;
+    /* ── Main layout ─────────────────────────────────────── */
+    main {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 28px 32px 48px;
+      padding: 2rem 1.5rem 3rem;
     }
 
     .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gris-texto);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 14px;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
     }
 
-    /* ================================================================
-       KPI CARDS
-       ================================================================ */
+    /* ── KPI Grid ────────────────────────────────────────── */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
     }
 
     .kpi-card {
-      background: var(--blanco);
-      border-radius: var(--radio);
-      padding: 20px 22px;
-      box-shadow: var(--sombra-sm);
-      border-top: 3px solid var(--azul-claro);
-      transition: box-shadow 0.2s, transform 0.2s;
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 1px 4px rgba(10,31,68,.08), 0 4px 16px rgba(10,31,68,.06);
+      border-top: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      transition: transform .2s ease, box-shadow .2s ease;
       cursor: default;
     }
 
     .kpi-card:hover {
-      box-shadow: var(--sombra-md);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(10,31,68,.14);
     }
 
-    .kpi-card.k-rojo   { border-top-color: var(--rojo); }
-    .kpi-card.k-amarillo { border-top-color: var(--amarillo); }
-    .kpi-card.k-violeta  { border-top-color: var(--violeta); }
+    .kpi-card.blue   { border-top-color: var(--accent); }
+    .kpi-card.green  { border-top-color: var(--success); }
+    .kpi-card.red    { border-top-color: var(--danger); }
+    .kpi-card.gold   { border-top-color: var(--warning); }
 
     .kpi-header {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 10px;
+      align-items: flex-start;
     }
 
     .kpi-label {
-      font-size: 11px;
+      font-size: .8rem;
       font-weight: 600;
-      color: var(--gris-texto);
+      color: var(--muted);
+      letter-spacing: .03em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .kpi-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
-      flex-shrink: 0;
     }
 
-    .kpi-icon.azul   { background: #e8f2fb; }
-    .kpi-icon.rojo   { background: var(--rojo-bg); }
-    .kpi-icon.amarillo { background: var(--amarillo-bg); }
-    .kpi-icon.violeta  { background: var(--violeta-bg); }
+    .kpi-icon.blue   { background: rgba(37,99,235,.1);  color: var(--accent); }
+    .kpi-icon.green  { background: rgba(16,185,129,.1); color: var(--success); }
+    .kpi-icon.red    { background: rgba(239,68,68,.1);  color: var(--danger); }
+    .kpi-icon.gold   { background: rgba(245,158,11,.1); color: var(--warning); }
 
     .kpi-value {
-      font-size: 34px;
-      font-weight: 700;
-      color: var(--texto-primario);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--navy);
       line-height: 1;
-      margin-bottom: 4px;
+      letter-spacing: -.02em;
     }
 
-    .kpi-sub {
-      font-size: 11px;
-      color: var(--gris-texto);
-    }
-
-    /* ================================================================
-       GRÁFICAS
-       ================================================================ */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .card {
-      background: var(--blanco);
-      border-radius: var(--radio);
-      padding: 20px 22px;
-      box-shadow: var(--sombra-sm);
-    }
-
-    .card-header {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--texto-primario);
-      margin-bottom: 18px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--gris-borde);
+    .kpi-footer {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: .4rem;
+      font-size: .78rem;
+      color: var(--muted);
     }
-
-    .card-header-icon {
-      width: 24px;
-      height: 24px;
-      background: var(--gris-claro);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    .chart-wrap {
-      position: relative;
-      height: 230px;
-    }
-
-    /* ================================================================
-       TABLA
-       ================================================================ */
-    .table-card {
-      background: var(--blanco);
-      border-radius: var(--radio);
-      box-shadow: var(--sombra-sm);
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-
-    .table-toolbar {
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--gris-borde);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .table-toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .table-toolbar-left .card-header {
-      margin: 0;
-      padding: 0;
-      border: none;
-      font-size: 13px;
-    }
-
-    .result-count {
-      font-size: 11px;
-      color: var(--gris-texto);
-      background: var(--gris-claro);
-      padding: 3px 8px;
-      border-radius: 10px;
-      border: 1px solid var(--gris-borde);
-    }
-
-    .table-controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .busqueda-wrap {
-      position: relative;
-    }
-
-    .busqueda-wrap svg {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--gris-texto);
-      pointer-events: none;
-    }
-
-    .search-input {
-      padding: 7px 10px 7px 32px;
-      border: 1px solid var(--gris-borde);
-      border-radius: var(--radio-sm);
-      font-size: 12px;
-      width: 200px;
-      font-family: inherit;
-      outline: none;
-      color: var(--texto-primario);
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background: var(--gris-claro);
-    }
-
-    .search-input:focus {
-      border-color: var(--azul-claro);
-      box-shadow: 0 0 0 3px rgba(74,144,196,0.12);
-      background: var(--blanco);
-    }
-
-    .filter-group {
-      display: flex;
-      border: 1px solid var(--gris-borde);
-      border-radius: var(--radio-sm);
-      overflow: hidden;
-    }
-
-    .filter-btn {
-      padding: 7px 13px;
-      border: none;
-      background: var(--gris-claro);
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      font-family: inherit;
-      color: var(--gris-texto);
-      border-right: 1px solid var(--gris-borde);
-    }
-
-    .filter-btn:last-child { border-right: none; }
-
-    .filter-btn:hover {
-      background: var(--gris-borde);
-      color: var(--texto-primario);
-    }
-
-    .filter-btn.active {
-      background: var(--azul-marino);
-      color: var(--blanco);
-    }
-
-    .filter-btn.f-rojo.active    { background: var(--rojo); }
-    .filter-btn.f-amarillo.active { background: var(--amarillo); }
-    .filter-btn.f-verde.active   { background: var(--verde); }
-
-    /* Tabla */
-    .table-scroll {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    thead th {
-      text-align: left;
-      padding: 10px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--gris-texto);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: var(--gris-claro);
-      border-bottom: 2px solid var(--gris-borde);
-      white-space: nowrap;
-    }
-
-    thead th:first-child { padding-left: 20px; }
-    thead th:last-child  { padding-right: 20px; }
-
-    tbody tr {
-      border-bottom: 1px solid var(--gris-borde);
-      cursor: pointer;
-      transition: background 0.12s;
-    }
-
-    tbody tr:last-child { border-bottom: none; }
-
-    tbody tr:hover   { background: #f5f8ff; }
-    tbody tr.activo  { background: #eaf2fb; }
-
-    tbody td {
-      padding: 11px 16px;
-      vertical-align: middle;
-    }
-
-    tbody td:first-child { padding-left: 20px; }
-    tbody td:last-child  { padding-right: 20px; }
-
-    .id-cell {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gris-texto);
-    }
-
-    .nombre-cell {
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .rfc-cell {
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      background: var(--gris-claro);
-      padding: 3px 7px;
-      border-radius: 4px;
-      border: 1px solid var(--gris-borde);
-      white-space: nowrap;
-      display: inline-block;
-    }
-
-    .score-num {
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .score-num.verde   { color: var(--verde); }
-    .score-num.amarillo { color: #c87f0a; }
-    .score-num.rojo    { color: var(--rojo); }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
+      gap: .2rem;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
     }
 
-    .badge.verde   { background: var(--verde-bg);   color: #1e8449; }
-    .badge.amarillo { background: var(--amarillo-bg); color: #9a6700; }
-    .badge.rojo    { background: var(--rojo-bg);    color: #c0392b; }
+    .badge.up   { background: rgba(16,185,129,.12); color: var(--success); }
+    .badge.down { background: rgba(239,68,68,.12);  color: var(--danger); }
+    .badge.warn { background: rgba(245,158,11,.12); color: var(--warning); }
 
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      display: inline-block;
-      flex-shrink: 0;
+    /* ── Charts placeholder row ──────────────────────────── */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
     }
 
-    .dot.verde   { background: var(--verde); }
-    .dot.amarillo { background: var(--amarillo); }
-    .dot.rojo    { background: var(--rojo); }
-
-    .problemas-texto {
-      font-size: 12px;
-      color: var(--rojo);
-      line-height: 1.4;
+    .chart-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 1px 4px rgba(10,31,68,.08), 0 4px 16px rgba(10,31,68,.06);
     }
 
-    .sin-problemas {
-      font-size: 12px;
-      color: var(--verde);
-      font-weight: 500;
+    .chart-card-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1.2rem;
     }
 
-    .tabla-vacia {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--gris-texto);
-      font-size: 13px;
+    /* Sparkline bars (CSS-only mini bar chart) */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 100px;
     }
 
-    .tabla-vacia .icono-vacio {
-      font-size: 36px;
-      margin-bottom: 10px;
-      opacity: 0.4;
-    }
-
-    /* ================================================================
-       MODAL / PANEL LATERAL
-       ================================================================ */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10,20,40,0.45);
-      z-index: 500;
-      backdrop-filter: blur(2px);
+    .bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
       justify-content: flex-end;
     }
 
-    .overlay.abierto {
-      display: flex;
+    .bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, var(--accent-glow), var(--navy-mid));
+      transition: height .6s cubic-bezier(.22,1,.36,1);
     }
 
-    .panel {
-      width: 480px;
-      max-width: 100vw;
-      height: 100%;
-      background: var(--blanco);
+    .bar-label {
+      font-size: .62rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Donut chart (CSS) */
+    .donut-wrapper {
       display: flex;
       flex-direction: column;
-      box-shadow: -6px 0 30px rgba(0,0,0,0.18);
-      animation: panelEntrar 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      align-items: center;
+      gap: 1.2rem;
     }
 
-    @keyframes panelEntrar {
-      from { transform: translateX(100%); opacity: 0; }
-      to   { transform: translateX(0);    opacity: 1; }
+    .donut {
+      position: relative;
+      width: 130px;
+      height: 130px;
     }
 
-    .panel-header {
-      background: linear-gradient(135deg, var(--azul-marino), var(--azul-medio));
-      color: var(--blanco);
-      padding: 20px 24px;
+    .donut svg {
+      transform: rotate(-90deg);
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-pct {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .donut-sub {
+      font-size: .65rem;
+      color: var(--muted);
+    }
+
+    .legend {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .75rem;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: .4rem;
       flex-shrink: 0;
     }
 
-    .panel-header-top {
+    .legend-label {
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 12px;
+      align-items: center;
+      color: var(--navy);
     }
 
-    .panel-header h2 {
-      font-size: 16px;
+    .legend-value {
       font-weight: 700;
-      line-height: 1.3;
-      margin-bottom: 4px;
+      color: var(--navy);
     }
 
-    .panel-header .subtitulo {
-      font-size: 11px;
-      opacity: 0.7;
-    }
-
-    .btn-cerrar {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: var(--blanco);
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
+    /* ── Clientes icon as button ─────────────────────────── */
+    .kpi-icon-btn {
+      all: unset;
       cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      transition: background 0.15s;
+      transition: transform .15s ease, box-shadow .15s ease;
+      position: relative;
     }
 
-    .btn-cerrar:hover {
-      background: rgba(255,255,255,0.22);
+    .kpi-icon-btn.green {
+      background: rgba(16,185,129,.1);
+      color: var(--success);
     }
 
-    .panel-semaforo {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
+    .kpi-icon-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 0 0 4px rgba(16,185,129,.22);
     }
 
-    .panel-semaforo.verde   { background: rgba(39,174,96,0.2);  color: #a3e4b5; }
-    .panel-semaforo.amarillo { background: rgba(243,156,18,0.2); color: #fbe3a6; }
-    .panel-semaforo.rojo    { background: rgba(231,76,60,0.2);  color: #f5b4ad; }
-
-    .panel-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
+    .kpi-icon-btn:focus-visible {
+      outline: 2px solid var(--success);
+      outline-offset: 2px;
     }
 
-    /* Barras de score en el panel */
-    .scores-bloque {
-      background: var(--gris-claro);
-      border: 1px solid var(--gris-borde);
-      border-radius: var(--radio);
-      padding: 16px 18px;
-      margin-bottom: 20px;
+    .kpi-icon-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      right: 0;
+      background: var(--navy);
+      color: var(--white);
+      font-size: .68rem;
+      padding: .25rem .55rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .15s, transform .15s;
     }
 
-    .scores-titulo {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--gris-texto);
-      margin-bottom: 14px;
+    .kpi-icon-btn:hover::after {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .score-fila {
-      margin-bottom: 11px;
-    }
-
-    .score-fila:last-child {
-      margin-bottom: 0;
-    }
-
-    .score-etiqueta {
+    /* ── Modal backdrop ──────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,31,68,.55);
+      backdrop-filter: blur(3px);
+      z-index: 500;
       display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      margin-bottom: 5px;
-      color: var(--texto-primario);
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
     }
 
-    .score-etiqueta span { font-weight: 400; }
-    .score-etiqueta strong { font-weight: 700; }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
 
-    .barra-track {
-      background: var(--gris-borde);
-      border-radius: 4px;
-      height: 8px;
+    /* ── Modal panel ─────────────────────────────────────── */
+    .modal-panel {
+      background: var(--white);
+      border-radius: 18px;
+      width: min(97vw, 1180px);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(10,31,68,.32);
+      transform: translateY(22px) scale(.97);
+      transition: transform .28s cubic-bezier(.22,1,.36,1);
       overflow: hidden;
     }
 
-    .barra-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    .modal-backdrop.open .modal-panel {
+      transform: translateY(0) scale(1);
     }
 
-    .score-global-fila {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--gris-borde);
-    }
-
-    .score-global-fila .barra-track {
-      height: 12px;
-    }
-
-    /* Secciones de campos */
-    .seccion-titulo {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--gris-texto);
-      padding: 6px 0 8px;
-      border-bottom: 1px solid var(--gris-borde);
-      margin-bottom: 4px;
-    }
-
-    .campo-fila {
+    /* ── Modal header ────────────────────────────────────── */
+    .modal-header {
       display: flex;
-      align-items: baseline;
-      padding: 8px 0;
-      border-bottom: 1px solid #f4f6f9;
-      gap: 10px;
-    }
-
-    .campo-fila:last-child {
-      border-bottom: none;
-    }
-
-    .campo-icono {
-      font-size: 13px;
-      width: 18px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 1.75rem;
+      border-bottom: 1px solid #e2e8f0;
       flex-shrink: 0;
-      text-align: center;
-      line-height: 1;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
     }
 
-    .campo-nombre {
-      font-size: 11px;
-      color: var(--gris-texto);
-      font-weight: 500;
-      min-width: 130px;
-      flex-shrink: 0;
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
     }
 
-    .campo-valor {
-      font-size: 13px;
-      font-weight: 500;
-      flex: 1;
-      word-break: break-all;
-      line-height: 1.3;
-    }
+    .modal-title svg { opacity: .85; }
 
-    .campo-valor.vacio {
-      color: #b0b8c4;
-      font-style: italic;
+    .modal-title small {
+      font-size: .72rem;
       font-weight: 400;
-      font-size: 12px;
+      opacity: .65;
+      margin-left: .2rem;
     }
 
-    .campo-valor.invalido {
-      color: var(--rojo);
+    .btn-close {
+      all: unset;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.7);
+      transition: background .15s, color .15s;
     }
 
-    .nivel-badge {
+    .btn-close:hover { background: rgba(255,255,255,.15); color: var(--white); }
+
+    /* ── Modal filters ───────────────────────────────────── */
+    .modal-filters {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .8rem 1.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .filter-select,
+    .search-input {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: .38rem .75rem;
+      font-size: .8rem;
+      color: var(--navy);
+      background: var(--white);
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .filter-select:focus,
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .search-input { flex: 1; min-width: 180px; }
+
+    .filter-results {
+      margin-left: auto;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .filter-results strong { color: var(--navy); }
+
+    /* ── Modal summary strip ─────────────────────────────── */
+    .modal-summary {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .summary-stat {
+      display: flex;
+      flex-direction: column;
+      gap: .12rem;
+      padding: .7rem 1.4rem;
+      border-right: 1px solid #e2e8f0;
+      min-width: max-content;
+    }
+
+    .summary-stat:last-child { border-right: none; }
+
+    .ss-label {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .ss-value {
+      font-size: .92rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .ss-value.red    { color: var(--danger); }
+    .ss-value.green  { color: var(--success); }
+    .ss-value.blue   { color: var(--accent); }
+    .ss-value.gold   { color: var(--warning); }
+
+    /* ── Table wrapper ───────────────────────────────────── */
+    .modal-table-wrap {
+      overflow: auto;
+      flex: 1;
+    }
+
+    /* ── Detail table ────────────────────────────────────── */
+    .detail-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: .76rem;
+      white-space: nowrap;
+    }
+
+    .detail-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .detail-table th {
+      background: var(--navy);
+      color: var(--white);
+      padding: .55rem .9rem;
+      text-align: left;
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .detail-table th:hover { background: var(--navy-mid); }
+
+    .detail-table th .sa {
+      margin-left: .3rem;
+      font-size: .6rem;
+      opacity: .45;
+    }
+
+    .detail-table th.asc  .sa { opacity: 1; }
+    .detail-table th.asc  .sa::after  { content: '▲'; }
+    .detail-table th.desc .sa { opacity: 1; }
+    .detail-table th.desc .sa::after { content: '▼'; }
+    .detail-table th:not(.asc):not(.desc) .sa::after { content: '⇅'; }
+
+    .detail-table td {
+      padding: .5rem .9rem;
+      color: var(--navy);
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .detail-table tbody tr:nth-child(even) td { background: #fafbfe; }
+    .detail-table tbody tr:hover td { background: #eef2ff !important; }
+    .detail-table tbody tr.row-mora td { background: #fff5f5 !important; }
+    .detail-table tbody tr.row-mora:hover td { background: #fee2e2 !important; }
+
+    /* ── Product tags ────────────────────────────────────── */
+    .tag {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: capitalize;
+      padding: .12rem .5rem;
+      border-radius: 999px;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .02em;
     }
 
-    .nivel-badge.alto   { background: var(--rojo-bg); color: var(--rojo); }
-    .nivel-badge.medio  { background: var(--amarillo-bg); color: #9a6700; }
-    .nivel-badge.bajo   { background: var(--verde-bg); color: #1e8449; }
+    .tag.hip { background: rgba(37,99,235,.12);  color: var(--accent); }
+    .tag.aut { background: rgba(16,185,129,.12); color: var(--success); }
+    .tag.per { background: rgba(245,158,11,.12); color: var(--warning); }
 
-    /* ================================================================
-       SCROLLBAR ESTILIZADA
-       ================================================================ */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--gris-borde); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+    /* ── Amount coloring ─────────────────────────────────── */
+    .amt-mora   { color: var(--danger); font-weight: 700; }
+    .amt-cas    { color: #b45309; font-weight: 700; }
+    .amt-qbr    { color: #7c3aed; font-weight: 700; }
+    .amt-zero   { color: #cbd5e1; }
 
-    /* ================================================================
-       RESPONSIVE
-       ================================================================ */
-    @media (max-width: 1200px) {
-      .charts-grid {
-        grid-template-columns: 280px 1fr;
-      }
+    /* ── Modal footer ────────────────────────────────────── */
+    .modal-footer {
+      padding: .65rem 1.75rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: .72rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: .5rem;
     }
 
-    @media (max-width: 960px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .charts-grid { grid-template-columns: 1fr; }
-      .chart-wrap { height: 200px; }
+    .modal-footer strong { color: var(--navy); }
+
+    .mora-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(239,68,68,.1);
+      color: var(--danger);
+      border-radius: 999px;
+      padding: .15rem .65rem;
+      font-size: .72rem;
+      font-weight: 700;
     }
 
+    /* ── Responsive modal ────────────────────────────────── */
     @media (max-width: 640px) {
-      .header { padding: 0 16px; }
-      .main { padding: 16px; }
-      .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .panel { width: 100vw; }
-      .search-input { width: 160px; }
+      .modal-panel {
+        border-radius: 14px 14px 0 0;
+        max-height: 93vh;
+        align-self: flex-end;
+        width: 100%;
+      }
+
+      .modal-backdrop { align-items: flex-end; }
+    }
+
+    /* ── Portfolio indicator section ────────────────────── */
+    .portfolio-section { margin-bottom: 2rem; }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+      gap: 1rem;
+    }
+
+    .p-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 1px 4px rgba(10,31,68,.08), 0 4px 12px rgba(10,31,68,.05);
+      border-left: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .p-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 18px rgba(10,31,68,.12);
+    }
+
+    .p-card.p-green  { border-left-color: #10b981; }
+    .p-card.p-red    { border-left-color: #ef4444; }
+    .p-card.p-yellow { border-left-color: #f59e0b; }
+    .p-card.p-amber  { border-left-color: #f97316; }
+    .p-card.p-purple { border-left-color: #7c3aed; }
+
+    .p-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: .1rem;
+    }
+
+    .p-card.p-green  .p-icon { background: rgba(16,185,129,.1);  color: #10b981; }
+    .p-card.p-red    .p-icon { background: rgba(239,68,68,.1);   color: #ef4444; }
+    .p-card.p-yellow .p-icon { background: rgba(245,158,11,.1);  color: #f59e0b; }
+    .p-card.p-amber  .p-icon { background: rgba(249,115,22,.1);  color: #f97316; }
+    .p-card.p-purple .p-icon { background: rgba(124,58,237,.1);  color: #7c3aed; }
+
+    .p-label {
+      font-size: .67rem; font-weight: 700;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .p-value {
+      font-size: 1.4rem; font-weight: 800;
+      letter-spacing: -.02em; line-height: 1.05;
+    }
+
+    .p-card.p-green  .p-value { color: #059669; }
+    .p-card.p-red    .p-value { color: #dc2626; }
+    .p-card.p-yellow .p-value { color: #d97706; }
+    .p-card.p-amber  .p-value { color: #ea580c; }
+    .p-card.p-purple .p-value { color: #7c3aed; }
+
+    .p-sub { font-size: .7rem; color: var(--muted); }
+
+    /* ── Modal tab bar ───────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      padding: 0 1.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      flex-shrink: 0;
+      background: #f8fafc;
+    }
+
+    .tab-btn {
+      all: unset;
+      cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
+      padding: .65rem 1rem;
+      font-size: .82rem; font-weight: 600;
+      color: var(--muted);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-bottom-color .15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--navy); }
+
+    .tab-btn.tab-vigente.active {
+      color: #059669;
+      border-bottom-color: #10b981;
+    }
+
+    .tab-btn.tab-vencida.active {
+      color: #dc2626;
+      border-bottom-color: #ef4444;
+    }
+
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 18px; padding: 0 5px;
+      border-radius: 999px;
+      font-size: .65rem; font-weight: 700;
+    }
+
+    .tab-badge.tbg { background: rgba(16,185,129,.12); color: #059669; }
+    .tab-badge.tbr { background: rgba(239,68,68,.12);  color: #dc2626; }
+
+    /* ── Captación modal extras ──────────────────────────── */
+    .kpi-icon-btn.gold {
+      background: rgba(245,158,11,.1);
+      color: var(--warning);
+    }
+
+    .kpi-icon-btn.gold:hover {
+      box-shadow: 0 0 0 4px rgba(245,158,11,.22);
+    }
+
+    /* Captación product & plazo tags */
+    .tag.vst  { background: rgba(37,99,235,.1);   color: var(--accent); }
+    .tag.pag  { background: rgba(124,58,237,.12); color: #7c3aed; }
+    .tag.p30  { background: rgba(245,158,11,.12); color: #d97706; font-size:.62rem; }
+    .tag.p6m  { background: rgba(16,185,129,.12); color: #059669; font-size:.62rem; }
+    .tag.p1a  { background: rgba(249,115,22,.12); color: #ea580c; font-size:.62rem; }
+
+    /* Tarjeta de crédito indicator */
+    .tc-si { color: #059669; font-weight: 700; }
+    .tc-no { color: #cbd5e1; }
+
+    /* Captación tab active colors */
+    .tab-btn.tab-vista.active   { color: var(--accent);  border-bottom-color: var(--accent); }
+    .tab-btn.tab-pagare.active  { color: #7c3aed;         border-bottom-color: #7c3aed; }
+    .tab-badge.tbb { background: rgba(37,99,235,.12);   color: var(--accent); }
+    .tab-badge.tbp { background: rgba(124,58,237,.12);  color: #7c3aed; }
+
+    /* Zero-balance row (castigado clients) */
+    .row-saldo-cero td         { color: #94a3b8 !important; font-style: italic; }
+    .row-saldo-cero:hover td   { background: #f8f9fa !important; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .chart-row {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-value {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       HEADER
-       ============================================================ -->
-  <header class="header">
-    <div class="header-logo">
-      <div class="logo-icon">KYC</div>
-      <div class="header-title">
-        <h1>KYC Risk Monitor</h1>
-        <p>Sistema de Gestión de Riesgo de Datos de Clientes</p>
-      </div>
+  <!-- ── Header ────────────────────────────────────────── -->
+  <header>
+    <div class="header-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="7" fill="#2563eb"/>
+        <path d="M5 10.5L14 5L23 10.5V11H5V10.5Z" fill="white"/>
+        <rect x="6.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="12.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="18.5" y="12" width="3" height="9" fill="white"/>
+        <rect x="5" y="21.5" width="18" height="1.5" rx=".75" fill="white"/>
+      </svg>
+      <h1>BancoVista &mdash; Panel Ejecutivo</h1>
     </div>
-    <div class="header-right">
-      <span class="header-fecha" id="fechaActual"></span>
-      <span class="header-badge" id="headerBadge">Cargando...</span>
+    <div class="header-meta">
+      <span id="live-date"></span>
+      <span>Datos al cierre del día</span>
     </div>
   </header>
 
-  <!-- ============================================================
-       CONTENIDO PRINCIPAL
-       ============================================================ -->
-  <main class="main">
+  <!-- ── Main ──────────────────────────────────────────── -->
+  <main>
 
-    <!-- KPIs -->
+    <p class="section-title">Indicadores clave de desempe&ntilde;o</p>
+
+    <!-- KPI Cards -->
     <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Total Clientes</span>
-          <div class="kpi-icon azul">&#128101;</div>
-        </div>
-        <div class="kpi-value" id="kpiTotal">0</div>
-        <div class="kpi-sub">Registros en base de datos</div>
-      </div>
-      <div class="kpi-card k-rojo">
-        <div class="kpi-header">
-          <span class="kpi-label">Riesgo Alto</span>
-          <div class="kpi-icon rojo">&#128308;</div>
-        </div>
-        <div class="kpi-value" id="kpiRiesgo">0</div>
-        <div class="kpi-sub">Semáforo rojo (&lt;60%)</div>
-      </div>
-      <div class="kpi-card k-amarillo">
-        <div class="kpi-header">
-          <span class="kpi-label">Datos Incompletos</span>
-          <div class="kpi-icon amarillo">&#128203;</div>
-        </div>
-        <div class="kpi-value" id="kpiIncompletos">0</div>
-        <div class="kpi-sub">Con campos faltantes</div>
-      </div>
-      <div class="kpi-card k-violeta">
-        <div class="kpi-header">
-          <span class="kpi-label">Sin Verificación</span>
-          <div class="kpi-icon violeta">&#128274;</div>
-        </div>
-        <div class="kpi-value" id="kpiNoVerificados">0</div>
-        <div class="kpi-sub">Verificación incompleta</div>
-      </div>
-    </div>
 
-    <!-- Gráficas -->
-    <div class="charts-grid">
-      <!-- Dona -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">&#11835;</div>
-          Distribución por Nivel de Riesgo
-        </div>
-        <div class="chart-wrap">
-          <canvas id="grafica-dona"></canvas>
-        </div>
-      </div>
-      <!-- Barras -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">&#9646;</div>
-          Score Promedio por Dimensión de Evaluación
-        </div>
-        <div class="chart-wrap">
-          <canvas id="grafica-barras"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tabla -->
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="table-toolbar-left">
-          <span class="card-header">Registro de Clientes Analizados</span>
-          <span class="result-count" id="contadorResultados">20 resultados</span>
-        </div>
-        <div class="table-controls">
-          <div class="busqueda-wrap">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      <!-- Cartera Total -->
+      <div class="kpi-card blue">
+        <div class="kpi-header">
+          <span class="kpi-label">Cartera Total</span>
+          <span class="kpi-icon blue">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 6h18M3 12h18M3 18h18"/>
             </svg>
-            <input type="text" class="search-input" id="camposBusqueda" placeholder="Nombre o RFC...">
+          </span>
+        </div>
+        <div class="kpi-value" id="val-cartera">$0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 3.2%</span>
+          <span>vs mes anterior</span>
+        </div>
+      </div>
+
+      <!-- Clientes Activos -->
+      <div class="kpi-card green">
+        <div class="kpi-header">
+          <span class="kpi-label">Clientes Activos</span>
+          <button class="kpi-icon-btn green" id="btn-clientes"
+                  data-tooltip="Ver detalle de clientes"
+                  aria-label="Ver detalle de clientes" title="Ver detalle de clientes">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="kpi-value" id="val-clientes">0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 1.8%</span>
+          <span>nuevos registros</span>
+        </div>
+      </div>
+
+      <!-- Tasa de Morosidad -->
+      <div class="kpi-card red">
+        <div class="kpi-header">
+          <span class="kpi-label">Tasa de Morosidad</span>
+          <span class="kpi-icon red">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="val-morosidad">0%</div>
+        <div class="kpi-footer">
+          <span class="badge warn">&#x25BC; 0.4%</span>
+          <span>vs trimestre previo</span>
+        </div>
+      </div>
+
+      <!-- Captación del Mes -->
+      <div class="kpi-card gold">
+        <div class="kpi-header">
+          <span class="kpi-label">Captaci&oacute;n del Mes</span>
+          <button class="kpi-icon-btn gold" id="btn-captacion"
+                  data-tooltip="Ver detalle de captaci&oacute;n"
+                  aria-label="Ver detalle de captaci&oacute;n" title="Ver detalle de captaci&oacute;n">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1M4.22 4.22l.71.71M19.07 4.22l-.71.71M1 12h1m20 0h1M4.22 19.78l.71-.71M19.07 19.78l-.71-.71"/>
+            </svg>
+          </button>
+        </div>
+        <div class="kpi-value" id="val-captacion">$0</div>
+        <div class="kpi-footer">
+          <span class="badge up">&#x25B2; 7.5%</span>
+          <span>meta mensual alcanzada</span>
+        </div>
+      </div>
+
+    </div><!-- /kpi-grid -->
+
+    <!-- ── Portfolio Semaphore ──────────────────────────── -->
+    <div class="portfolio-section">
+      <p class="section-title" style="margin-top:.1rem;margin-bottom:1rem">
+        Sem&aacute;foro de cartera &mdash; calculado sobre muestra de 30 registros
+      </p>
+      <div class="portfolio-grid">
+
+        <!-- Cartera Vigente -->
+        <div class="p-card p-green">
+          <div class="p-icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
-          <div class="filter-group">
-            <button class="filter-btn active"      data-filtro="todos">Todos</button>
-            <button class="filter-btn f-rojo"      data-filtro="rojo">Rojo</button>
-            <button class="filter-btn f-amarillo"  data-filtro="amarillo">Amarillo</button>
-            <button class="filter-btn f-verde"     data-filtro="verde">Verde</button>
+          <div class="p-label">Cartera Vigente</div>
+          <div class="p-value" id="pi-vigente">—</div>
+          <div class="p-sub" id="pi-vigente-sub">26 clientes al d&iacute;a</div>
+        </div>
+
+        <!-- Cartera Vencida -->
+        <div class="p-card p-red">
+          <div class="p-icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="p-label">Cartera Vencida</div>
+          <div class="p-value" id="pi-vencida">—</div>
+          <div class="p-sub" id="pi-vencida-sub">4 clientes en mora</div>
+        </div>
+
+        <!-- Tasa de Morosidad -->
+        <div class="p-card p-yellow">
+          <div class="p-icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+          </div>
+          <div class="p-label">Tasa de Morosidad</div>
+          <div class="p-value" id="pi-tasa">—</div>
+          <div class="p-sub">Vencida / total por pagar</div>
+        </div>
+
+        <!-- Monto Castigado -->
+        <div class="p-card p-amber">
+          <div class="p-icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="p-label">Monto Castigado</div>
+          <div class="p-value" id="pi-cas">—</div>
+          <div class="p-sub">Cartera castigada acumulada</div>
+        </div>
+
+        <!-- Monto Quebranto -->
+        <div class="p-card p-purple">
+          <div class="p-icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </div>
+          <div class="p-label">Monto Quebranto</div>
+          <div class="p-value" id="pi-qbr">—</div>
+          <div class="p-sub">P&eacute;rdida irrecuperable</div>
+        </div>
+
+      </div>
+    </div><!-- /portfolio-section -->
+
+    <!-- Charts row -->
+    <div class="chart-row">
+
+      <!-- Bar chart: cartera mensual -->
+      <div class="chart-card">
+        <div class="chart-card-title">Evolución de Cartera &mdash; Últimos 6 meses</div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+
+      <!-- Donut: distribución cartera -->
+      <div class="chart-card">
+        <div class="chart-card-title">Distribución por Segmento</div>
+        <div class="donut-wrapper">
+          <div class="donut">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="50" fill="none" stroke="#e2e8f0" stroke-width="18"/>
+              <!-- Empresas 42% -->
+              <circle id="seg-empresas" cx="65" cy="65" r="50"
+                fill="none" stroke="#2563eb" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+              <!-- PYME 33% -->
+              <circle id="seg-pyme" cx="65" cy="65" r="50"
+                fill="none" stroke="#10b981" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+              <!-- Personas 25% -->
+              <circle id="seg-personas" cx="65" cy="65" r="50"
+                fill="none" stroke="#f59e0b" stroke-width="18"
+                stroke-dasharray="0 314" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <span class="donut-pct">3</span>
+              <span class="donut-sub">segmentos</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#2563eb"></span>Empresas
+              </span>
+              <span class="legend-value">42%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#10b981"></span>PYME
+              </span>
+              <span class="legend-value">33%</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-label">
+                <span class="legend-dot" style="background:#f59e0b"></span>Personas
+              </span>
+              <span class="legend-value">25%</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre Completo</th>
-              <th>RFC</th>
-              <th>Score Global</th>
-              <th>Semáforo</th>
-              <th>Problemas Detectados</th>
-            </tr>
-          </thead>
-          <tbody id="tablaBody"></tbody>
-        </table>
-      </div>
-    </div>
+
+    </div><!-- /chart-row -->
 
   </main>
 
-  <!-- ============================================================
-       PANEL LATERAL DE DETALLE
-       ============================================================ -->
-  <div class="overlay" id="overlay">
-    <div class="panel" id="panel">
-      <div class="panel-header">
-        <div class="panel-header-top">
-          <div>
-            <h2 id="panelNombre">—</h2>
-            <p class="subtitulo" id="panelTipo">—</p>
-          </div>
-          <button class="btn-cerrar" id="btnCerrar" title="Cerrar">&times;</button>
+  <!-- ── Client Detail Modal ──────────────────────────── -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true"
+       aria-labelledby="modal-title">
+    <div class="modal-panel">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-5a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          Detalle de Clientes Activos
+          <small>muestra representativa &mdash; 30 registros</small>
         </div>
-        <div id="panelSemaforo"></div>
+        <button class="btn-close" id="modal-close" aria-label="Cerrar">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
-      <div class="panel-body" id="panelBody"></div>
+
+      <!-- Filters -->
+      <div class="modal-filters">
+        <select class="filter-select" id="filter-product" aria-label="Filtrar por producto">
+          <option value="">Todos los productos</option>
+          <option value="Cr&eacute;dito Hipotecario">Cr&eacute;dito Hipotecario</option>
+          <option value="Cr&eacute;dito Automotriz">Cr&eacute;dito Automotriz</option>
+          <option value="Cr&eacute;dito Personal">Cr&eacute;dito Personal</option>
+        </select>
+        <select class="filter-select" id="filter-mora" aria-label="Filtrar por estado de mora">
+          <option value="">Todos los estados</option>
+          <option value="mora">Con mora</option>
+          <option value="al-dia">Al d&iacute;a</option>
+        </select>
+        <input class="search-input" id="search-client" type="search"
+               placeholder="&#128269; Buscar por nombre o n&uacute;m. de cr&eacute;dito&hellip;"
+               aria-label="Buscar cliente" />
+        <span class="filter-results" id="filter-results">
+          Mostrando <strong>30</strong> de 30
+        </span>
+      </div>
+
+      <!-- Tabs: Cartera Vigente / Vencida -->
+      <div class="tab-bar" role="tablist" aria-label="Tipo de cartera">
+        <button class="tab-btn tab-vigente active" id="tab-vigente"
+                role="tab" aria-selected="true">
+          Cartera Vigente
+          <span class="tab-badge tbg" id="tc-vigente">26</span>
+        </button>
+        <button class="tab-btn tab-vencida" id="tab-vencida"
+                role="tab" aria-selected="false">
+          Cartera Vencida
+          <span class="tab-badge tbr" id="tc-vencida">4</span>
+        </button>
+      </div>
+
+      <!-- Summary strip -->
+      <div class="modal-summary" id="modal-summary">
+        <div class="summary-stat">
+          <span class="ss-label" id="ss-total-label">Total por pagar</span>
+          <span class="ss-value blue" id="ss-total">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Hipotecario</span>
+          <span class="ss-value blue" id="ss-hip">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Automotriz</span>
+          <span class="ss-value green" id="ss-aut">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cr&eacute;dito Personal</span>
+          <span class="ss-value gold" id="ss-per">10 registros</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Cartera en mora</span>
+          <span class="ss-value red" id="ss-mora">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Tasa de morosidad</span>
+          <span class="ss-value red" id="ss-tasa">0.00%</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Monto castigado</span>
+          <span class="ss-value" id="ss-cas">$0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Monto quebranto</span>
+          <span class="ss-value" id="ss-qbr">$0</span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="modal-table-wrap">
+        <table class="detail-table" id="detail-table">
+          <thead>
+            <tr>
+              <th data-col="id">#<span class="sa"></span></th>
+              <th data-col="nombre">Nombre del Cliente<span class="sa"></span></th>
+              <th data-col="edad">Edad<span class="sa"></span></th>
+              <th data-col="producto">Producto<span class="sa"></span></th>
+              <th data-col="cuenta">N&uacute;m. de Cuenta<span class="sa"></span></th>
+              <th data-col="credito">N&uacute;m. de Cr&eacute;dito<span class="sa"></span></th>
+              <th data-col="fechaInicio">Fecha Inicio<span class="sa"></span></th>
+              <th data-col="fechaFin">Fecha Fin<span class="sa"></span></th>
+              <th data-col="montoAutorizado">Mto. Autorizado<span class="sa"></span></th>
+              <th data-col="montoConcedido">Mto. Concedido<span class="sa"></span></th>
+              <th data-col="montoPorPagar">Mto. por Pagar<span class="sa"></span></th>
+              <th data-col="pagoMensual">Pago Mensual<span class="sa"></span></th>
+              <th data-col="cuotasPendientes">Cuotas Pend.<span class="sa"></span></th>
+              <th data-col="montoMora">En Mora<span class="sa"></span></th>
+              <th data-col="montoCastigado">Castigado<span class="sa"></span></th>
+              <th data-col="montoQuebranto">Quebranto<span class="sa"></span></th>
+            </tr>
+          </thead>
+          <tbody id="detail-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <span>
+          Muestra de <strong>30</strong> de <strong>127,400</strong> clientes activos totales.
+          Los datos son ilustrativos.
+        </span>
+        <span class="mora-pill">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          Morosidad muestra: 3.70%
+        </span>
+      </div>
+
     </div>
   </div>
 
-  <!-- ============================================================
-       JAVASCRIPT
-       ============================================================ -->
-  <script>
-  /* ================================================================
-     BASE DE DATOS DUMMY — 20 CLIENTES FICTICIOS MEXICANOS
-     Algunos clientes tienen intencionalmente:
-       - campos vacíos ("")
-       - campos nulos (null)
-       - RFC/CURP con formato incorrecto
-       - email sin @
-       - teléfono con menos de 10 dígitos
-       - CP con menos de 5 dígitos
-       - campos_verificados: [] (sin verificar)
-     ================================================================ */
-  const clientesBD = [
-    {
-      id: 1,
-      nombre: "Carlos",
-      apellido: "Mendoza García",
-      rfc: "MEGC850312JH7",           // 13 chars, persona física — válido
-      curp: "MEGC850312HDFNRL05",      // 18 chars — válido
-      fecha_nacimiento: "1985-03-12",
-      nacionalidad: "Mexicana",
-      email: "carlos.mendoza@bancoverde.com.mx",
-      telefono: "5512345678",
-      direccion: "Av. Insurgentes Sur 1234, Col. Del Valle",
-      cp: "03100",
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2020-01-15",
-      campos_verificados: ["rfc", "curp", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 2,
-      nombre: "María",
-      apellido: "López Hernández",
-      rfc: "LOHM900725AB3",
-      curp: "LOHM900725MDFRRS08",
-      fecha_nacimiento: "1990-07-25",
-      nacionalidad: "Mexicana",
-      email: "maria.lopez@outlook.com",
-      telefono: "3312987654",
-      direccion: "Calle Juárez 456, Col. Centro",
-      cp: "44100",
-      ciudad: "Guadalajara",
-      estado: "Jalisco",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2019-06-10",
-      campos_verificados: ["rfc", "curp", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 3,
-      nombre: "Juan",
-      apellido: "Pérez Rodríguez",
-      rfc: "PERJ781130KM8",
-      curp: "PERJ781130HNLRDN03",
-      fecha_nacimiento: "1978-11-30",
-      nacionalidad: "Mexicana",
-      email: "juan.perez@gmail.com",
-      telefono: "8112456789",
-      direccion: "",                   // vacío — incompleto
-      cp: "",                          // vacío — incompleto
-      ciudad: "Monterrey",
-      estado: "Nuevo León",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "medio",
-      fecha_alta: "2021-03-22",
-      campos_verificados: ["rfc", "curp", "email"]
-    },
-    {
-      id: 4,
-      nombre: "Ana",
-      apellido: "García Martínez",
-      rfc: "GAMA950518",               // solo 10 chars — inválido (muy corto)
-      curp: "GAMA950518MDFRGN07",
-      fecha_nacimiento: "1995-05-18",
-      nacionalidad: "Mexicana",
-      email: "ana.garcia.martinez.gob.mx", // sin @ — inválido
-      telefono: "5598765432",
-      direccion: "Periférico Norte 789, Col. Lindavista",
-      cp: "07300",
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2022-08-05",
-      campos_verificados: ["curp", "telefono"]
-    },
-    {
-      id: 5,
-      nombre: "Roberto",
-      apellido: "Torres Sánchez",
-      rfc: "TOSR820905XY1",
-      curp: "TOSR820905HJCRNB06",
-      fecha_nacimiento: "1982-09-05",
-      nacionalidad: "Mexicana",
-      email: "roberto.torressanchez.com", // sin @ — inválido
-      telefono: "2221234567",
-      direccion: "Blvd. Hermanos Serdán 321, Col. Reforma",
-      cp: "72160",
-      ciudad: "Puebla",
-      estado: "Puebla",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2021-11-14",
-      campos_verificados: ["rfc", "telefono"]
-    },
-    {
-      id: 6,
-      nombre: "Patricia",
-      apellido: "Ramírez Flores",
-      rfc: "RAFP931220BK4",
-      curp: null,                      // nulo — faltante
-      fecha_nacimiento: "1993-12-20",
-      nacionalidad: "Mexicana",
-      email: "patricia.ramirez@yahoo.com",
-      telefono: "55123456",            // 8 dígitos — inválido
-      direccion: "Calle Morelos 102, Col. Chapultepec",
-      cp: "58260",
-      ciudad: "Morelia",
-      estado: "Michoacán",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2023-01-08",
-      campos_verificados: ["rfc", "email"]
-    },
-    {
-      id: 7,
-      nombre: "Miguel Ángel",
-      apellido: "Castro Ruiz",
-      rfc: "CARM750614HL9",
-      curp: "CARM750614HDFSTG02",
-      fecha_nacimiento: "1975-06-14",
-      nacionalidad: "Mexicana",
-      email: "mcastro@prodigy.net.mx",
-      telefono: "9991234567",
-      direccion: "Calle 60 Norte 350, Col. Centro Histórico",
-      cp: "97000",
-      ciudad: "Mérida",
-      estado: "Yucatán",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2018-05-30",
-      campos_verificados: ["rfc", "curp", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 8,
-      nombre: "Laura",
-      apellido: "Jiménez Morales",
-      rfc: "JIML880422PQ5",
-      curp: "JIML880422MDFMRL07",
-      fecha_nacimiento: "1988-04-22",
-      nacionalidad: "Mexicana",
-      email: "laura.jimenez@hotmail.com",
-      telefono: "4421987654",
-      direccion: "Av. Zaragoza 890, Col. Jardines del Prado",
-      cp: "76000",
-      ciudad: "Querétaro",
-      estado: "Querétaro",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "medio",
-      fecha_alta: "2020-09-17",
-      campos_verificados: ["rfc"]      // verificación muy parcial
-    },
-    {
-      id: 9,
-      nombre: "Fernando",
-      apellido: "Gutiérrez Díaz",
-      rfc: "GUTF70808",                // 9 chars — inválido
-      curp: "GUTF700808HDFTRF",        // 16 chars — inválido (debería ser 18)
-      fecha_nacimiento: "1970-08-08",
-      nacionalidad: "Mexicana",
-      email: "fernando-gutierrez-gmail", // sin @ — inválido
-      telefono: "9876543",             // 7 dígitos — inválido
-      direccion: "",                   // vacío — incompleto
-      cp: "123",                       // 3 dígitos — inválido
-      ciudad: "Oaxaca",
-      estado: "Oaxaca",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2023-04-12",
-      campos_verificados: []           // sin verificación alguna
-    },
-    {
-      id: 10,
-      nombre: "Sofía",
-      apellido: "Vargas Reyes",
-      rfc: "VARS920215ER8",
-      curp: "VARS920215MDFRYF04",
-      fecha_nacimiento: "1992-02-15",
-      nacionalidad: "Mexicana",
-      email: "sofia.vargas@gmail.com",
-      telefono: "5511223344",
-      direccion: "Calle Ámsterdam 567, Col. Condesa",
-      cp: "06140",
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2019-11-20",
-      campos_verificados: ["rfc", "curp", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 11,
-      nombre: "Comercializadora Nacional",
-      apellido: "SA de CV",
-      rfc: "CNS900101MN3",             // 12 chars para persona moral — válido
-      curp: null,                      // personas morales no tienen CURP
-      fecha_nacimiento: "1990-01-01",
-      nacionalidad: "Mexicana",
-      email: "contacto@comnacional.com.mx",
-      telefono: "5555678901",
-      direccion: "Blvd. Manuel Ávila Camacho 40, Piso 8",
-      cp: "",                          // vacío — incompleto
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona moral",
-      nivel_riesgo_kyc: "medio",
-      fecha_alta: "2017-03-15",
-      campos_verificados: ["rfc"]      // verificación mínima
-    },
-    {
-      id: 12,
-      nombre: "Grupo Industrial del Norte",
-      apellido: "SA",
-      rfc: "GIN851201XZ7",             // 12 chars para persona moral — válido
-      curp: null,                      // personas morales no tienen CURP
-      fecha_nacimiento: "1985-12-01",
-      nacionalidad: "Mexicana",
-      email: "operaciones@grupoindustrialnorte.mx",
-      telefono: "8181234567",
-      direccion: "Av. Constitución 1501 Oriente, Col. Centro",
-      cp: "64000",
-      ciudad: "Monterrey",
-      estado: "Nuevo León",
-      tipo_cliente: "persona moral",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2016-07-20",
-      campos_verificados: ["rfc", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 13,
-      nombre: "Alejandro",
-      apellido: "Moreno Cruz",
-      rfc: "MOCA830719LT2",
-      curp: "MOCA830719HDFRNL08",
-      fecha_nacimiento: "1983-07-19",
-      nacionalidad: "Mexicana",
-      email: "alejandro.moreno@live.com",
-      telefono: "551234",              // 6 dígitos — inválido
-      direccion: null,                 // nulo — faltante
-      cp: "",                          // vacío — incompleto
-      ciudad: "Zapopan",
-      estado: "Jalisco",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2022-05-03",
-      campos_verificados: []           // sin verificación
-    },
-    {
-      id: 14,
-      nombre: "Valentina",
-      apellido: "Santos Pérez",
-      rfc: "SAPV971003GH6",
-      curp: "SAPV971003MDFNRL02",
-      fecha_nacimiento: "1997-10-03",
-      nacionalidad: "Mexicana",
-      email: "valentina.santos@icloud.com",
-      telefono: "7227654321",
-      direccion: "Calle Allende 234, Col. Centro",
-      cp: "50000",
-      ciudad: "Toluca",
-      estado: "Estado de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "medio",
-      fecha_alta: "2023-02-28",
-      campos_verificados: ["rfc"]      // mayoría sin verificar
-    },
-    {
-      id: 15,
-      nombre: "Diego",
-      apellido: "Hernández López",
-      rfc: "HELD86032",                // 9 chars — inválido
-      curp: "HELD860325",              // 10 chars — inválido (debería ser 18)
-      fecha_nacimiento: "1986-03-25",
-      nacionalidad: "Mexicana",
-      email: "diego.hernandezlopez.gob", // sin @ — inválido
-      telefono: "5544332211",
-      direccion: "Av. Universidad 3000, Col. Copilco",
-      cp: "04510",
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2022-10-01",
-      campos_verificados: ["telefono"]
-    },
-    {
-      id: 16,
-      nombre: "Claudia",
-      apellido: "Ramos Torres",
-      rfc: "RATC910912MN5",
-      curp: "RATC910912MDFMRD08",
-      fecha_nacimiento: "1991-09-12",
-      nacionalidad: "Mexicana",
-      email: "claudia.ramos@bancoverde.com.mx",
-      telefono: "9981234567",
-      direccion: "Av. Tulum 456, SM 3",
-      cp: "77500",
-      ciudad: "Cancún",
-      estado: "Quintana Roo",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "bajo",
-      fecha_alta: "2020-04-18",
-      campos_verificados: ["rfc", "curp", "email", "telefono", "fecha_nacimiento"]
-    },
-    {
-      id: 17,
-      nombre: "Emmanuel",
-      apellido: "Castillo Vega",
-      rfc: "CAVE890107PL4",
-      curp: "CAVE890107HDFSTM06",
-      fecha_nacimiento: "1989-01-07",
-      nacionalidad: "Mexicana",
-      email: "",                       // vacío — faltante
-      telefono: "4423456789",
-      direccion: "Blvd. 5 de Febrero 1234, Col. Carretas",
-      cp: "1203",                      // 4 dígitos — inválido
-      ciudad: "Querétaro",
-      estado: "Querétaro",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2021-07-22",
-      campos_verificados: []           // sin verificación
-    },
-    {
-      id: 18,
-      nombre: "Isabela",
-      apellido: "Méndez Fuentes",
-      rfc: "1MEF940630AB2",            // inicia con dígito — inválido
-      curp: "MEFI9406",                // 8 chars — inválido
-      fecha_nacimiento: "1994-06-30",
-      nacionalidad: "Mexicana",
-      email: "isabela.mendez@gmail.com",
-      telefono: "5566778899",
-      direccion: "Calle Hidalgo 678, Col. Obrera",
-      cp: "06800",
-      ciudad: "Ciudad de México",
-      estado: "Ciudad de México",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2023-06-15",
-      campos_verificados: []           // sin verificación
-    },
-    {
-      id: 19,
-      nombre: "Ricardo",
-      apellido: "Ortiz Sandoval",
-      rfc: "OISR801211KJ9",
-      curp: "OISR801211HDFRTC07",
-      fecha_nacimiento: "1980-12-11",
-      nacionalidad: "Mexicana",
-      email: "r.ortiz.sandoval@empresa.com.mx",
-      telefono: "6621234567",
-      direccion: "Blvd. García Morales 890, Col. Villa del Real",
-      cp: "83000",
-      ciudad: "",                      // vacío — incompleto
-      estado: "Sonora",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "medio",
-      fecha_alta: "2021-09-05",
-      campos_verificados: ["rfc", "curp"]
-    },
-    {
-      id: 20,
-      nombre: "Natalia",
-      apellido: "Cruz Pacheco",
-      rfc: "CUPN980405",               // 10 chars — inválido
-      curp: "CUPN9804",                // 8 chars — inválido
-      fecha_nacimiento: "1998-04-05",
-      nacionalidad: "",                // vacío — incompleto
-      email: "natalia.cruzpacheco",    // sin @ — inválido
-      telefono: "95123",               // 5 dígitos — inválido
-      direccion: "Av. Cristóbal Colón 123, Col. Magisterial",
-      cp: "68050",
-      ciudad: "Oaxaca",
-      estado: "Oaxaca",
-      tipo_cliente: "persona física",
-      nivel_riesgo_kyc: "alto",
-      fecha_alta: "2023-08-20",
-      campos_verificados: []           // ningún campo verificado
-    }
-  ];
+  <!-- ── Captación Detail Modal ───────────────────────── -->
+  <div id="cap-backdrop" class="modal-backdrop" role="dialog" aria-modal="true"
+       aria-labelledby="cap-modal-title">
+    <div class="modal-panel">
 
-  /* ================================================================
-     CONFIGURACIÓN DE CAMPOS
-     ================================================================ */
-
-  // Campos obligatorios comunes a todos los tipos de cliente
-  const CAMPOS_BASE = [
-    'nombre', 'apellido', 'rfc', 'fecha_nacimiento', 'nacionalidad',
-    'email', 'telefono', 'direccion', 'cp', 'ciudad', 'estado'
-  ];
-
-  // CURP es exclusivo de personas físicas
-  const CAMPOS_FISICA = [...CAMPOS_BASE, 'curp'];
-
-  // Campos sensibles que deben estar verificados (sin CURP para personas morales)
-  const SENSIBLES_FISICA = ['rfc', 'curp', 'email', 'telefono', 'fecha_nacimiento'];
-  const SENSIBLES_MORAL  = ['rfc', 'email', 'telefono', 'fecha_nacimiento'];
-
-  // Etiquetas legibles para mostrar en la UI
-  const ETIQUETAS = {
-    nombre:           'Nombre',
-    apellido:         'Apellidos',
-    rfc:              'RFC',
-    curp:             'CURP',
-    fecha_nacimiento: 'Fecha de Nacimiento',
-    nacionalidad:     'Nacionalidad',
-    email:            'Correo Electrónico',
-    telefono:         'Teléfono',
-    direccion:        'Calle y Número',
-    cp:               'Código Postal',
-    ciudad:           'Ciudad',
-    estado:           'Estado',
-    tipo_cliente:     'Tipo de Cliente',
-    nivel_riesgo_kyc: 'Nivel Riesgo KYC',
-    fecha_alta:       'Fecha de Alta'
-  };
-
-  /* ================================================================
-     FUNCIONES DE VALIDACIÓN DE FORMATO
-     ================================================================ */
-
-  // RFC mexicano: 4 letras + 6 dígitos + 3 alfanuméricos (personas físicas = 13)
-  //              3 letras + 6 dígitos + 3 alfanuméricos (personas morales = 12)
-  function validarRFC(rfc, tipo) {
-    if (!rfc || rfc.trim() === '') return false;
-    const r = rfc.trim().toUpperCase();
-    if (tipo === 'persona moral') {
-      return /^[A-Z&Ñ]{3}[0-9]{6}[A-Z0-9]{3}$/.test(r);
-    }
-    return /^[A-Z&Ñ]{4}[0-9]{6}[A-Z0-9]{3}$/.test(r);
-  }
-
-  // CURP: exactamente 18 caracteres alfanuméricos
-  function validarCURP(curp) {
-    if (!curp) return false;
-    return /^[A-Z0-9]{18}$/i.test(curp.trim()) && curp.trim().length === 18;
-  }
-
-  // Email: debe contener @ con dominio válido
-  function validarEmail(email) {
-    if (!email || email.trim() === '') return false;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  }
-
-  // Teléfono: exactamente 10 dígitos
-  function validarTelefono(tel) {
-    if (!tel || tel.trim() === '') return false;
-    return /^[0-9]{10}$/.test(tel.trim().replace(/[\s\-()]/g, ''));
-  }
-
-  // Código postal: exactamente 5 dígitos
-  function validarCP(cp) {
-    if (!cp || cp.trim() === '') return false;
-    return /^[0-9]{5}$/.test(cp.trim());
-  }
-
-  /* ================================================================
-     FUNCIÓN PRINCIPAL DE ANÁLISIS POR CLIENTE
-     Calcula: scoreCompletitud, scoreVeracidad, scoreSeguridad,
-              scoreGlobal, semaforo y lista de problemas detectados.
-     ================================================================ */
-  function analizarCliente(c) {
-    const esFisica = c.tipo_cliente === 'persona física';
-    const camposRequeridos  = esFisica ? CAMPOS_FISICA : CAMPOS_BASE;
-    const camposSensibles   = esFisica ? SENSIBLES_FISICA : SENSIBLES_MORAL;
-    const verificados       = Array.isArray(c.campos_verificados) ? c.campos_verificados : [];
-    const problemas         = [];
-
-    /* --- 1. SCORE DE COMPLETITUD ---
-       Porcentaje de campos obligatorios que están presentes y no vacíos. */
-    let llenos = 0;
-    for (const campo of camposRequeridos) {
-      const v = c[campo];
-      const presente = v !== null && v !== undefined && v !== '';
-      if (presente) {
-        llenos++;
-      } else {
-        problemas.push({ campo, tipo: 'faltante', etiqueta: `${ETIQUETAS[campo] || campo} vacío` });
-      }
-    }
-    const scoreCompletitud = Math.round((llenos / camposRequeridos.length) * 100);
-
-    /* --- 2. SCORE DE VERACIDAD ---
-       Porcentaje de campos con formato válido según reglas de negocio. */
-    const reglas = {
-      rfc:              { valido: validarRFC(c.rfc, c.tipo_cliente),   etiqueta: 'RFC inválido'    },
-      email:            { valido: validarEmail(c.email),               etiqueta: 'Email inválido'  },
-      telefono:         { valido: validarTelefono(c.telefono),         etiqueta: 'Teléfono inválido' },
-      cp:               { valido: validarCP(c.cp),                     etiqueta: 'C.P. inválido'   },
-    };
-    if (esFisica) {
-      reglas.curp = { valido: validarCURP(c.curp), etiqueta: 'CURP inválida' };
-    }
-
-    let validos = 0;
-    const camposValidar = Object.keys(reglas);
-    for (const campo of camposValidar) {
-      if (reglas[campo].valido) {
-        validos++;
-      } else {
-        // Solo reportar como problema de formato si no está ya reportado como faltante
-        const yaReportado = problemas.some(p => p.campo === campo);
-        if (!yaReportado) {
-          problemas.push({ campo, tipo: 'invalido', etiqueta: reglas[campo].etiqueta });
-        }
-      }
-    }
-    const scoreVeracidad = Math.round((validos / camposValidar.length) * 100);
-
-    /* --- 3. SCORE DE SEGURIDAD ---
-       Porcentaje de campos sensibles que han sido verificados por el banco. */
-    let verificadosCount = 0;
-    for (const campo of camposSensibles) {
-      if (verificados.includes(campo)) verificadosCount++;
-    }
-    const scoreSeguridad = Math.round((verificadosCount / camposSensibles.length) * 100);
-
-    /* --- 4. SCORE GLOBAL ---
-       Promedio aritmético de los tres scores anteriores. */
-    const scoreGlobal = Math.round((scoreCompletitud + scoreVeracidad + scoreSeguridad) / 3);
-
-    /* --- 5. SEMÁFORO ---
-       Verde > 80% | Amarillo 60–80% | Rojo < 60% */
-    let semaforo;
-    if      (scoreGlobal >= 80) semaforo = 'verde';
-    else if (scoreGlobal >= 60) semaforo = 'amarillo';
-    else                         semaforo = 'rojo';
-
-    return {
-      ...c,
-      scoreCompletitud,
-      scoreVeracidad,
-      scoreSeguridad,
-      scoreGlobal,
-      semaforo,
-      problemas
-    };
-  }
-
-  /* ================================================================
-     PROCESAR TODOS LOS CLIENTES
-     ================================================================ */
-  const clientes = clientesBD.map(analizarCliente);
-
-  /* ================================================================
-     INICIALIZAR INTERFAZ — HEADER
-     ================================================================ */
-  function mostrarFecha() {
-    const hoy = new Date();
-    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('fechaActual').textContent = hoy.toLocaleDateString('es-MX', opts);
-    document.getElementById('headerBadge').textContent = `${clientes.length} clientes analizados`;
-  }
-
-  /* ================================================================
-     RENDERIZAR KPIs
-     ================================================================ */
-  function renderizarKPIs() {
-    const total           = clientes.length;
-    const enRiesgo        = clientes.filter(c => c.semaforo === 'rojo').length;
-    const incompletos     = clientes.filter(c => c.scoreCompletitud < 100).length;
-    const noVerificados   = clientes.filter(c => c.scoreSeguridad < 100).length;
-
-    document.getElementById('kpiTotal').textContent        = total;
-    document.getElementById('kpiRiesgo').textContent       = enRiesgo;
-    document.getElementById('kpiIncompletos').textContent  = incompletos;
-    document.getElementById('kpiNoVerificados').textContent = noVerificados;
-  }
-
-  /* ================================================================
-     RENDERIZAR TABLA
-     ================================================================ */
-  let filtroActivo   = 'todos';
-  let textoBusqueda  = '';
-  let clienteActivo  = null;
-
-  function clientesFiltrados() {
-    const termino = textoBusqueda.trim().toLowerCase();
-    return clientes.filter(c => {
-      const pasaFiltro  = filtroActivo === 'todos' || c.semaforo === filtroActivo;
-      const pasaBusqueda = !termino
-        || c.nombre.toLowerCase().includes(termino)
-        || c.apellido.toLowerCase().includes(termino)
-        || (c.rfc && c.rfc.toLowerCase().includes(termino));
-      return pasaFiltro && pasaBusqueda;
-    });
-  }
-
-  function renderizarTabla() {
-    const lista  = clientesFiltrados();
-    const tbody  = document.getElementById('tablaBody');
-    document.getElementById('contadorResultados').textContent =
-      `${lista.length} resultado${lista.length !== 1 ? 's' : ''}`;
-
-    if (lista.length === 0) {
-      tbody.innerHTML = `
-        <tr><td colspan="6">
-          <div class="tabla-vacia">
-            <div class="icono-vacio">&#128269;</div>
-            <div>No se encontraron clientes con los filtros aplicados.</div>
-          </div>
-        </td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = lista.map(c => {
-      const activo     = clienteActivo === c.id ? 'activo' : '';
-      const rfcDisplay = c.rfc || '—';
-      const problemasHTML = c.problemas.length === 0
-        ? `<span class="sin-problemas">Sin problemas detectados</span>`
-        : `<span class="problemas-texto">${c.problemas.map(p => p.etiqueta).join(', ')}</span>`;
-
-      return `
-        <tr class="${activo}" onclick="abrirDetalle(${c.id})">
-          <td><span class="id-cell">#${c.id}</span></td>
-          <td><span class="nombre-cell">${c.nombre} ${c.apellido}</span></td>
-          <td><span class="rfc-cell">${rfcDisplay}</span></td>
-          <td><span class="score-num ${c.semaforo}">${c.scoreGlobal}%</span></td>
-          <td>
-            <span class="badge ${c.semaforo}">
-              <span class="dot ${c.semaforo}"></span>
-              ${c.semaforo.charAt(0).toUpperCase() + c.semaforo.slice(1)}
-            </span>
-          </td>
-          <td>${problemasHTML}</td>
-        </tr>`;
-    }).join('');
-  }
-
-  /* ================================================================
-     PANEL LATERAL DE DETALLE
-     ================================================================ */
-  function colorScore(score) {
-    if (score >= 80) return 'var(--verde)';
-    if (score >= 60) return 'var(--amarillo)';
-    return 'var(--rojo)';
-  }
-
-  function iconoCampo(campo, valor, cliente) {
-    // Campo faltante
-    if (valor === null || valor === undefined || valor === '') return '❌';
-    const esFisica = cliente.tipo_cliente === 'persona física';
-    // Verificar formato según campo
-    if (campo === 'rfc'     && !validarRFC(valor, cliente.tipo_cliente)) return '⚠️';
-    if (campo === 'curp'    && esFisica && !validarCURP(valor))           return '⚠️';
-    if (campo === 'email'   && !validarEmail(valor))                      return '⚠️';
-    if (campo === 'telefono'&& !validarTelefono(valor))                   return '⚠️';
-    if (campo === 'cp'      && !validarCP(valor))                         return '⚠️';
-    return '✅';
-  }
-
-  function claseCampo(campo, valor, cliente) {
-    if (valor === null || valor === undefined || valor === '') return 'vacio';
-    const esFisica = cliente.tipo_cliente === 'persona física';
-    if (campo === 'rfc'     && !validarRFC(valor, cliente.tipo_cliente)) return 'invalido';
-    if (campo === 'curp'    && esFisica && !validarCURP(valor))           return 'invalido';
-    if (campo === 'email'   && !validarEmail(valor))                      return 'invalido';
-    if (campo === 'telefono'&& !validarTelefono(valor))                   return 'invalido';
-    if (campo === 'cp'      && !validarCP(valor))                         return 'invalido';
-    return '';
-  }
-
-  function filaCampo(campo, etiqueta, valor, cliente) {
-    const icono = iconoCampo(campo, valor, cliente);
-    const clase = claseCampo(campo, valor, cliente);
-    const display = (valor === null || valor === undefined || valor === '')
-      ? 'No registrado'
-      : valor;
-    return `
-      <div class="campo-fila">
-        <span class="campo-icono">${icono}</span>
-        <span class="campo-nombre">${etiqueta}</span>
-        <span class="campo-valor ${clase}">${display}</span>
-      </div>`;
-  }
-
-  function formatearFecha(str) {
-    if (!str) return '—';
-    const d = new Date(str + 'T12:00:00');
-    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
-
-  function abrirDetalle(id) {
-    const c = clientes.find(x => x.id === id);
-    if (!c) return;
-    clienteActivo = id;
-    renderizarTabla();
-
-    const esFisica = c.tipo_cliente === 'persona física';
-
-    // Header del panel
-    document.getElementById('panelNombre').textContent = `${c.nombre} ${c.apellido}`;
-    document.getElementById('panelTipo').textContent   = `${c.tipo_cliente} — ID #${c.id}`;
-    document.getElementById('panelSemaforo').innerHTML = `
-      <span class="panel-semaforo ${c.semaforo}">
-        <span class="dot ${c.semaforo}"></span>
-        Semáforo ${c.semaforo.charAt(0).toUpperCase() + c.semaforo.slice(1)} — Score global: ${c.scoreGlobal}%
-      </span>`;
-
-    // Cuerpo del panel
-    const body = document.getElementById('panelBody');
-    body.innerHTML = `
-      <!-- Scores de evaluación -->
-      <div class="scores-bloque">
-        <div class="scores-titulo">Scores de Evaluación</div>
-
-        <div class="score-fila">
-          <div class="score-etiqueta">
-            <span>Completitud de datos</span>
-            <strong>${c.scoreCompletitud}%</strong>
-          </div>
-          <div class="barra-track">
-            <div class="barra-fill" style="width:${c.scoreCompletitud}%; background:${colorScore(c.scoreCompletitud)};"></div>
-          </div>
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-title" id="cap-modal-title">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1M4.22 4.22l.71.71M19.07 4.22l-.71.71M1 12h1m20 0h1M4.22 19.78l.71-.71M19.07 19.78l-.71-.71"/>
+          </svg>
+          Detalle de Captaci&oacute;n
+          <small>26 cuentas a la vista &middot; 12 pagar&eacute;s</small>
         </div>
+        <button class="btn-close" id="cap-close" aria-label="Cerrar">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
 
-        <div class="score-fila">
-          <div class="score-etiqueta">
-            <span>Veracidad de formato</span>
-            <strong>${c.scoreVeracidad}%</strong>
-          </div>
-          <div class="barra-track">
-            <div class="barra-fill" style="width:${c.scoreVeracidad}%; background:${colorScore(c.scoreVeracidad)};"></div>
-          </div>
+      <!-- Summary strip -->
+      <div class="modal-summary">
+        <div class="summary-stat">
+          <span class="ss-label">Captaci&oacute;n Total</span>
+          <span class="ss-value blue" id="cs-total">—</span>
         </div>
-
-        <div class="score-fila">
-          <div class="score-etiqueta">
-            <span>Seguridad y verificación</span>
-            <strong>${c.scoreSeguridad}%</strong>
-          </div>
-          <div class="barra-track">
-            <div class="barra-fill" style="width:${c.scoreSeguridad}%; background:${colorScore(c.scoreSeguridad)};"></div>
-          </div>
+        <div class="summary-stat">
+          <span class="ss-label">A la Vista</span>
+          <span class="ss-value green" id="cs-vista">—</span>
         </div>
-
-        <div class="score-fila score-global-fila">
-          <div class="score-etiqueta">
-            <strong>Score Global</strong>
-            <strong style="color:${colorScore(c.scoreGlobal)};">${c.scoreGlobal}%</strong>
-          </div>
-          <div class="barra-track">
-            <div class="barra-fill" style="width:${c.scoreGlobal}%; background:${colorScore(c.scoreGlobal)};"></div>
-          </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 30 d&iacute;as</span>
+          <span class="ss-value" style="color:#d97706" id="cs-p30">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 6 meses</span>
+          <span class="ss-value green" id="cs-p6m">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Pagar&eacute; 1 a&ntilde;o</span>
+          <span class="ss-value" style="color:#ea580c" id="cs-p1a">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Clientes Vista</span>
+          <span class="ss-value blue" id="cs-cnt-vista">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Clientes Pagar&eacute;</span>
+          <span class="ss-value" style="color:#7c3aed" id="cs-cnt-pag">—</span>
+        </div>
+        <div class="summary-stat">
+          <span class="ss-label">Con Tarjeta</span>
+          <span class="ss-value green" id="cs-cnt-tc">—</span>
         </div>
       </div>
 
-      <!-- Identidad -->
-      <div class="seccion-titulo">Identidad</div>
-      ${filaCampo('nombre',            'Nombre',              c.nombre,            c)}
-      ${filaCampo('apellido',          'Apellidos',           c.apellido,          c)}
-      ${filaCampo('rfc',               'RFC',                 c.rfc,               c)}
-      ${esFisica ? filaCampo('curp', 'CURP', c.curp, c) : ''}
-      ${filaCampo('fecha_nacimiento',  'Fecha Nacimiento',    formatearFecha(c.fecha_nacimiento), c)}
-      ${filaCampo('nacionalidad',      'Nacionalidad',        c.nacionalidad,      c)}
-
-      <!-- Contacto -->
-      <div class="seccion-titulo">Información de Contacto</div>
-      ${filaCampo('email',    'Correo Electrónico', c.email,    c)}
-      ${filaCampo('telefono', 'Teléfono',           c.telefono, c)}
-
-      <!-- Domicilio -->
-      <div class="seccion-titulo">Domicilio</div>
-      ${filaCampo('direccion', 'Calle y Número',  c.direccion, c)}
-      ${filaCampo('cp',        'Código Postal',   c.cp,        c)}
-      ${filaCampo('ciudad',    'Ciudad',          c.ciudad,    c)}
-      ${filaCampo('estado',    'Estado',          c.estado,    c)}
-
-      <!-- Cuenta -->
-      <div class="seccion-titulo">Datos de la Cuenta</div>
-      <div class="campo-fila">
-        <span class="campo-icono">✅</span>
-        <span class="campo-nombre">Tipo de Cliente</span>
-        <span class="campo-valor">${c.tipo_cliente}</span>
+      <!-- Tabs -->
+      <div class="tab-bar" role="tablist" aria-label="Producto de captaci&oacute;n">
+        <button class="tab-btn tab-vista active" id="cap-tab-vista"
+                role="tab" aria-selected="true">
+          A la Vista
+          <span class="tab-badge tbb" id="cap-tc-vista">26</span>
+        </button>
+        <button class="tab-btn tab-pagare" id="cap-tab-pagare"
+                role="tab" aria-selected="false">
+          Pagar&eacute;s
+          <span class="tab-badge tbp" id="cap-tc-pagare">12</span>
+        </button>
       </div>
-      <div class="campo-fila">
-        <span class="campo-icono">${c.nivel_riesgo_kyc === 'alto' ? '🔴' : c.nivel_riesgo_kyc === 'medio' ? '🟡' : '🟢'}</span>
-        <span class="campo-nombre">Nivel KYC</span>
-        <span class="campo-valor">
-          <span class="nivel-badge ${c.nivel_riesgo_kyc}">${c.nivel_riesgo_kyc}</span>
+
+      <!-- Filters -->
+      <div class="modal-filters">
+        <select class="filter-select" id="cap-filter-origen" aria-label="Filtrar por origen">
+          <option value="">Todos los or&iacute;genes</option>
+          <option value="Hipotecario">Hipotecario</option>
+          <option value="Automotriz">Automotriz</option>
+          <option value="Personal">Personal</option>
+          <option value="Pagar&eacute;">Pagar&eacute; (nuevo cliente)</option>
+        </select>
+        <select class="filter-select" id="cap-filter-plazo" aria-label="Filtrar por plazo">
+          <option value="">Todos los plazos</option>
+          <option value="30 d&iacute;as">30 d&iacute;as</option>
+          <option value="6 meses">6 meses</option>
+          <option value="1 a&ntilde;o">1 a&ntilde;o</option>
+        </select>
+        <input class="search-input" id="cap-search" type="search"
+               placeholder="&#128269; Buscar por nombre o n&uacute;m. de cuenta&hellip;"
+               aria-label="Buscar cliente captaci&oacute;n" />
+        <span class="filter-results" id="cap-filter-results">
+          Mostrando <strong>38</strong> de 38
         </span>
       </div>
-      <div class="campo-fila">
-        <span class="campo-icono">✅</span>
-        <span class="campo-nombre">Fecha de Alta</span>
-        <span class="campo-valor">${formatearFecha(c.fecha_alta)}</span>
-      </div>
-    `;
 
-    // Animar barras de progreso (necesita un pequeño delay para que la transición CSS funcione)
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.barra-fill').forEach(el => {
-        const target = el.style.width;
-        el.style.width = '0';
-        requestAnimationFrame(() => { el.style.width = target; });
+      <!-- Table -->
+      <div class="modal-table-wrap">
+        <table class="detail-table" id="cap-table">
+          <thead>
+            <tr>
+              <th data-col="id">#<span class="sa"></span></th>
+              <th data-col="nombre">Nombre<span class="sa"></span></th>
+              <th data-col="cuenta">N&uacute;m. de Cuenta<span class="sa"></span></th>
+              <th data-col="producto">Producto<span class="sa"></span></th>
+              <th data-col="origen">Origen<span class="sa"></span></th>
+              <th data-col="plazo">Plazo<span class="sa"></span></th>
+              <th data-col="tarjeta">Tarjeta<span class="sa"></span></th>
+              <th data-col="saldoPromedio">Saldo Prom. Diario<span class="sa"></span></th>
+              <th data-col="saldoCierre">Saldo Cierre<span class="sa"></span></th>
+            </tr>
+          </thead>
+          <tbody id="cap-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <span>
+          <strong>26</strong> cuentas a la vista (10 hip. &middot; 10 aut. &middot; 6 per.) &mdash;
+          <strong>12</strong> pagar&eacute;s nuevos &mdash; Datos ilustrativos.
+        </span>
+        <span class="mora-pill" style="background:rgba(245,158,11,.1);color:#d97706">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8c-2.21 0-4 1.34-4 3s1.79 3 4 3 4-1.34 4-3-1.79-3-4-3zM12 3v1m0 16v1"/>
+          </svg>
+          Captaci&oacute;n total cierre: $11,597,000
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 BancoVista S.A. &mdash; Uso interno confidencial
+  </footer>
+
+  <script>
+    /* ── Live date ──────────────────────────────────────── */
+    (function () {
+      const el = document.getElementById('live-date');
+      const fmt = new Intl.DateTimeFormat('es-MX', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      el.textContent = fmt.format(new Date());
+    })();
+
+    /* ── Counter animation ──────────────────────────────── */
+    function animateCounter(id, target, prefix, suffix, decimals, duration) {
+      const el = document.getElementById(id);
+      const start = performance.now();
+      function step(now) {
+        const p = Math.min((now - start) / duration, 1);
+        // ease out cubic
+        const ease = 1 - Math.pow(1 - p, 3);
+        const val = ease * target;
+        el.textContent = prefix + formatNumber(val, decimals) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function formatNumber(n, decimals) {
+      if (n >= 1e9) return (n / 1e9).toFixed(decimals) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(decimals) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+      return n.toFixed(decimals);
+    }
+
+    /* ── KPI values ─────────────────────────────────────── */
+    animateCounter('val-cartera',   4820000000, '$', '',  2, 1800);  // $4.82B
+    animateCounter('val-clientes',  127400,     '',  '',  0, 1600);  // 127K
+    animateCounter('val-morosidad', 3.7,        '',  '%', 1, 1400);  // 3.7%
+    animateCounter('val-captacion', 312000000,  '$', '',  2, 2000);  // $312M
+
+    /* ── Bar chart ──────────────────────────────────────── */
+    (function () {
+      const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
+      const values = [3.8, 4.0, 4.1, 4.4, 4.6, 4.82];   // in billions
+      const max    = Math.max(...values);
+      const container = document.getElementById('bar-chart');
+
+      months.forEach((m, i) => {
+        const heightPct = (values[i] / max) * 100;
+        const wrap = document.createElement('div');
+        wrap.className = 'bar-wrap';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '0px';
+        bar.title = `$${values[i]}B`;
+
+        const label = document.createElement('span');
+        label.className = 'bar-label';
+        label.textContent = m;
+
+        wrap.appendChild(bar);
+        wrap.appendChild(label);
+        container.appendChild(wrap);
+
+        // Animate bars after a short stagger
+        setTimeout(() => {
+          bar.style.height = `${heightPct}%`;
+        }, 200 + i * 80);
+      });
+    })();
+
+    /* ── Donut animation ────────────────────────────────── */
+    (function () {
+      const circumference = 2 * Math.PI * 50;  // ≈ 314.16
+      const segments = [
+        { id: 'seg-empresas', pct: 42, offset: 0 },
+        { id: 'seg-pyme',     pct: 33, offset: 42 },
+        { id: 'seg-personas', pct: 25, offset: 75 },
+      ];
+
+      segments.forEach(({ id, pct, offset }) => {
+        const el = document.getElementById(id);
+        const dash = (pct / 100) * circumference;
+        const rotation = (offset / 100) * circumference;
+        el.setAttribute('stroke-dashoffset', -rotation);
+        const start = performance.now();
+        const duration = 1200;
+        function step(now) {
+          const p    = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          const d    = ease * dash;
+          const g    = circumference - d;
+          el.setAttribute('stroke-dasharray', `${d} ${g}`);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        setTimeout(() => requestAnimationFrame(step), 400);
+      });
+    })();
+
+    /* ════════════════════════════════════════════════════
+       CLIENT DETAIL MODAL
+       Total monto por pagar: $22,632,000
+       Total mora:            $   837,000  → 3.699 % ≈ 3.7 %
+       ════════════════════════════════════════════════════ */
+    const CLIENT_DATA = [
+      /* ── Crédito Hipotecario ──────────────────────────── */
+      {
+        id: 1, nombre: 'María González López', edad: 42,
+        producto: 'Crédito Hipotecario',
+        cuenta: '0042-8731-5294', credito: 'CH-2022-04728',
+        fechaInicio: '2022-03-15', fechaFin: '2042-03-15',
+        montoAutorizado: 1800000, montoConcedido: 1750000,
+        montoPorPagar: 1580000, pagoMensual: 9200,
+        cuotasPendientes: 192, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 2, nombre: 'Carlos Hernández Ruiz', edad: 38,
+        producto: 'Crédito Hipotecario',
+        cuenta: '1837-5209-4821', credito: 'CH-2020-03412',
+        fechaInicio: '2020-07-01', fechaFin: '2040-07-01',
+        montoAutorizado: 2200000, montoConcedido: 2150000,
+        montoPorPagar: 1950000, pagoMensual: 12400,
+        cuotasPendientes: 170, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 3, nombre: 'Ana Patricia Méndez Vargas', edad: 45,
+        producto: 'Crédito Hipotecario',
+        cuenta: '3021-6478-9035', credito: 'CH-2019-02187',
+        fechaInicio: '2019-09-10', fechaFin: '2039-09-10',
+        montoAutorizado: 1500000, montoConcedido: 1450000,
+        montoPorPagar: 1200000, pagoMensual: 8100,
+        cuotasPendientes: 160, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 4, nombre: 'Roberto Jiménez Castro', edad: 51,
+        producto: 'Crédito Hipotecario',
+        cuenta: '5519-2843-1076', credito: 'CH-2021-05639',
+        fechaInicio: '2021-01-20', fechaFin: '2041-01-20',
+        montoAutorizado: 3200000, montoConcedido: 3100000,
+        montoPorPagar: 2800000, pagoMensual: 17300,
+        cuotasPendientes: 176, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 5, nombre: 'Laura Beatriz Torres Vega', edad: 36,
+        producto: 'Crédito Hipotecario',
+        cuenta: '7214-9052-3867', credito: 'CH-2023-07841',
+        fechaInicio: '2023-05-08', fechaFin: '2043-05-08',
+        montoAutorizado: 1200000, montoConcedido: 1180000,
+        montoPorPagar: 1050000, pagoMensual: 6800,
+        cuotasPendientes: 204, montoMora: 380000, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 6, nombre: 'Miguel Ángel Flores Reyes', edad: 48,
+        producto: 'Crédito Hipotecario',
+        cuenta: '2983-5671-4028', credito: 'CH-2018-01254',
+        fechaInicio: '2018-11-15', fechaFin: '2038-11-15',
+        montoAutorizado: 2500000, montoConcedido: 2450000,
+        montoPorPagar: 2200000, pagoMensual: 13700,
+        cuotasPendientes: 152, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 7, nombre: 'Sofía Ramírez Ortiz', edad: 33,
+        producto: 'Crédito Hipotecario',
+        cuenta: '8342-1097-6543', credito: 'CH-2024-09312',
+        fechaInicio: '2024-02-01', fechaFin: '2044-02-01',
+        montoAutorizado: 900000, montoConcedido: 880000,
+        montoPorPagar: 840000, pagoMensual: 5100,
+        cuotasPendientes: 213, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 8, nombre: 'José Luis Morales García', edad: 44,
+        producto: 'Crédito Hipotecario',
+        cuenta: '1765-4302-8219', credito: 'CH-2021-06428',
+        fechaInicio: '2021-08-22', fechaFin: '2041-08-22',
+        montoAutorizado: 1650000, montoConcedido: 1600000,
+        montoPorPagar: 1450000, pagoMensual: 9500,
+        cuotasPendientes: 184, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 9, nombre: 'Patricia Elena Gutiérrez Soto', edad: 40,
+        producto: 'Crédito Hipotecario',
+        cuenta: '6490-3817-5024', credito: 'CH-2022-05831',
+        fechaInicio: '2022-06-14', fechaFin: '2042-06-14',
+        montoAutorizado: 2800000, montoConcedido: 2750000,
+        montoPorPagar: 2400000, pagoMensual: 15200,
+        cuotasPendientes: 194, montoMora: 200000, montoCastigado: 80000, montoQuebranto: 35000,
+      },
+      {
+        id: 10, nombre: 'Fernando Adolfo Díaz Mendoza', edad: 55,
+        producto: 'Crédito Hipotecario',
+        cuenta: '9283-7146-0391', credito: 'CH-2017-00892',
+        fechaInicio: '2017-03-05', fechaFin: '2037-03-05',
+        montoAutorizado: 4500000, montoConcedido: 4350000,
+        montoPorPagar: 3800000, pagoMensual: 23500,
+        cuotasPendientes: 131, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      /* ── Crédito Automotriz ───────────────────────────── */
+      {
+        id: 11, nombre: 'Gabriela Ramos Peña', edad: 29,
+        producto: 'Crédito Automotriz',
+        cuenta: '4821-0563-7942', credito: 'CA-2023-08742',
+        fechaInicio: '2023-01-15', fechaFin: '2028-01-15',
+        montoAutorizado: 350000, montoConcedido: 340000,
+        montoPorPagar: 280000, pagoMensual: 6200,
+        cuotasPendientes: 20, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 12, nombre: 'Alejandro Cruz Herrera', edad: 34,
+        producto: 'Crédito Automotriz',
+        cuenta: '3047-9821-6534', credito: 'CA-2022-07314',
+        fechaInicio: '2022-08-20', fechaFin: '2027-08-20',
+        montoAutorizado: 280000, montoConcedido: 275000,
+        montoPorPagar: 210000, pagoMensual: 5800,
+        cuotasPendientes: 27, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 13, nombre: 'Claudia Noemí Vargas Campos', edad: 41,
+        producto: 'Crédito Automotriz',
+        cuenta: '7163-2490-5817', credito: 'CA-2024-10521',
+        fechaInicio: '2024-03-10', fechaFin: '2028-03-10',
+        montoAutorizado: 450000, montoConcedido: 440000,
+        montoPorPagar: 390000, pagoMensual: 9100,
+        cuotasPendientes: 22, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 14, nombre: 'Ricardo Sánchez Núñez', edad: 37,
+        producto: 'Crédito Automotriz',
+        cuenta: '5892-4713-0286', credito: 'CA-2024-11083',
+        fechaInicio: '2024-04-05', fechaFin: '2028-04-05',
+        montoAutorizado: 180000, montoConcedido: 175000,
+        montoPorPagar: 148000, pagoMensual: 4200,
+        cuotasPendientes: 23, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 15, nombre: 'Diana Esperanza Rojas Lima', edad: 28,
+        producto: 'Crédito Automotriz',
+        cuenta: '2047-8361-9524', credito: 'CA-2023-09217',
+        fechaInicio: '2023-03-22', fechaFin: '2028-03-22',
+        montoAutorizado: 320000, montoConcedido: 310000,
+        montoPorPagar: 240000, pagoMensual: 6100,
+        cuotasPendientes: 22, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 16, nombre: 'Eduardo Martínez Blanco', edad: 45,
+        producto: 'Crédito Automotriz',
+        cuenta: '8312-0547-6893', credito: 'CA-2022-06891',
+        fechaInicio: '2022-07-18', fechaFin: '2027-07-18',
+        montoAutorizado: 520000, montoConcedido: 510000,
+        montoPorPagar: 420000, pagoMensual: 8700,
+        cuotasPendientes: 14, montoMora: 200000, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 17, nombre: 'Valentina Castillo Mora', edad: 31,
+        producto: 'Crédito Automotriz',
+        cuenta: '1624-9083-5471', credito: 'CA-2024-12304',
+        fechaInicio: '2024-01-30', fechaFin: '2028-01-30',
+        montoAutorizado: 220000, montoConcedido: 215000,
+        montoPorPagar: 170000, pagoMensual: 5000,
+        cuotasPendientes: 20, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 18, nombre: 'Pablo Aguilar Torres', edad: 39,
+        producto: 'Crédito Automotriz',
+        cuenta: '6931-4258-7014', credito: 'CA-2023-08156',
+        fechaInicio: '2023-02-14', fechaFin: '2028-02-14',
+        montoAutorizado: 380000, montoConcedido: 370000,
+        montoPorPagar: 290000, pagoMensual: 7300,
+        cuotasPendientes: 21, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 19, nombre: 'Mónica Reyes Alvarado', edad: 26,
+        producto: 'Crédito Automotriz',
+        cuenta: '3849-7126-4502', credito: 'CA-2025-13742',
+        fechaInicio: '2025-04-08', fechaFin: '2029-04-08',
+        montoAutorizado: 150000, montoConcedido: 145000,
+        montoPorPagar: 135000, pagoMensual: 3800,
+        cuotasPendientes: 47, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 20, nombre: 'Sergio Medina Fuentes', edad: 43,
+        producto: 'Crédito Automotriz',
+        cuenta: '7205-3891-6147', credito: 'CA-2022-07029',
+        fechaInicio: '2022-09-25', fechaFin: '2027-09-25',
+        montoAutorizado: 420000, montoConcedido: 410000,
+        montoPorPagar: 330000, pagoMensual: 8200,
+        cuotasPendientes: 16, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      /* ── Crédito Personal ────────────────────────────── */
+      {
+        id: 21, nombre: 'Carmen Delgado Espinoza', edad: 32,
+        producto: 'Crédito Personal',
+        cuenta: '5041-8372-9163', credito: 'CP-2024-14512',
+        fechaInicio: '2024-06-01', fechaFin: '2027-06-01',
+        montoAutorizado: 85000, montoConcedido: 82000,
+        montoPorPagar: 62000, pagoMensual: 2700,
+        cuotasPendientes: 13, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 22, nombre: 'Andrés Ríos Contreras', edad: 27,
+        producto: 'Crédito Personal',
+        cuenta: '9382-1047-5628', credito: 'CP-2025-16234',
+        fechaInicio: '2025-03-15', fechaFin: '2028-03-15',
+        montoAutorizado: 45000, montoConcedido: 43000,
+        montoPorPagar: 38000, pagoMensual: 1400,
+        cuotasPendientes: 34, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 23, nombre: 'Beatriz Salas Navarro', edad: 38,
+        producto: 'Crédito Personal',
+        cuenta: '2716-5930-8241', credito: 'CP-2023-11847',
+        fechaInicio: '2023-08-20', fechaFin: '2026-08-20',
+        montoAutorizado: 120000, montoConcedido: 115000,
+        montoPorPagar: 60000, pagoMensual: 3800,
+        cuotasPendientes: 3, montoMora: 57000, montoCastigado: 28000, montoQuebranto: 12000,
+      },
+      {
+        id: 24, nombre: 'Daniel Montes Herrera', edad: 46,
+        producto: 'Crédito Personal',
+        cuenta: '6483-2019-7534', credito: 'CP-2024-15089',
+        fechaInicio: '2024-02-12', fechaFin: '2027-02-12',
+        montoAutorizado: 150000, montoConcedido: 145000,
+        montoPorPagar: 105000, pagoMensual: 4600,
+        cuotasPendientes: 21, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 25, nombre: 'Lorena Vázquez Paredes', edad: 29,
+        producto: 'Crédito Personal',
+        cuenta: '4817-3092-6541', credito: 'CP-2025-17341',
+        fechaInicio: '2025-01-20', fechaFin: '2028-01-20',
+        montoAutorizado: 60000, montoConcedido: 58000,
+        montoPorPagar: 51000, pagoMensual: 1700,
+        cuotasPendientes: 35, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 26, nombre: 'Héctor Ibáñez Lara', edad: 52,
+        producto: 'Crédito Personal',
+        cuenta: '1293-7648-5021', credito: 'CP-2023-12608',
+        fechaInicio: '2023-11-05', fechaFin: '2026-11-05',
+        montoAutorizado: 200000, montoConcedido: 195000,
+        montoPorPagar: 114000, pagoMensual: 5400,
+        cuotasPendientes: 6, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 27, nombre: 'Marisol Ávila Coronado', edad: 34,
+        producto: 'Crédito Personal',
+        cuenta: '8047-5219-3486', credito: 'CP-2024-13891',
+        fechaInicio: '2024-09-18', fechaFin: '2027-09-18',
+        montoAutorizado: 80000, montoConcedido: 77000,
+        montoPorPagar: 63000, pagoMensual: 2200,
+        cuotasPendientes: 28, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 28, nombre: 'Enrique Pacheco Villanueva', edad: 41,
+        producto: 'Crédito Personal',
+        cuenta: '3862-0741-9523', credito: 'CP-2024-14256',
+        fechaInicio: '2024-04-07', fechaFin: '2027-04-07',
+        montoAutorizado: 130000, montoConcedido: 125000,
+        montoPorPagar: 89000, pagoMensual: 3700,
+        cuotasPendientes: 23, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 29, nombre: 'Isabel Guerrero Domínguez', edad: 35,
+        producto: 'Crédito Personal',
+        cuenta: '7549-2183-6047', credito: 'CP-2024-13102',
+        fechaInicio: '2024-07-14', fechaFin: '2027-07-14',
+        montoAutorizado: 95000, montoConcedido: 92000,
+        montoPorPagar: 74000, pagoMensual: 3100,
+        cuotasPendientes: 26, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+      {
+        id: 30, nombre: 'Arturo Mendoza Salazar', edad: 50,
+        producto: 'Crédito Personal',
+        cuenta: '0381-6927-4815', credito: 'CP-2023-10423',
+        fechaInicio: '2023-10-30', fechaFin: '2026-10-30',
+        montoAutorizado: 180000, montoConcedido: 175000,
+        montoPorPagar: 93000, pagoMensual: 5600,
+        cuotasPendientes: 5, montoMora: 0, montoCastigado: 0, montoQuebranto: 0,
+      },
+    ];
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    const peso = n =>
+      n === 0
+        ? '<span class="amt-zero">—</span>'
+        : '$' + n.toLocaleString('es-MX');
+
+    const pesoRaw = n => '$' + n.toLocaleString('es-MX');
+
+    const tagHtml = p => {
+      if (p === 'Crédito Hipotecario') return '<span class="tag hip">Hipotecario</span>';
+      if (p === 'Crédito Automotriz')  return '<span class="tag aut">Automotriz</span>';
+      return '<span class="tag per">Personal</span>';
+    };
+
+    const fmtDate = s => {
+      const [y, m, d] = s.split('-');
+      return `${d}/${m}/${y}`;
+    };
+
+    /* ── Portfolio totals (computed from CLIENT_DATA) ────── */
+    const PORTFOLIO = (() => {
+      const total = CLIENT_DATA.reduce((s, r) => s + r.montoPorPagar, 0);
+      const mora  = CLIENT_DATA.reduce((s, r) => s + r.montoMora, 0);
+      const cas   = CLIENT_DATA.reduce((s, r) => s + r.montoCastigado, 0);
+      const qbr   = CLIENT_DATA.reduce((s, r) => s + r.montoQuebranto, 0);
+      return {
+        total,
+        vigente:   total - mora,
+        vencida:   mora,
+        tasa:      mora / total * 100,
+        castigado: cas,
+        quebranto: qbr,
+        cntVigente: CLIENT_DATA.filter(r => r.montoMora === 0).length,
+        cntVencida: CLIENT_DATA.filter(r => r.montoMora > 0).length,
+      };
+    })();
+
+    /* ── Populate portfolio semaphore cards ──────────────── */
+    (function () {
+      const fmtP = n => {
+        if (n >= 1e6) return '$' + (n / 1e6).toFixed(3) + 'M';
+        return '$' + n.toLocaleString('es-MX');
+      };
+      document.getElementById('pi-vigente').textContent =
+        fmtP(PORTFOLIO.vigente);
+      document.getElementById('pi-vigente-sub').textContent =
+        `${PORTFOLIO.cntVigente} clientes al día · ${(PORTFOLIO.vigente / PORTFOLIO.total * 100).toFixed(1)}% del total`;
+      document.getElementById('pi-vencida').textContent =
+        fmtP(PORTFOLIO.vencida);
+      document.getElementById('pi-vencida-sub').textContent =
+        `${PORTFOLIO.cntVencida} clientes en mora`;
+      document.getElementById('pi-tasa').textContent =
+        PORTFOLIO.tasa.toFixed(2) + '%';
+      document.getElementById('pi-cas').textContent =
+        '$' + PORTFOLIO.castigado.toLocaleString('es-MX');
+      document.getElementById('pi-qbr').textContent =
+        '$' + PORTFOLIO.quebranto.toLocaleString('es-MX');
+      document.getElementById('tc-vigente').textContent = PORTFOLIO.cntVigente;
+      document.getElementById('tc-vencida').textContent = PORTFOLIO.cntVencida;
+    })();
+
+    /* ── Tab + sort state ────────────────────────────────── */
+    let activeTab = 'vigente';
+    let sortCol = 'id', sortDir = 'asc';
+
+    /* ── Render table ─────────────────────────────────────── */
+    function renderTable(data) {
+      const tbody  = document.getElementById('detail-tbody');
+      const resEl  = document.getElementById('filter-results');
+
+      tbody.innerHTML = data.map(r => {
+        const hasMora = r.montoMora > 0;
+        const rowCls  = hasMora ? ' class="row-mora"' : '';
+        return `<tr${rowCls}>
+          <td>${r.id}</td>
+          <td><strong>${r.nombre}</strong></td>
+          <td style="text-align:center">${r.edad}</td>
+          <td>${tagHtml(r.producto)}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.cuenta}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.credito}</td>
+          <td>${fmtDate(r.fechaInicio)}</td>
+          <td>${fmtDate(r.fechaFin)}</td>
+          <td style="text-align:right">${pesoRaw(r.montoAutorizado)}</td>
+          <td style="text-align:right">${pesoRaw(r.montoConcedido)}</td>
+          <td style="text-align:right"><strong>${pesoRaw(r.montoPorPagar)}</strong></td>
+          <td style="text-align:right">${pesoRaw(r.pagoMensual)}</td>
+          <td style="text-align:center">${r.cuotasPendientes}</td>
+          <td style="text-align:right">${hasMora
+            ? `<span class="amt-mora">${pesoRaw(r.montoMora)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+          <td style="text-align:right">${r.montoCastigado > 0
+            ? `<span class="amt-cas">${pesoRaw(r.montoCastigado)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+          <td style="text-align:right">${r.montoQuebranto > 0
+            ? `<span class="amt-qbr">${pesoRaw(r.montoQuebranto)}</span>`
+            : '<span class="amt-zero">—</span>'
+          }</td>
+        </tr>`;
+      }).join('');
+
+      resEl.innerHTML = `Mostrando <strong>${data.length}</strong> de ${CLIENT_DATA.length}`;
+    }
+
+    /* ── Update summary strip ─────────────────────────────── */
+    function updateSummary(data) {
+      const totalPorPagar = data.reduce((s, r) => s + r.montoPorPagar, 0);
+      const totalMora     = data.reduce((s, r) => s + r.montoMora, 0);
+      const totalCas      = data.reduce((s, r) => s + r.montoCastigado, 0);
+      const totalQbr      = data.reduce((s, r) => s + r.montoQuebranto, 0);
+      const hip = data.filter(r => r.producto === 'Crédito Hipotecario').length;
+      const aut = data.filter(r => r.producto === 'Crédito Automotriz').length;
+      const per = data.filter(r => r.producto === 'Crédito Personal').length;
+      const tasa = totalPorPagar > 0 ? (totalMora / totalPorPagar * 100) : 0;
+
+      document.getElementById('ss-total').textContent = pesoRaw(totalPorPagar);
+      document.getElementById('ss-hip').textContent   = `${hip} registro${hip !== 1 ? 's' : ''}`;
+      document.getElementById('ss-aut').textContent   = `${aut} registro${aut !== 1 ? 's' : ''}`;
+      document.getElementById('ss-per').textContent   = `${per} registro${per !== 1 ? 's' : ''}`;
+      document.getElementById('ss-mora').textContent  = pesoRaw(totalMora);
+      document.getElementById('ss-tasa').textContent  = tasa.toFixed(2) + '%';
+      document.getElementById('ss-cas').textContent   = pesoRaw(totalCas);
+      document.getElementById('ss-qbr').textContent   = pesoRaw(totalQbr);
+    }
+
+    /* ── Filter + search + sort pipeline ─────────────────── */
+    function applyFilters() {
+      const prod  = document.getElementById('filter-product').value;
+      const mora  = document.getElementById('filter-mora').value;
+      const query = document.getElementById('search-client').value.toLowerCase().trim();
+
+      let data = CLIENT_DATA.slice();
+
+      /* Tab filter is always applied first */
+      if (activeTab === 'vigente') data = data.filter(r => r.montoMora === 0);
+      if (activeTab === 'vencida') data = data.filter(r => r.montoMora > 0);
+
+      if (prod) data = data.filter(r => r.producto === prod);
+      if (mora === 'mora')   data = data.filter(r => r.montoMora > 0);
+      if (mora === 'al-dia') data = data.filter(r => r.montoMora === 0);
+      if (query) data = data.filter(r =>
+        r.nombre.toLowerCase().includes(query) ||
+        r.credito.toLowerCase().includes(query) ||
+        r.cuenta.includes(query)
+      );
+
+      data.sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+        if (va < vb) return sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return sortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
+
+      /* Update summary label to reflect the active tab */
+      document.getElementById('ss-total-label').textContent =
+        activeTab === 'vigente' ? 'Cartera vigente (por pagar)' : 'Cartera vencida (mora)';
+
+      renderTable(data);
+      updateSummary(data);
+    }
+
+    /* ── Column sort clicks ───────────────────────────────── */
+    document.getElementById('detail-table').querySelector('thead').addEventListener('click', e => {
+      const th = e.target.closest('th[data-col]');
+      if (!th) return;
+      const col = th.dataset.col;
+      if (col === sortCol) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortCol = col;
+        sortDir = 'asc';
+      }
+      document.querySelectorAll('.detail-table th').forEach(t => t.classList.remove('asc','desc'));
+      th.classList.add(sortDir);
+      applyFilters();
+    });
+
+    /* ── Filter/search events ─────────────────────────────── */
+    document.getElementById('filter-product').addEventListener('change', applyFilters);
+    document.getElementById('filter-mora').addEventListener('change', applyFilters);
+    document.getElementById('search-client').addEventListener('input', applyFilters);
+
+    /* ── Tab click handlers ───────────────────────────────── */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.id === 'tab-vigente' ? 'vigente' : 'vencida';
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          const isActive = b.id === btn.id;
+          b.classList.toggle('active', isActive);
+          b.setAttribute('aria-selected', isActive);
+        });
+        applyFilters();
       });
     });
 
-    document.getElementById('overlay').classList.add('abierto');
-  }
+    /* ── Modal open / close ───────────────────────────────── */
+    const backdrop = document.getElementById('modal-backdrop');
 
-  function cerrarDetalle() {
-    document.getElementById('overlay').classList.remove('abierto');
-    clienteActivo = null;
-    renderizarTabla();
-  }
+    function openModal() {
+      /* Reset to Vigente tab on each open */
+      activeTab = 'vigente';
+      document.getElementById('tab-vigente').classList.add('active');
+      document.getElementById('tab-vigente').setAttribute('aria-selected', 'true');
+      document.getElementById('tab-vencida').classList.remove('active');
+      document.getElementById('tab-vencida').setAttribute('aria-selected', 'false');
 
-  /* ================================================================
-     GRÁFICAS CON CHART.JS
-     ================================================================ */
-  function inicializarGraficas() {
-    // Conteos por semáforo
-    const conteo = {
-      rojo:     clientes.filter(c => c.semaforo === 'rojo').length,
-      amarillo: clientes.filter(c => c.semaforo === 'amarillo').length,
-      verde:    clientes.filter(c => c.semaforo === 'verde').length,
+      applyFilters();
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('search-client').focus();
+    }
+
+    function closeModal() {
+      backdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('btn-clientes').addEventListener('click', openModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    backdrop.addEventListener('click', e => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && backdrop.classList.contains('open')) closeModal();
+    });
+
+    /* Initial sort arrow on #-column */
+    document.querySelector('.detail-table th[data-col="id"]').classList.add('asc');
+
+    /* ════════════════════════════════════════════════════
+       CAPTACIÓN SECTION
+       Vista total cierre:  $2,563,000  (26 clientes)
+       Pagaré total cierre: $9,034,000  (12 clientes)
+       Captación total:    $11,597,000
+       Reglas de negocio:
+         · Hipotecario (10) + Automotriz (10) → vista obligatoria
+         · Personal (6/10, 60%) → vista; excluidos: 25,26,29,30
+         · Clientes con montoCastigado > 0 → saldo vista = 0
+         · Pagaré: clientes nuevos, sin crédito; pueden tener TC
+       ════════════════════════════════════════════════════ */
+    const CAPTACION_DATA = [
+      /* ── Cuenta a la Vista — Hipotecario (10) ─────────── */
+      { id:1,  nombre:'María González López',        cuenta:'0042-8731-5294', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:125000,  saldoCierre:132000,  castigado:false },
+      { id:2,  nombre:'Carlos Hernández Ruiz',       cuenta:'1837-5209-4821', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:210000,  saldoCierre:198000,  castigado:false },
+      { id:3,  nombre:'Ana Patricia Méndez Vargas',  cuenta:'3021-6478-9035', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:89000,   saldoCierre:95000,   castigado:false },
+      { id:4,  nombre:'Roberto Jiménez Castro',      cuenta:'5519-2843-1076', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:380000,  saldoCierre:412000,  castigado:false },
+      { id:5,  nombre:'Laura Beatriz Torres Vega',   cuenta:'7214-9052-3867', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:45000,   saldoCierre:38000,   castigado:false },
+      { id:6,  nombre:'Miguel Ángel Flores Reyes',   cuenta:'2983-5671-4028', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:275000,  saldoCierre:290000,  castigado:false },
+      { id:7,  nombre:'Sofía Ramírez Ortiz',         cuenta:'8342-1097-6543', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:62000,   saldoCierre:58000,   castigado:false },
+      { id:8,  nombre:'José Luis Morales García',    cuenta:'1765-4302-8219', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,      tarjeta:false, saldoPromedio:148000,  saldoCierre:155000,  castigado:false },
+      { id:9,  nombre:'Patricia Elena Gutiérrez Soto', cuenta:'6490-3817-5024', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,   tarjeta:false, saldoPromedio:0,       saldoCierre:0,       castigado:true  },
+      { id:10, nombre:'Fernando Adolfo Díaz Mendoza', cuenta:'9283-7146-0391', producto:'Cuenta a la Vista', origen:'Hipotecario', plazo:null,    tarjeta:false, saldoPromedio:450000,  saldoCierre:478000,  castigado:false },
+      /* ── Cuenta a la Vista — Automotriz (10) ───────────── */
+      { id:11, nombre:'Gabriela Ramos Peña',         cuenta:'4821-0563-7942', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:35000,   saldoCierre:38000,   castigado:false },
+      { id:12, nombre:'Alejandro Cruz Herrera',      cuenta:'3047-9821-6534', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:52000,   saldoCierre:47000,   castigado:false },
+      { id:13, nombre:'Claudia Noemí Vargas Campos', cuenta:'7163-2490-5817', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:78000,   saldoCierre:82000,   castigado:false },
+      { id:14, nombre:'Ricardo Sánchez Núñez',       cuenta:'5892-4713-0286', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:28000,   saldoCierre:31000,   castigado:false },
+      { id:15, nombre:'Diana Esperanza Rojas Lima',  cuenta:'2047-8361-9524', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:42000,   saldoCierre:45000,   castigado:false },
+      { id:16, nombre:'Eduardo Martínez Blanco',     cuenta:'8312-0547-6893', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:115000,  saldoCierre:122000,  castigado:false },
+      { id:17, nombre:'Valentina Castillo Mora',     cuenta:'1624-9083-5471', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:33000,   saldoCierre:29000,   castigado:false },
+      { id:18, nombre:'Pablo Aguilar Torres',        cuenta:'6931-4258-7014', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:67000,   saldoCierre:71000,   castigado:false },
+      { id:19, nombre:'Mónica Reyes Alvarado',       cuenta:'3849-7126-4502', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:22000,   saldoCierre:19000,   castigado:false },
+      { id:20, nombre:'Sergio Medina Fuentes',       cuenta:'7205-3891-6147', producto:'Cuenta a la Vista', origen:'Automotriz',  plazo:null,      tarjeta:false, saldoPromedio:95000,   saldoCierre:88000,   castigado:false },
+      /* ── Cuenta a la Vista — Personal (6/10, 60%) ──────── */
+      { id:21, nombre:'Carmen Delgado Espinoza',     cuenta:'5041-8372-9163', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:18000,   saldoCierre:21000,   castigado:false },
+      { id:22, nombre:'Andrés Ríos Contreras',       cuenta:'9382-1047-5628', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:12000,   saldoCierre:9000,    castigado:false },
+      { id:23, nombre:'Beatriz Salas Navarro',       cuenta:'2716-5930-8241', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:0,       saldoCierre:0,       castigado:true  },
+      { id:24, nombre:'Daniel Montes Herrera',       cuenta:'6483-2019-7534', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:35000,   saldoCierre:38000,   castigado:false },
+      { id:25, nombre:'Marisol Ávila Coronado',      cuenta:'8047-5219-3486', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:24000,   saldoCierre:22000,   castigado:false },
+      { id:26, nombre:'Enrique Pacheco Villanueva',  cuenta:'3862-0741-9523', producto:'Cuenta a la Vista', origen:'Personal',    plazo:null,      tarjeta:false, saldoPromedio:42000,   saldoCierre:45000,   castigado:false },
+      /* ── Pagaré — 30 días (4 clientes nuevos) ──────────── */
+      { id:27, nombre:'Raúl Espinoza Montoya',       cuenta:'PAG-2025-00127', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:true,  saldoPromedio:320000,  saldoCierre:322000,  castigado:false },
+      { id:28, nombre:'Gabriela Orozco Vidal',       cuenta:'PAG-2024-00089', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:false, saldoPromedio:180000,  saldoCierre:181000,  castigado:false },
+      { id:29, nombre:'Javier Rueda Palomino',       cuenta:'PAG-2025-00134', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:true,  saldoPromedio:500000,  saldoCierre:500000,  castigado:false },
+      { id:30, nombre:'Cristina Peña Espinosa',      cuenta:'PAG-2025-00141', producto:'Pagaré',            origen:null,          plazo:'30 días', tarjeta:false, saldoPromedio:120000,  saldoCierre:121000,  castigado:false },
+      /* ── Pagaré — 6 meses (4 clientes nuevos) ──────────── */
+      { id:31, nombre:'Rodrigo Salazar Ureña',       cuenta:'PAG-2025-00098', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:true,  saldoPromedio:750000,  saldoCierre:755000,  castigado:false },
+      { id:32, nombre:'Alicia Noriega Campos',       cuenta:'PAG-2024-00076', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:true,  saldoPromedio:450000,  saldoCierre:452000,  castigado:false },
+      { id:33, nombre:'Francisco Bravo Méndez',      cuenta:'PAG-2025-00112', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:false, saldoPromedio:1200000, saldoCierre:1205000, castigado:false },
+      { id:34, nombre:'Verónica Zamora Gutiérrez',   cuenta:'PAG-2024-00081', producto:'Pagaré',            origen:null,          plazo:'6 meses', tarjeta:false, saldoPromedio:380000,  saldoCierre:382000,  castigado:false },
+      /* ── Pagaré — 1 año (4 clientes nuevos) ────────────── */
+      { id:35, nombre:'Ignacio Moreno Padilla',      cuenta:'PAG-2024-00054', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:true,  saldoPromedio:2100000, saldoCierre:2108000, castigado:false },
+      { id:36, nombre:'Susana Domínguez Ríos',       cuenta:'PAG-2023-00041', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:false, saldoPromedio:1500000, saldoCierre:1503000, castigado:false },
+      { id:37, nombre:'Bernardo Lagos Fuentes',      cuenta:'PAG-2024-00063', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:true,  saldoPromedio:850000,  saldoCierre:853000,  castigado:false },
+      { id:38, nombre:'Elvira Cárdenas Montiel',     cuenta:'PAG-2023-00037', producto:'Pagaré',            origen:null,          plazo:'1 año',   tarjeta:false, saldoPromedio:650000,  saldoCierre:652000,  castigado:false },
+    ];
+
+    /* ── Populate captación summary strip ────────────────── */
+    (function () {
+      const fmtC = n => '$' + n.toLocaleString('es-MX');
+      const d = CAPTACION_DATA;
+      const vista  = d.filter(r => r.producto === 'Cuenta a la Vista');
+      const pagare = d.filter(r => r.producto === 'Pagaré');
+      const p30    = pagare.filter(r => r.plazo === '30 días');
+      const p6m    = pagare.filter(r => r.plazo === '6 meses');
+      const p1a    = pagare.filter(r => r.plazo === '1 año');
+      const sum    = arr => arr.reduce((s, r) => s + r.saldoCierre, 0);
+
+      document.getElementById('cs-total').textContent    = fmtC(sum(d));
+      document.getElementById('cs-vista').textContent    = fmtC(sum(vista));
+      document.getElementById('cs-p30').textContent      = fmtC(sum(p30));
+      document.getElementById('cs-p6m').textContent      = fmtC(sum(p6m));
+      document.getElementById('cs-p1a').textContent      = fmtC(sum(p1a));
+      document.getElementById('cs-cnt-vista').textContent = vista.length + ' clientes';
+      document.getElementById('cs-cnt-pag').textContent   = pagare.length + ' clientes';
+      document.getElementById('cs-cnt-tc').textContent    = d.filter(r => r.tarjeta).length + ' clientes';
+      document.getElementById('cap-tc-vista').textContent  = vista.length;
+      document.getElementById('cap-tc-pagare').textContent = pagare.length;
+    })();
+
+    /* ── Captación table helpers ──────────────────────────── */
+    const capProductoTag = r => {
+      if (r.producto === 'Cuenta a la Vista') {
+        const ot = r.origen === 'Hipotecario' ? '<span class="tag hip" style="font-size:.62rem">Hip.</span>'
+                 : r.origen === 'Automotriz'  ? '<span class="tag aut" style="font-size:.62rem">Aut.</span>'
+                 :                              '<span class="tag per" style="font-size:.62rem">Per.</span>';
+        return `<span class="tag vst">A la Vista</span>&nbsp;${ot}`;
+      }
+      return '<span class="tag pag">Pagaré</span>';
     };
 
-    // Promedios por dimensión
-    const avg = arr => Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
-    const avgCompletitud = avg(clientes.map(c => c.scoreCompletitud));
-    const avgVeracidad   = avg(clientes.map(c => c.scoreVeracidad));
-    const avgSeguridad   = avg(clientes.map(c => c.scoreSeguridad));
+    const capOrigenTxt = r => r.origen
+      ? `<span style="font-size:.73rem;color:var(--muted)">${r.origen}</span>`
+      : '<span class="amt-zero">—</span>';
 
-    // --- Gráfica de Dona ---
-    const ctxDona = document.getElementById('grafica-dona').getContext('2d');
-    new Chart(ctxDona, {
-      type: 'doughnut',
-      data: {
-        labels: ['Riesgo Alto', 'Riesgo Medio', 'Riesgo Bajo'],
-        datasets: [{
-          data: [conteo.rojo, conteo.amarillo, conteo.verde],
-          backgroundColor: ['#e74c3c', '#f39c12', '#27ae60'],
-          borderColor: '#ffffff',
-          borderWidth: 3,
-          hoverOffset: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              font: { family: 'Inter', size: 12 },
-              padding: 18,
-              usePointStyle: true,
-              pointStyleWidth: 10
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                const pct = Math.round(ctx.raw / clientes.length * 100);
-                return `  ${ctx.label}: ${ctx.raw} clientes (${pct}%)`;
-              }
-            }
-          }
-        }
+    const capPlazoTag = r => {
+      if (!r.plazo) return '<span class="amt-zero">—</span>';
+      const cls = r.plazo === '30 días' ? 'p30' : r.plazo === '6 meses' ? 'p6m' : 'p1a';
+      return `<span class="tag ${cls}">${r.plazo}</span>`;
+    };
+
+    const capTarjeta = r => r.producto === 'Pagaré'
+      ? (r.tarjeta ? '<span class="tc-si">✓ Sí</span>' : '<span class="tc-no">No</span>')
+      : '<span class="amt-zero">N/A</span>';
+
+    /* ── Captación sort/tab state ─────────────────────────── */
+    let capSortCol = 'id', capSortDir = 'asc', capActiveTab = 'vista';
+
+    /* ── Render captación table ───────────────────────────── */
+    function renderCapTable(data) {
+      const tbody = document.getElementById('cap-tbody');
+      const res   = document.getElementById('cap-filter-results');
+
+      tbody.innerHTML = data.map(r => {
+        const cls = r.castigado ? ' class="row-saldo-cero"' : '';
+        return `<tr${cls}>
+          <td>${r.id}</td>
+          <td><strong>${r.nombre}</strong>${r.castigado ? ' <span style="font-size:.65rem;color:#ef4444">(castigado)</span>' : ''}</td>
+          <td style="font-family:monospace;font-size:.73rem">${r.cuenta}</td>
+          <td>${capProductoTag(r)}</td>
+          <td>${capOrigenTxt(r)}</td>
+          <td>${capPlazoTag(r)}</td>
+          <td style="text-align:center">${capTarjeta(r)}</td>
+          <td style="text-align:right">${r.saldoPromedio === 0 && r.castigado
+            ? '<span class="amt-mora">$0</span>'
+            : '$' + r.saldoPromedio.toLocaleString('es-MX')
+          }</td>
+          <td style="text-align:right"><strong>${r.saldoCierre === 0 && r.castigado
+            ? '<span class="amt-mora">$0</span>'
+            : '$' + r.saldoCierre.toLocaleString('es-MX')
+          }</strong></td>
+        </tr>`;
+      }).join('');
+
+      res.innerHTML = `Mostrando <strong>${data.length}</strong> de ${CAPTACION_DATA.length}`;
+    }
+
+    /* ── Apply captación filters ──────────────────────────── */
+    function applyCapFilters() {
+      const origen = document.getElementById('cap-filter-origen').value;
+      const plazo  = document.getElementById('cap-filter-plazo').value;
+      const query  = document.getElementById('cap-search').value.toLowerCase().trim();
+
+      let data = CAPTACION_DATA.slice();
+
+      /* Tab filter first */
+      if (capActiveTab === 'vista')   data = data.filter(r => r.producto === 'Cuenta a la Vista');
+      if (capActiveTab === 'pagare')  data = data.filter(r => r.producto === 'Pagaré');
+
+      if (origen) {
+        if (origen === 'Pagaré') data = data.filter(r => r.producto === 'Pagaré');
+        else                      data = data.filter(r => r.origen === origen);
       }
+      if (plazo) data = data.filter(r => r.plazo === plazo);
+      if (query) data = data.filter(r =>
+        r.nombre.toLowerCase().includes(query) ||
+        r.cuenta.toLowerCase().includes(query)
+      );
+
+      data.sort((a, b) => {
+        let va = a[capSortCol] ?? '', vb = b[capSortCol] ?? '';
+        if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+        if (va < vb) return capSortDir === 'asc' ? -1 : 1;
+        if (va > vb) return capSortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
+
+      renderCapTable(data);
+    }
+
+    /* ── Captación column sort ────────────────────────────── */
+    document.getElementById('cap-table').querySelector('thead').addEventListener('click', e => {
+      const th = e.target.closest('th[data-col]');
+      if (!th) return;
+      const col = th.dataset.col;
+      capSortDir = col === capSortCol ? (capSortDir === 'asc' ? 'desc' : 'asc') : 'asc';
+      capSortCol = col;
+      document.querySelectorAll('#cap-table th').forEach(t => t.classList.remove('asc','desc'));
+      th.classList.add(capSortDir);
+      applyCapFilters();
     });
 
-    // --- Gráfica de Barras ---
-    const ctxBarras = document.getElementById('grafica-barras').getContext('2d');
-    new Chart(ctxBarras, {
-      type: 'bar',
-      data: {
-        labels: ['Completitud de Datos', 'Veracidad de Formato', 'Seguridad y Verificación'],
-        datasets: [{
-          label: 'Score Promedio (%)',
-          data: [avgCompletitud, avgVeracidad, avgSeguridad],
-          backgroundColor: [
-            avgCompletitud >= 80 ? 'rgba(39,174,96,0.75)'   : avgCompletitud >= 60 ? 'rgba(243,156,18,0.75)' : 'rgba(231,76,60,0.75)',
-            avgVeracidad   >= 80 ? 'rgba(39,174,96,0.75)'   : avgVeracidad   >= 60 ? 'rgba(243,156,18,0.75)' : 'rgba(231,76,60,0.75)',
-            avgSeguridad   >= 80 ? 'rgba(39,174,96,0.75)'   : avgSeguridad   >= 60 ? 'rgba(243,156,18,0.75)' : 'rgba(231,76,60,0.75)',
-          ],
-          borderColor: [
-            avgCompletitud >= 80 ? '#27ae60' : avgCompletitud >= 60 ? '#f39c12' : '#e74c3c',
-            avgVeracidad   >= 80 ? '#27ae60' : avgVeracidad   >= 60 ? '#f39c12' : '#e74c3c',
-            avgSeguridad   >= 80 ? '#27ae60' : avgSeguridad   >= 60 ? '#f39c12' : '#e74c3c',
-          ],
-          borderWidth: 1.5,
-          borderRadius: 6,
-          borderSkipped: false,
-          maxBarThickness: 80
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => `  Score promedio: ${ctx.raw}%`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              callback: val => val + '%',
-              font: { family: 'Inter', size: 11 },
-              color: '#6b7280'
-            },
-            grid: { color: '#e8edf2', drawBorder: false }
-          },
-          x: {
-            ticks: {
-              font: { family: 'Inter', size: 12 },
-              color: '#374151',
-              maxRotation: 0
-            },
-            grid: { display: false, drawBorder: false }
-          }
-        }
-      }
+    /* ── Captación filter/search events ──────────────────── */
+    document.getElementById('cap-filter-origen').addEventListener('change', applyCapFilters);
+    document.getElementById('cap-filter-plazo').addEventListener('change', applyCapFilters);
+    document.getElementById('cap-search').addEventListener('input', applyCapFilters);
+
+    /* ── Captación tab handlers ───────────────────────────── */
+    document.querySelectorAll('#cap-backdrop .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        capActiveTab = btn.id === 'cap-tab-vista' ? 'vista' : 'pagare';
+        document.querySelectorAll('#cap-backdrop .tab-btn').forEach(b => {
+          const active = b.id === btn.id;
+          b.classList.toggle('active', active);
+          b.setAttribute('aria-selected', active);
+        });
+        /* Pagaré tab: disable origen filter irrelevant options */
+        const origenSel = document.getElementById('cap-filter-origen');
+        origenSel.value = '';
+        document.getElementById('cap-filter-plazo').value = '';
+        applyCapFilters();
+      });
     });
-  }
 
-  /* ================================================================
-     EVENT LISTENERS
-     ================================================================ */
+    /* ── Captación modal open / close ────────────────────── */
+    const capBackdrop = document.getElementById('cap-backdrop');
 
-  // Filtros de semáforo
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filtroActivo = btn.dataset.filtro;
-      renderizarTabla();
+    function openCapModal() {
+      capActiveTab = 'vista';
+      document.getElementById('cap-tab-vista').classList.add('active');
+      document.getElementById('cap-tab-vista').setAttribute('aria-selected', 'true');
+      document.getElementById('cap-tab-pagare').classList.remove('active');
+      document.getElementById('cap-tab-pagare').setAttribute('aria-selected', 'false');
+      document.getElementById('cap-filter-origen').value = '';
+      document.getElementById('cap-filter-plazo').value  = '';
+      document.getElementById('cap-search').value        = '';
+      document.querySelector('#cap-table th[data-col="id"]').classList.add('asc');
+      applyCapFilters();
+      capBackdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('cap-search').focus();
+    }
+
+    function closeCapModal() {
+      capBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('btn-captacion').addEventListener('click', openCapModal);
+    document.getElementById('cap-close').addEventListener('click', closeCapModal);
+
+    capBackdrop.addEventListener('click', e => {
+      if (e.target === capBackdrop) closeCapModal();
     });
-  });
 
-  // Búsqueda en tiempo real
-  document.getElementById('camposBusqueda').addEventListener('input', e => {
-    textoBusqueda = e.target.value;
-    renderizarTabla();
-  });
-
-  // Cerrar panel con el botón X
-  document.getElementById('btnCerrar').addEventListener('click', cerrarDetalle);
-
-  // Cerrar panel haciendo clic fuera de él
-  document.getElementById('overlay').addEventListener('click', e => {
-    if (e.target === e.currentTarget) cerrarDetalle();
-  });
-
-  // Cerrar panel con la tecla Escape
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cerrarDetalle();
-  });
-
-  /* ================================================================
-     INICIALIZACIÓN
-     ================================================================ */
-  mostrarFecha();
-  renderizarKPIs();
-  renderizarTabla();
-  inicializarGraficas();
-
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && capBackdrop.classList.contains('open')) closeCapModal();
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Cita en Sucursal — {{nombre_banco}}</title></head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:28px 16px;background:#f0f4f8;">
+<tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr><td style="background:linear-gradient(135deg,#1a3a5c,#2c5f8a);padding:28px 36px;border-radius:10px 10px 0 0;">
+    <div style="color:#fff;font-size:22px;font-weight:700;margin-top:16px;">Solicitud de Cita en Sucursal</div>
+    <div style="color:rgba(255,255,255,.72);font-size:13px;margin-top:5px;">Actualización de expediente KYC — {{nombre_banco}}</div>
+  </td></tr>
+  <tr><td style="background:#fdecea;border-left:4px solid #e74c3c;padding:12px 36px;">
+    <strong style="color:#c0392b;font-size:13px;">Se han detectado inconsistencias en su expediente que requieren atención presencial.</strong>
+  </td></tr>
+  <tr><td style="background:#fff;padding:32px 36px;">
+    <p style="margin:0 0 16px;font-size:15px;">Estimado(a) <strong>{{nombre_cliente}}</strong> (RFC: {{rfc_cliente}}),</p>
+    <p style="font-size:14px;color:#4a5568;line-height:1.7;">El sistema KYC Risk Monitor ha identificado los siguientes problemas en su expediente:</p>
+    <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px;color:#c53030;">{{problemas}}</div>
+    <p style="font-size:13px;color:#4a5568;">Documentos requeridos: <strong>INE vigente, comprobante de domicilio (máx. 3 meses), RFC y CURP</strong>.</p>
+    <div style="background:#fff8e6;border-left:4px solid #f39c12;padding:14px 18px;margin:20px 0;border-radius:0 8px 8px 0;">
+      <strong style="color:#8a6100;">Plazo:</strong> 10 días hábiles. De no presentarse, su cuenta podría quedar sujeta a restricciones operativas. Folio: {{folio}}
+    </div>
+    <p style="margin:24px 0 0;font-size:14px;">Atentamente,<br><strong style="color:#1a3a5c;">Área de Cumplimiento KYC — {{nombre_banco}}</strong><br><small style="color:#a0aec0;">{{fecha_actual}}</small></p>
+  </td></tr>
+  <tr><td style="background:#f7fafc;padding:14px 36px;border-top:1px solid #e2e8f0;border-radius:0 0 10px 10px;">
+    <p style="margin:0;font-size:10px;color:#a0aec0;text-align:center;">Mensaje automático KYC Risk Monitor — {{nombre_banco}} | <a href="mailto:{{email_banco}}" style="color:#718096;">{{email_banco}}</a> | Folio: {{folio}}</p>
+  </td></tr>
+</table></td></tr></table></body></html>

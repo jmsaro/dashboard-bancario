@@ -769,6 +769,241 @@
       .panel { width: 100vw; }
       .search-input { width: 160px; }
     }
+
+    /* ================================================================
+       MÓDULO DE VALIDACIÓN — RENAPO & RFC
+       ================================================================ */
+
+    /* Cabecera de sección */
+    .validacion-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .validacion-titulo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--azul-marino);
+      margin-bottom: 4px;
+    }
+    .validacion-subtitulo {
+      font-size: 12px;
+      color: var(--gris-texto);
+    }
+
+    /* Advertencia de backend no disponible */
+    .backend-warning {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: #fff8e6;
+      border: 1px solid #f39c12;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #9a6700;
+      font-weight: 500;
+    }
+
+    /* Panel de controles */
+    .validacion-controles {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .btn-validar-todos {
+      padding: 10px 20px;
+      background: var(--azul-marino);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-validar-todos:hover { background: var(--azul-medio); }
+    .btn-validar-todos:active { transform: scale(0.98); }
+    .btn-validar-todos:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
+    .btn-duplicados {
+      padding: 10px 18px;
+      background: white;
+      color: var(--azul-marino);
+      border: 1.5px solid var(--azul-marino);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-duplicados:hover { background: var(--gris-claro); }
+    .btn-duplicados:disabled { border-color: #9ca3af; color: #9ca3af; cursor: not-allowed; }
+    .ultima-validacion-badge {
+      font-size: 11px;
+      color: var(--gris-texto);
+      background: var(--gris-claro);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--gris-borde);
+    }
+
+    /* Barra de progreso */
+    .progress-contenedor {
+      margin-top: 12px;
+      display: none;
+    }
+    .progress-track {
+      background: var(--gris-borde);
+      border-radius: 6px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--azul-claro), var(--azul-medio));
+      border-radius: 6px;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: var(--gris-texto);
+    }
+
+    /* KPIs de validación */
+    .kpi-validacion-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 960px) { .kpi-validacion-grid { grid-template-columns: repeat(2,1fr); } }
+
+    /* Tabla de resultados de validación */
+    .resultado-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      margin: 1px 2px;
+      white-space: nowrap;
+    }
+    .tag-rojo    { background: var(--rojo-bg); color: var(--rojo); }
+    .tag-amarillo { background: var(--amarillo-bg); color: #9a6700; }
+    .tag-verde   { background: var(--verde-bg); color: var(--verde); }
+    .tag-gris    { background: var(--gris-claro); color: var(--gris-texto); border: 1px solid var(--gris-borde); }
+
+    /* Badge de alerta */
+    .alerta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .alerta-alto   { background: var(--rojo-bg); color: var(--rojo); }
+    .alerta-medio  { background: var(--amarillo-bg); color: #9a6700; }
+    .alerta-bajo   { background: #ede9fe; color: #6d28d9; }
+    .alerta-ok     { background: var(--verde-bg); color: var(--verde); }
+    .renapo-ok     { background: var(--verde-bg); color: var(--verde); }
+    .renapo-no     { background: var(--rojo-bg); color: var(--rojo); }
+    .renapo-disc   { background: var(--amarillo-bg); color: #9a6700; }
+    .renapo-err    { background: var(--gris-claro); color: var(--gris-texto); border: 1px solid var(--gris-borde); }
+
+    /* Panel de duplicados */
+    .duplicado-tipo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--gris-claro);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border: 1px solid var(--gris-borde);
+      user-select: none;
+    }
+    .duplicado-tipo-header:hover { background: #edf2f7; }
+    .duplicado-tipo-header .tipo-titulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--texto-primario);
+    }
+    .duplicado-grupo {
+      background: white;
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+    }
+    .duplicado-grupo-titulo {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--rojo);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .duplicado-cliente-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gris-claro);
+      border: 1px solid var(--gris-borde);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      margin: 2px 3px;
+    }
+    .duplicado-cliente-chip strong { color: var(--azul-marino); }
+
+    /* Icono 🔍 en tabla principal */
+    .validado-icon {
+      display: inline-block;
+      font-size: 11px;
+      margin-left: 4px;
+      opacity: 0.7;
+      cursor: help;
+    }
+
+    /* Modal de comparación lado a lado */
+    .comparacion-tabla {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .comparacion-tabla th {
+      padding: 8px 10px;
+      background: var(--gris-claro);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--gris-texto);
+      text-align: left;
+      border-bottom: 2px solid var(--gris-borde);
+    }
+    .comparacion-tabla td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #f4f6f9;
+      vertical-align: middle;
+    }
+    .comparacion-tabla td.diff-rojo { color: var(--rojo); font-weight: 600; }
+    .comparacion-tabla td.diff-ok   { color: var(--verde); }
+
   </style>
 </head>
 <body>
@@ -894,6 +1129,118 @@
       </div>
     </div>
 
+    <!-- ============================================================
+         SECCIÓN: VALIDACIÓN DE IDENTIDAD — RENAPO & RFC
+         ============================================================ -->
+    <div style="margin-top: 32px; padding-top: 28px; border-top: 2px dashed var(--gris-borde);">
+
+      <!-- Encabezado de sección -->
+      <div class="validacion-header">
+        <div>
+          <div class="validacion-titulo">Validación de Identidad — RENAPO &amp; RFC</div>
+          <div class="validacion-subtitulo">Verificación contra el Registro Nacional de Población (RENAPO) y validación de RFC con algoritmo SAT</div>
+        </div>
+        <div id="backendWarning" class="backend-warning">
+          <span>⚠️</span>
+          <span>Backend no disponible — Modo Demo: resultados RENAPO son simulados localmente</span>
+        </div>
+      </div>
+
+      <!-- Panel de control -->
+      <div class="card validacion-controles" id="validacionControles">
+        <button id="btnValidarTodos" class="btn-validar-todos" onclick="iniciarValidacionTodos()">
+          🔍 Validar Todos los Clientes vs RENAPO
+        </button>
+        <button id="btnDetectarDuplicados" class="btn-duplicados" onclick="iniciarDeteccionDuplicados()">
+          🔄 Detectar Duplicados en Base
+        </button>
+        <span id="ultimaValidacionBadge" class="ultima-validacion-badge" style="display:none;">
+          Última validación: <strong id="ultimaValidacionTexto">—</strong>
+        </span>
+        <div class="progress-contenedor" id="progressContenedor">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+          <span class="progress-label" id="progressLabel">Iniciando...</span>
+        </div>
+      </div>
+
+      <!-- KPIs de validación -->
+      <div class="kpi-validacion-grid" id="kpiValidacionGrid" style="display:none;">
+        <div class="kpi-card k-verde">
+          <div class="kpi-header"><span class="kpi-label">Confirmadas RENAPO</span><div class="kpi-icon verde" style="font-size:18px;">✅</div></div>
+          <div class="kpi-value verde" id="kpiConfirmadas">—</div>
+          <div class="kpi-sub">Identidades verificadas</div>
+        </div>
+        <div class="kpi-card k-rojo">
+          <div class="kpi-header"><span class="kpi-label">No Encontradas</span><div class="kpi-icon rojo" style="font-size:18px;">❓</div></div>
+          <div class="kpi-value" style="color:var(--rojo)" id="kpiNoEncontradas">—</div>
+          <div class="kpi-sub">Posiblemente ficticias</div>
+        </div>
+        <div class="kpi-card k-amarillo">
+          <div class="kpi-header"><span class="kpi-label">Con Discrepancias</span><div class="kpi-icon amarillo" style="font-size:18px;">⚠️</div></div>
+          <div class="kpi-value" style="color:#c87f0a" id="kpiDiscrepancias">—</div>
+          <div class="kpi-sub">Existen pero datos no coinciden</div>
+        </div>
+        <div class="kpi-card k-violeta">
+          <div class="kpi-header"><span class="kpi-label">Alertas Duplicidad</span><div class="kpi-icon violeta" style="font-size:18px;">🚨</div></div>
+          <div class="kpi-value" style="color:var(--violeta)" id="kpiDuplicados">—</div>
+          <div class="kpi-sub">RFC/CURP/Nombre duplicados</div>
+        </div>
+      </div>
+
+      <!-- Tabla de resultados de validación -->
+      <div class="table-card" id="validacionTablaCard" style="display:none;margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <span class="card-header">Resultados de Validación RENAPO / RFC</span>
+            <span class="result-count" id="contadorValidacion">0 registros</span>
+          </div>
+          <div class="table-controls">
+            <div class="filter-group">
+              <button class="filter-btn active" data-val-filtro="todos" onclick="filtrarValidacion(this)">Todos</button>
+              <button class="filter-btn" data-val-filtro="alto"  onclick="filtrarValidacion(this)">Alto</button>
+              <button class="filter-btn" data-val-filtro="medio" onclick="filtrarValidacion(this)">Medio</button>
+              <button class="filter-btn" data-val-filtro="ok"    onclick="filtrarValidacion(this)">OK</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>RFC Registrado</th>
+                <th>RFC Generado</th>
+                <th>Coincide RFC</th>
+                <th>CURP RENAPO</th>
+                <th>Discrepancias</th>
+                <th>Nivel Alerta</th>
+              </tr>
+            </thead>
+            <tbody id="tablaValidacionBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Panel de duplicidades -->
+      <div class="table-card" id="duplicadosCard" style="display:none;margin-bottom:20px;">
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <span class="card-header">Alertas de Duplicidad e Impersonamiento</span>
+            <span class="result-count" id="contadorDuplicados">0 alertas</span>
+          </div>
+          <div class="table-controls">
+            <button class="filter-btn" onclick="exportarAlertasDuplicados()" style="background:var(--azul-marino);color:white;border-color:var(--azul-marino);">
+              Exportar Alertas
+            </button>
+          </div>
+        </div>
+        <div id="duplicadosContenido" style="padding:0 20px 20px;"></div>
+      </div>
+
+    </div><!-- /sección validación -->
+
   </main>
 
   <!-- ============================================================
@@ -912,6 +1259,23 @@
         <div id="panelSemaforo"></div>
       </div>
       <div class="panel-body" id="panelBody"></div>
+    </div>
+  </div>
+
+  <!-- Modal de comparación RENAPO lado a lado -->
+  <div class="overlay" id="overlayComparacion" style="display:none;">
+    <div class="panel" id="panelComparacion">
+      <div class="panel-header">
+        <div class="panel-header-top">
+          <div>
+            <h2 id="compNombre">Comparación de Datos</h2>
+            <p class="subtitulo" id="compSubtitulo">Datos en base vs datos RENAPO</p>
+          </div>
+          <button class="btn-cerrar" onclick="cerrarComparacion()" title="Cerrar">&times;</button>
+        </div>
+        <div id="compAlerta"></div>
+      </div>
+      <div class="panel-body" id="compBody"></div>
     </div>
   </div>
 
@@ -1310,6 +1674,95 @@
       nivel_riesgo_kyc: "alto",
       fecha_alta: "2023-08-20",
       campos_verificados: []           // ningún campo verificado
+    },
+
+    /* ────────────────────────────────────────────────────────
+       ESCENARIOS DE PRUEBA PARA EL MÓDULO DE VALIDACIÓN
+       ──────────────────────────────────────────────────────── */
+
+    // ESCENARIO A: RFC duplicado + impersonamiento
+    // Cliente 21 usa el mismo RFC que cliente 2 (María López Hernández)
+    // Nombre diferente → alerta de impersonamiento
+    {
+      id: 21,
+      nombre: "Mariana",
+      apellido: "López Guerrero",
+      rfc: "LOHM900725AB3",         // Mismo RFC que cliente #2 → duplicado / impersonamiento
+      curp: "LOPM870415MDFPRS04",
+      fecha_nacimiento: "1987-04-15",
+      nacionalidad: "Mexicana",
+      email: "mariana.lopez.g@correo.com",
+      telefono: "5534567890",
+      direccion: "Calle Puebla 231, Col. Roma Norte",
+      cp: "06700",
+      ciudad: "Ciudad de México",
+      estado: "Ciudad de México",
+      tipo_cliente: "persona física",
+      nivel_riesgo_kyc: "alto",
+      fecha_alta: "2024-01-10",
+      campos_verificados: ["email"]
+    },
+
+    // ESCENARIO B: Par con mismo nombre completo + fecha de nacimiento
+    // Clientes 22 y 23 comparten nombre "Laura González Ruiz" y DOB → duplicidad
+    {
+      id: 22,
+      nombre: "Laura",
+      apellido: "González Ruiz",
+      rfc: "GORL881122MN5",
+      curp: "GORL881122MDFNRL06",
+      fecha_nacimiento: "1988-11-22",
+      nacionalidad: "Mexicana",
+      email: "laura.gonzalez.r@empresa.com",
+      telefono: "5598001122",
+      direccion: "Av. Insurgentes Norte 450, Col. Lindavista",
+      cp: "07300",
+      ciudad: "Ciudad de México",
+      estado: "Ciudad de México",
+      tipo_cliente: "persona física",
+      nivel_riesgo_kyc: "medio",
+      fecha_alta: "2021-05-18",
+      campos_verificados: ["rfc", "curp", "email"]
+    },
+    {
+      id: 23,
+      nombre: "Laura",
+      apellido: "González Ruiz",    // Mismo nombre que #22 + misma fecha → duplicidad
+      rfc: "GORL881122PQ7",         // RFC diferente (diferente homoclave)
+      curp: "GORL881122MDFNRL09",   // CURP diferente (diferente dígito verificador)
+      fecha_nacimiento: "1988-11-22",
+      nacionalidad: "Mexicana",
+      email: "l.gonzalez.ruiz@hotmail.com",
+      telefono: "5512339900",
+      direccion: "Calle Sonora 88, Col. Hipódromo",
+      cp: "06100",
+      ciudad: "Ciudad de México",
+      estado: "Ciudad de México",
+      tipo_cliente: "persona física",
+      nivel_riesgo_kyc: "alto",
+      fecha_alta: "2023-09-03",
+      campos_verificados: []
+    },
+
+    // ESCENARIO C: CURP con formato claramente inválido
+    {
+      id: 24,
+      nombre: "Marco Antonio",
+      apellido: "Valdez Cruz",
+      rfc: "VACM900515HN4",
+      curp: "VAMC900515HXX",        // Solo 13 chars → formato inválido
+      fecha_nacimiento: "1990-05-15",
+      nacionalidad: "Mexicana",
+      email: "marco.valdez@ejemplo.mx",
+      telefono: "8112223344",
+      direccion: "Av. Morones Prieto 3000, Col. Mitras Centro",
+      cp: "64460",
+      ciudad: "Monterrey",
+      estado: "Nuevo León",
+      tipo_cliente: "persona física",
+      nivel_riesgo_kyc: "medio",
+      fecha_alta: "2022-07-11",
+      campos_verificados: ["rfc", "email", "telefono"]
     }
   ];
 
@@ -1896,6 +2349,648 @@
   renderizarKPIs();
   renderizarTabla();
   inicializarGraficas();
+
+  /* ================================================================
+     MÓDULO DE VALIDACIÓN DE IDENTIDAD — RENAPO & RFC
+     Todo el código funciona en modo standalone (sin backend)
+     gracias a la simulación RENAPO integrada.
+     ================================================================ */
+
+  const BACKEND_URL = 'http://localhost:3000';
+
+  // Estado del módulo
+  let backendDisponible        = null;   // null = no verificado aún
+  let resultadosValidacion     = [];     // Últimos resultados por cliente
+  let resultadosDuplicados     = null;   // Última detección de duplicados
+  let validacionFiltroActivo   = 'todos';
+  let ultimaValidacion         = null;   // Date del último proceso
+
+  /* ---------------------------------------------------------------
+     ALGORITMO RFC — Implementación SAT (frontend, sin backend)
+     --------------------------------------------------------------- */
+  const RFC_VOCALES       = new Set(['A','E','I','O','U']);
+  const RFC_INCONVENIENTES_FE = ['BACA','BAKA','BUEI','BUEY','CACA','CACO','CAGA','CAGO',
+    'CAKA','CAKO','COGE','COGI','COJA','COJE','COJI','COJO','COLA','CULO','FALO','FETO',
+    'GETA','GUEI','GUEY','JETA','JOTO','KACA','KACO','KAGA','KAGO','KAKA','KAKO','KOGE',
+    'KOGI','KOJA','KOJE','KOJI','KOJO','KOLA','KULO','LELA','LELO','LOCA','LOCO','LOKA',
+    'LOKO','MAME','MAMO','MEAR','MEAS','MEON','MIAR','MION','MOCO','MOKO','MULA','MULO',
+    'NACA','NACO','PEDA','PEDO','PENE','PIPI','PITO','POPO','PUTA','PUTO','QULO','RATA',
+    'ROBA','ROBE','ROBO','RUIN','SENO','TETA','VACA','VAGA','VAGO','VAKA','VUEI','VUEY',
+    'WUEI','WUEY'];
+  const RFC_PARTICULAS_FE = new Set(['DE','DEL','LA','LAS','LOS','Y','MC','MAC','VAN','VON']);
+  const RFC_EXCLUIR_FE    = new Set(['MARIA','MA','JOSE','J']);
+  const HC_VALS_FE = {
+    ' ':0,'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
+    'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,
+    'K':20,'L':21,'M':22,'N':23,'Ñ':24,'O':25,'P':26,'Q':27,'R':28,'S':29,
+    'T':30,'U':31,'V':32,'W':33,'X':34,'Y':35,'Z':36 };
+  const HC_CHARS_FE = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  function feNormStr(s) {
+    return String(s || '').toUpperCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9 ]/g, '').trim();
+  }
+
+  function feGenerarRFCBase(nombre, apPat, apMat, fechaNac) {
+    const ap  = feNormStr(apPat).split(' ').filter(p => p && !RFC_PARTICULAS_FE.has(p)).join('');
+    const am  = feNormStr(apMat || '').split(' ').filter(p => p && !RFC_PARTICULAS_FE.has(p));
+    const nom = feNormStr(nombre).split(' ').filter(p => p && !RFC_PARTICULAS_FE.has(p));
+    if (!ap || !nom.length) return null;
+    const l1  = ap.charAt(0);
+    const voc = [...ap.slice(1)].find(c => RFC_VOCALES.has(c)) || 'X';
+    const l3  = (am[0] || '').charAt(0) || 'X';
+    let n0    = nom[0];
+    if (nom.length > 1 && RFC_EXCLUIR_FE.has(nom[0])) n0 = nom[1];
+    const l4  = n0.charAt(0);
+    const f   = new Date(`${fechaNac}T12:00:00`);
+    if (isNaN(f)) return null;
+    const aa  = String(f.getFullYear()).slice(-2);
+    const mm  = String(f.getMonth() + 1).padStart(2, '0');
+    const dd  = String(f.getDate()).padStart(2, '0');
+    let base  = `${l1}${voc}${l3}${l4}${aa}${mm}${dd}`;
+    if (RFC_INCONVENIENTES_FE.includes(base.slice(0, 4))) base = base.slice(0,3) + 'X' + base.slice(4);
+    return base;
+  }
+
+  function feHomoclave(apPat, apMat, nombre) {
+    const cad = feNormStr(`${apPat} ${apMat || ''} ${nombre}`);
+    let s = 0;
+    for (let i = 0; i < cad.length; i++) s = (s + (i + 1) * (HC_VALS_FE[cad[i]] ?? 0)) % 1000;
+    const c1 = Math.floor(s / 34) % HC_CHARS_FE.length;
+    const c2 = s % HC_CHARS_FE.length;
+    return (HC_CHARS_FE[c1]||'0') + (HC_CHARS_FE[c2]||'0') + (s % 10);
+  }
+
+  function feGenerarRFC(cliente) {
+    const ap  = String(cliente.apellido || '').split(' ');
+    const apP = ap[0] || '';
+    const apM = ap.slice(1).join(' ');
+    const base = feGenerarRFCBase(cliente.nombre, apP, apM, cliente.fecha_nacimiento);
+    if (!base) return null;
+    return base + feHomoclave(apP, apM, cliente.nombre);
+  }
+
+  function feCompararRFC(cliente) {
+    const gen = feGenerarRFC(cliente);
+    if (!gen) return { rfc_generado: null, rfc_valido: false, rfc_coincide: false };
+    const reg = String(cliente.rfc || '').toUpperCase().trim();
+    if (!reg) return { rfc_generado: gen, rfc_valido: true, rfc_coincide: 'no_registrado' };
+    if (reg === gen) return { rfc_generado: gen, rfc_valido: true, rfc_coincide: true };
+    if (reg.slice(0,10) === gen.slice(0,10)) return { rfc_generado: gen, rfc_valido: true, rfc_coincide: 'parcial' };
+    return { rfc_generado: gen, rfc_valido: false, rfc_coincide: false };
+  }
+
+  /* ---------------------------------------------------------------
+     VALIDACIÓN CURP (formato)
+     --------------------------------------------------------------- */
+  const CURP_RE = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9]{2}$/;
+  function curpValida(curp) { return CURP_RE.test(String(curp || '').trim().toUpperCase()); }
+
+  /* ---------------------------------------------------------------
+     VERIFICAR BACKEND
+     --------------------------------------------------------------- */
+  async function verificarBackend() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/health`, {
+        signal: AbortSignal.timeout(2500)
+      });
+      backendDisponible = res.ok;
+    } catch {
+      backendDisponible = false;
+    }
+    const w = document.getElementById('backendWarning');
+    if (w) w.style.display = backendDisponible ? 'none' : 'flex';
+    return backendDisponible;
+  }
+
+  /* ---------------------------------------------------------------
+     SIMULACIÓN RENAPO (modo demo — sin backend)
+     Simula respuestas de la API de RENAPO para pruebas locales.
+     --------------------------------------------------------------- */
+  // IDs de clientes con discrepancias intencionales vs RENAPO
+  const RENAPO_DISCREPANCIAS   = new Set([4, 5, 6]);
+  // IDs de clientes simulados como "no encontrados" en RENAPO
+  const RENAPO_NO_ENCONTRADOS  = new Set([21]);
+
+  function simularRENAPO(cliente) {
+    const curp = String(cliente.curp || '').trim().toUpperCase();
+    if (!curpValida(curp)) return null; // CURP inválida → no se consulta
+    if (RENAPO_NO_ENCONTRADOS.has(cliente.id)) {
+      return { existe: false, error: 'CURP no encontrada en RENAPO (simulado)' };
+    }
+    if (RENAPO_DISCREPANCIAS.has(cliente.id)) {
+      // Devolver datos que NO coinciden con los de la base
+      return {
+        existe: true,
+        datos_renapo: {
+          nombre:          'NOMBRE_DISTINTO',
+          primerApellido:  'APELLIDO_SIMULADO',
+          segundoApellido: 'OTRO',
+          fechaNacimiento: '01/01/1990',
+          sexo: 'H', claveEntidad: 'DF', estatus: 'AN',
+        }
+      };
+    }
+    // Para el resto: datos que sí coinciden
+    const partes = feNormStr(cliente.nombre).split(' ');
+    const aps    = feNormStr(cliente.apellido || '').split(' ');
+    return {
+      existe: true,
+      datos_renapo: {
+        nombre:          partes[0] || 'DESCONOCIDO',
+        primerApellido:  aps[0]   || 'DESCONOCIDO',
+        segundoApellido: aps[1]   || '',
+        fechaNacimiento: cliente.fecha_nacimiento
+          ? cliente.fecha_nacimiento.split('-').reverse().join('/')
+          : null,
+        sexo: 'H', claveEntidad: 'CDMX', estatus: 'AN',
+      }
+    };
+  }
+
+  /* ---------------------------------------------------------------
+     DETECCIÓN DE DUPLICADOS (frontend — no requiere backend)
+     --------------------------------------------------------------- */
+  function detectarDuplicadosFE(lista) {
+    const dup = { rfc: [], curp: [], nombre_fecha: [], email: [], impersonamiento: [] };
+
+    const agrupar = (keyFn) => {
+      const m = {};
+      lista.forEach(c => { const k = keyFn(c); if (k) (m[k] = m[k] || []).push(c); });
+      return Object.values(m).filter(g => g.length > 1);
+    };
+    const res = c => ({ id: c.id, nombre: `${c.nombre} ${c.apellido}`.trim(), rfc: c.rfc, curp: c.curp, email: c.email });
+
+    // RFC
+    agrupar(c => String(c.rfc||'').trim().toUpperCase() || null).forEach(g => {
+      dup.rfc.push({ tipo: 'RFC duplicado', valor: g[0].rfc, afectados: g.map(res) });
+      const noms = [...new Set(g.map(c => feNormStr(`${c.nombre} ${c.apellido}`)))];
+      if (noms.length > 1) dup.impersonamiento.push({
+        tipo: 'Posible impersonamiento',
+        descripcion: `RFC "${g[0].rfc}" asociado a identidades distintas`,
+        afectados: g.map(res)
+      });
+    });
+
+    // CURP
+    agrupar(c => { const s = String(c.curp||'').toUpperCase().trim(); return curpValida(s) ? s : null; })
+      .forEach(g => dup.curp.push({ tipo: 'CURP duplicada', valor: g[0].curp, afectados: g.map(res) }));
+
+    // Nombre completo + fecha
+    agrupar(c => {
+      const n = feNormStr(`${c.nombre} ${c.apellido}`);
+      const f = String(c.fecha_nacimiento||'').trim();
+      return (n && f) ? `${n}|${f}` : null;
+    }).forEach(g => {
+      const [n, f] = g[0] ? [`${g[0].nombre} ${g[0].apellido}`.trim(), g[0].fecha_nacimiento] : ['',''];
+      dup.nombre_fecha.push({ tipo: 'Nombre y fecha duplicados', valor: `${n} / ${f}`, afectados: g.map(res) });
+      const rfcs = [...new Set(g.map(c => String(c.rfc||'').toUpperCase()).filter(Boolean))];
+      if (rfcs.length > 1) dup.impersonamiento.push({
+        tipo: 'Posible duplicidad de identidad',
+        descripcion: `"${n}" aparece con distintos RFC o CURP`,
+        afectados: g.map(res)
+      });
+    });
+
+    // Email
+    agrupar(c => { const e = String(c.email||'').toLowerCase().trim(); return e.includes('@') ? e : null; })
+      .forEach(g => dup.email.push({ tipo: 'Email duplicado', valor: g[0].email, afectados: g.map(res) }));
+
+    return {
+      total_alertas: dup.rfc.length + dup.curp.length + dup.nombre_fecha.length + dup.email.length + dup.impersonamiento.length,
+      duplicados_rfc: dup.rfc, duplicados_curp: dup.curp,
+      duplicados_nombre_fecha: dup.nombre_fecha, duplicados_email: dup.email,
+      alertas_impersonamiento: dup.impersonamiento,
+      resumen: { rfc: dup.rfc.length, curp: dup.curp.length, nombre: dup.nombre_fecha.length, email: dup.email.length, impersonamiento: dup.impersonamiento.length }
+    };
+  }
+
+  /* ---------------------------------------------------------------
+     FLUJO PRINCIPAL — VALIDAR TODOS
+     --------------------------------------------------------------- */
+  async function iniciarValidacionTodos() {
+    const btn = document.getElementById('btnValidarTodos');
+    const bdup = document.getElementById('btnDetectarDuplicados');
+    btn.disabled = true;
+    bdup.disabled = true;
+    btn.textContent = '⏳ Validando...';
+
+    const progConten = document.getElementById('progressContenedor');
+    const progFill   = document.getElementById('progressFill');
+    const progLabel  = document.getElementById('progressLabel');
+    progConten.style.display = 'block';
+
+    await verificarBackend();
+
+    const total     = clientesAnalizados.length;
+    const resultados = [];
+    let discrepancias = 0, noEncontradas = 0, confirmadas = 0;
+
+    for (let i = 0; i < total; i++) {
+      const c = clientesAnalizados[i];
+      progLabel.textContent = `Validando cliente ${i + 1} de ${total}: ${c.nombre} ${c.apellido}`;
+      progFill.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+
+      const r = {
+        id_cliente: c.id,
+        nombre: `${c.nombre} ${c.apellido}`.trim(),
+        cliente: c,
+        ...feCompararRFC(c),
+        curp_existe_renapo:   false,
+        curp_datos_coinciden: false,
+        discrepancias_curp:   [],
+        nivel_alerta:         'ok',
+        error_renapo:         null,
+        datos_renapo:         null,
+      };
+
+      // Intentar backend para CURP real; si falla, usar simulación
+      const curp = String(c.curp || '').trim().toUpperCase();
+      if (curpValida(curp)) {
+        let renapoData = null;
+
+        if (backendDisponible) {
+          try {
+            const resp = await fetch(`${BACKEND_URL}/api/validar-curp`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ curp }),
+              signal: AbortSignal.timeout(12000)
+            });
+            renapoData = await resp.json();
+          } catch { renapoData = null; }
+        }
+
+        if (!renapoData) renapoData = simularRENAPO(c);
+
+        if (renapoData) {
+          if (renapoData.existe && renapoData.datos_renapo) {
+            r.curp_existe_renapo = true;
+            r.datos_renapo = renapoData.datos_renapo;
+            const d = renapoData.datos_renapo;
+            const nomRe = feNormStr(d.nombre || '');
+            const nomBa = feNormStr(c.nombre);
+            const apRe  = feNormStr(`${d.primerApellido || ''} ${d.segundoApellido || ''}`);
+            const apBa  = feNormStr(c.apellido || '').split(' ')[0];
+            if (nomRe && nomBa && nomRe !== nomBa && !nomRe.includes(nomBa) && !nomBa.includes(nomRe)) r.discrepancias_curp.push('Nombre difiere de RENAPO');
+            if (apRe && apBa && !apRe.includes(apBa)) r.discrepancias_curp.push('Apellido difiere de RENAPO');
+            r.curp_datos_coinciden = r.discrepancias_curp.length === 0;
+            if (r.discrepancias_curp.length > 0) discrepancias++;
+            else confirmadas++;
+          } else {
+            r.error_renapo = renapoData.error || 'No encontrada';
+            noEncontradas++;
+          }
+        }
+      }
+
+      // Agregar discrepancia RFC si aplica
+      if (!r.rfc_valido && r.rfc_generado) r.discrepancias_curp.push('RFC no coincide con datos personales');
+
+      // Nivel de alerta
+      const sinRENAPO = curpValida(curp) && !r.curp_existe_renapo && !r.error_renapo?.includes('Timeout');
+      if (sinRENAPO || r.discrepancias_curp.length >= 2) r.nivel_alerta = 'alto';
+      else if (r.discrepancias_curp.length === 1 || !r.rfc_valido || r.error_renapo) r.nivel_alerta = 'medio';
+      else if (!curpValida(curp)) r.nivel_alerta = 'bajo';
+      else r.nivel_alerta = 'ok';
+
+      // Si hay alerta RENAPO alta, actualizar semáforo del cliente en la tabla principal
+      if (r.nivel_alerta === 'alto') {
+        const cIdx = clientesAnalizados.findIndex(x => x.id === c.id);
+        if (cIdx >= 0) clientesAnalizados[cIdx]._alertaRenapo = 'alto';
+      }
+
+      resultados.push(r);
+      await new Promise(res => setTimeout(res, 50)); // micro-pausa para actualizar UI
+    }
+
+    resultadosValidacion = resultados;
+    ultimaValidacion = new Date();
+
+    // También ejecutar detección de duplicados automáticamente
+    resultadosDuplicados = detectarDuplicadosFE(clientes);
+
+    progConten.style.display = 'none';
+    btn.disabled = false;
+    bdup.disabled = false;
+    btn.textContent = '🔍 Validar Todos los Clientes vs RENAPO';
+
+    // Actualizar badge de última validación
+    const badge = document.getElementById('ultimaValidacionBadge');
+    badge.style.display = 'inline-block';
+    document.getElementById('ultimaValidacionTexto').textContent = 'hace unos segundos';
+
+    // Renderizar todo
+    actualizarKPIsValidacion(confirmadas, noEncontradas, discrepancias, resultadosDuplicados.total_alertas);
+    renderizarTablaValidacion(resultados);
+    renderizarDuplicados(resultadosDuplicados);
+    renderizarTabla();
+    inyectarIconosValidacion(); // Inyectar íconos 🔍 sobre las filas ya renderizadas
+
+    // Hacer scroll suave a los resultados
+    document.getElementById('validacionTablaCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---------------------------------------------------------------
+     FLUJO — DETECTAR DUPLICADOS (standalone, sin RENAPO)
+     --------------------------------------------------------------- */
+  async function iniciarDeteccionDuplicados() {
+    const btn = document.getElementById('btnDetectarDuplicados');
+    btn.disabled = true;
+    btn.textContent = '⏳ Analizando...';
+
+    resultadosDuplicados = detectarDuplicadosFE(clientes);
+
+    await new Promise(r => setTimeout(r, 300)); // feedback visual
+    btn.disabled = false;
+    btn.textContent = '🔄 Detectar Duplicados en Base';
+
+    actualizarKPIsValidacion(null, null, null, resultadosDuplicados.total_alertas);
+    renderizarDuplicados(resultadosDuplicados);
+    document.getElementById('duplicadosCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---------------------------------------------------------------
+     RENDERIZAR KPIs DE VALIDACIÓN
+     --------------------------------------------------------------- */
+  function actualizarKPIsValidacion(confirmadas, noEncontradas, discrepancias, duplicados) {
+    document.getElementById('kpiValidacionGrid').style.display = 'grid';
+    if (confirmadas  !== null) document.getElementById('kpiConfirmadas').textContent  = confirmadas;
+    if (noEncontradas !== null) document.getElementById('kpiNoEncontradas').textContent = noEncontradas;
+    if (discrepancias !== null) document.getElementById('kpiDiscrepancias').textContent = discrepancias;
+    if (duplicados    !== null) document.getElementById('kpiDuplicados').textContent   = duplicados;
+  }
+
+  /* ---------------------------------------------------------------
+     RENDERIZAR TABLA DE RESULTADOS
+     --------------------------------------------------------------- */
+  function filtrarValidacion(btnEl) {
+    document.querySelectorAll('[data-val-filtro]').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    validacionFiltroActivo = btnEl.dataset.valFiltro;
+    renderizarTablaValidacion(resultadosValidacion);
+  }
+
+  function renderizarTablaValidacion(resultados) {
+    const card = document.getElementById('validacionTablaCard');
+    const tbody = document.getElementById('tablaValidacionBody');
+    if (!resultados.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+
+    const filtrados = validacionFiltroActivo === 'todos'
+      ? resultados
+      : resultados.filter(r => r.nivel_alerta === validacionFiltroActivo);
+
+    document.getElementById('contadorValidacion').textContent = `${filtrados.length} registros`;
+
+    const badgeRENAPO = (r) => {
+      if (r.error_renapo) return `<span class="alerta-badge renapo-err">No consultado</span>`;
+      if (!curpValida(String(r.cliente.curp||''))) return `<span class="alerta-badge renapo-err">CURP inválida</span>`;
+      if (!r.curp_existe_renapo) return `<span class="alerta-badge renapo-no">No encontrada</span>`;
+      if (!r.curp_datos_coinciden) return `<span class="alerta-badge renapo-disc">Discrepancias</span>`;
+      return `<span class="alerta-badge renapo-ok">Confirmada</span>`;
+    };
+
+    const badgeRFC = (r) => {
+      if (!r.rfc_generado) return `<span class="resultado-tag tag-gris">Sin generar</span>`;
+      if (r.rfc_coincide === true)         return `<span class="resultado-tag tag-verde">Exacto</span>`;
+      if (r.rfc_coincide === 'parcial')    return `<span class="resultado-tag tag-amarillo">Parcial</span>`;
+      if (r.rfc_coincide === 'no_registrado') return `<span class="resultado-tag tag-gris">Sin RFC</span>`;
+      return `<span class="resultado-tag tag-rojo">No coincide</span>`;
+    };
+
+    const badgeAlerta = (nivel) => {
+      const map = { alto: 'alerta-alto', medio: 'alerta-medio', bajo: 'alerta-bajo', ok: 'alerta-ok' };
+      const lbl = { alto: 'Alto', medio: 'Medio', bajo: 'Bajo', ok: 'OK' };
+      return `<span class="alerta-badge ${map[nivel]||'alerta-ok'}">${lbl[nivel]||nivel}</span>`;
+    };
+
+    tbody.innerHTML = filtrados.map(r => {
+      const discTags = r.discrepancias_curp.length
+        ? r.discrepancias_curp.map(d => `<span class="resultado-tag tag-rojo">${d}</span>`).join(' ')
+        : `<span class="resultado-tag tag-verde">Sin discrepancias</span>`;
+      const rfcGen   = r.rfc_generado || '—';
+      const rfcReg   = r.cliente.rfc  || '—';
+      return `
+        <tr onclick="abrirComparacion(${r.id_cliente})" style="cursor:pointer;">
+          <td><strong>#${r.id_cliente}</strong> ${r.nombre}</td>
+          <td><span class="rfc-cell">${rfcReg}</span></td>
+          <td><span class="rfc-cell" style="background:#f0f7ff;border-color:#bee3f8;">${rfcGen}</span></td>
+          <td>${badgeRFC(r)}</td>
+          <td>${badgeRENAPO(r)}</td>
+          <td>${discTags}</td>
+          <td>${badgeAlerta(r.nivel_alerta)}</td>
+        </tr>`;
+    }).join('');
+
+    if (!filtrados.length) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gris-texto);">Sin resultados para el filtro seleccionado.</td></tr>`;
+  }
+
+  /* ---------------------------------------------------------------
+     MODAL DE COMPARACIÓN LADO A LADO
+     --------------------------------------------------------------- */
+  function abrirComparacion(idCliente) {
+    const r = resultadosValidacion.find(x => x.id_cliente === idCliente);
+    if (!r) return;
+
+    document.getElementById('compNombre').textContent = r.nombre;
+    document.getElementById('compSubtitulo').textContent = `ID #${idCliente} — ${r.cliente.tipo_cliente}`;
+
+    const nivel = r.nivel_alerta;
+    const lblMap = { alto: 'Alerta Alta', medio: 'Alerta Media', bajo: 'Alerta Baja', ok: 'Sin alertas' };
+    const clsMap = { alto: 'alerta-alto', medio: 'alerta-medio', bajo: 'alerta-bajo', ok: 'alerta-ok' };
+    document.getElementById('compAlerta').innerHTML =
+      `<span class="alerta-badge ${clsMap[nivel]}">${lblMap[nivel]}</span>`;
+
+    const d = r.datos_renapo;
+    const c = r.cliente;
+
+    const fila = (campo, valBase, valRENAPO) => {
+      if (valRENAPO === undefined || valRENAPO === null) return '';
+      const normBase = feNormStr(String(valBase || ''));
+      const normREN  = feNormStr(String(valRENAPO || ''));
+      const coincide = normBase && normREN && (normBase === normREN || normREN.includes(normBase) || normBase.includes(normREN));
+      const icono    = !valBase ? '❌' : coincide ? '✅' : '⚠️';
+      const clBase   = !valBase ? 'diff-rojo' : coincide ? '' : 'diff-rojo';
+      const clREN    = coincide ? 'diff-ok' : 'diff-rojo';
+      return `<tr>
+        <td>${campo}</td>
+        <td class="${clBase}">${valBase || '<em style="color:#9ca3af">No registrado</em>'}</td>
+        <td class="${clREN}">${valRENAPO || '—'}</td>
+        <td style="text-align:center;font-size:16px;">${icono}</td>
+      </tr>`;
+    };
+
+    const rfcGen  = r.rfc_generado || '—';
+    const rfcReg  = c.rfc || '—';
+    const rfcIcon = r.rfc_coincide === true ? '✅' : r.rfc_coincide === 'parcial' ? '⚠️' : '❌';
+
+    const body = document.getElementById('compBody');
+    body.innerHTML = `
+      <div class="scores-bloque">
+        <div class="scores-titulo">RFC — Comparación con Algoritmo SAT</div>
+        <table class="comparacion-tabla">
+          <thead><tr><th>Campo</th><th>Registrado en Base</th><th>Generado por Algoritmo</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>RFC Completo</td>
+              <td class="${r.rfc_coincide !== true ? 'diff-rojo' : ''}"><strong>${rfcReg}</strong></td>
+              <td class="${r.rfc_coincide !== true ? 'diff-rojo' : 'diff-ok'}"><strong>${rfcGen}</strong></td>
+              <td style="text-align:center;font-size:16px;">${rfcIcon}</td>
+            </tr>
+            ${r.rfc_coincide === 'parcial' ? `<tr><td colspan="4" style="font-size:11px;color:#9a6700;padding:4px 10px;">⚠️ La base del RFC (10 chars) coincide, pero la homoclave difiere. Esto es normal si la homoclave no fue calculada con el algoritmo exacto del SAT.</td></tr>` : ''}
+          </tbody>
+        </table>
+      </div>
+
+      ${d ? `
+      <div class="scores-bloque" style="margin-top:14px;">
+        <div class="scores-titulo">CURP — Comparación con RENAPO${backendDisponible ? '' : ' (simulado)'}</div>
+        <table class="comparacion-tabla">
+          <thead><tr><th>Campo</th><th>Dato en Base</th><th>Dato RENAPO</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${fila('Nombre', c.nombre, d.nombre)}
+            ${fila('Primer Apellido', String(c.apellido||'').split(' ')[0], d.primerApellido)}
+            ${fila('Segundo Apellido', String(c.apellido||'').split(' ').slice(1).join(' '), d.segundoApellido)}
+            ${fila('Fecha Nacimiento', c.fecha_nacimiento, d.fechaNacimiento)}
+            ${fila('Entidad', c.estado, d.claveEntidad)}
+          </tbody>
+        </table>
+        <div style="margin-top:8px;font-size:11px;color:var(--gris-texto);">Estatus CURP en RENAPO: <strong>${d.estatus || '—'}</strong></div>
+      </div>` : `
+      <div class="scores-bloque" style="margin-top:14px;text-align:center;color:var(--gris-texto);font-size:13px;padding:24px;">
+        ${r.error_renapo ? `⚠️ ${r.error_renapo}` : curpValida(String(c.curp||'')) ? '❓ CURP no encontrada en RENAPO' : '❌ CURP con formato inválido — no consultable'}
+      </div>`}
+
+      <div class="scores-bloque" style="margin-top:14px;">
+        <div class="scores-titulo">Datos completos en base</div>
+        ${['nombre','apellido','rfc','curp','fecha_nacimiento','nacionalidad','email','telefono','direccion','cp','ciudad','estado'].map(campo => {
+          const val = c[campo];
+          const icono = !val ? '❌' : '✅';
+          return `<div class="campo-fila"><span class="campo-icono">${icono}</span><span class="campo-nombre">${ETIQUETAS[campo]||campo}</span><span class="campo-valor ${!val?'vacio':''}">${val||'No registrado'}</span></div>`;
+        }).join('')}
+      </div>`;
+
+    document.getElementById('overlayComparacion').style.display = 'flex';
+  }
+
+  function cerrarComparacion() {
+    document.getElementById('overlayComparacion').style.display = 'none';
+  }
+  document.getElementById('overlayComparacion').addEventListener('click', e => {
+    if (e.target === e.currentTarget) cerrarComparacion();
+  });
+
+  /* ---------------------------------------------------------------
+     RENDERIZAR PANEL DE DUPLICIDADES
+     --------------------------------------------------------------- */
+  function renderizarDuplicados(datos) {
+    const card = document.getElementById('duplicadosCard');
+    const contenido = document.getElementById('duplicadosContenido');
+    card.style.display = 'block';
+
+    document.getElementById('contadorDuplicados').textContent = `${datos.total_alertas} alertas`;
+
+    if (datos.total_alertas === 0) {
+      contenido.innerHTML = `<div style="padding:32px;text-align:center;color:var(--verde);font-size:14px;">✅ No se detectaron duplicidades ni alertas de impersonamiento en la base de datos.</div>`;
+      return;
+    }
+
+    const colores = { rfc: 'rojo', curp: 'rojo', nombre: 'amarillo', email: 'azul', impers: 'violeta' };
+    const iconos  = { rfc: '🔴', curp: '🔴', nombre: '🟡', email: '📧', impers: '🚨' };
+
+    const renderGrupo = (grupo, tipo) => {
+      const icon = iconos[tipo] || '⚠️';
+      const chips = grupo.afectados.map(a =>
+        `<span class="duplicado-cliente-chip"><strong>#${a.id}</strong> ${a.nombre}</span>`
+      ).join('');
+      return `
+        <div class="duplicado-grupo">
+          <div class="duplicado-grupo-titulo">${icon} ${grupo.tipo}: <em>${grupo.valor || grupo.descripcion || ''}</em></div>
+          <div>${chips}</div>
+        </div>`;
+    };
+
+    const secciones = [
+      { titulo: 'RFC Duplicados', key: 'duplicados_rfc',           t: 'rfc',    badge: datos.resumen.rfc },
+      { titulo: 'CURP Duplicadas', key: 'duplicados_curp',         t: 'curp',   badge: datos.resumen.curp },
+      { titulo: 'Nombre + Fecha Nacimiento', key: 'duplicados_nombre_fecha', t: 'nombre', badge: datos.resumen.nombre },
+      { titulo: 'Email Duplicado', key: 'duplicados_email',        t: 'email',  badge: datos.resumen.email },
+      { titulo: 'Alertas de Impersonamiento', key: 'alertas_impersonamiento', t: 'impers', badge: datos.resumen.impersonamiento },
+    ];
+
+    contenido.innerHTML = secciones.filter(s => datos[s.key]?.length).map(s => {
+      const grupos = datos[s.key].map(g => renderGrupo(g, s.t)).join('');
+      const id = `sec_${s.t}`;
+      return `
+        <div class="duplicado-tipo-header" onclick="toggleSeccion('${id}')">
+          <span class="tipo-titulo">${s.titulo}</span>
+          <span class="badge rojo" style="background:var(--rojo-bg);color:var(--rojo);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;">${s.badge}</span>
+        </div>
+        <div id="${id}">${grupos}</div>`;
+    }).join('');
+  }
+
+  function toggleSeccion(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  /* ---------------------------------------------------------------
+     EXPORTAR ALERTAS DE DUPLICADOS (CSV simplificado)
+     --------------------------------------------------------------- */
+  function exportarAlertasDuplicados() {
+    if (!resultadosDuplicados) return alert('Primero ejecute la detección de duplicados.');
+    const filas = [['Tipo', 'Valor/Descripción', 'IDs Afectados', 'Nombres Afectados']];
+    const agregar = (lista) => {
+      lista.forEach(g => {
+        const ids   = (g.afectados || []).map(a => `#${a.id}`).join('; ');
+        const noms  = (g.afectados || []).map(a => a.nombre).join('; ');
+        filas.push([g.tipo, g.valor || g.descripcion || '', ids, noms]);
+      });
+    };
+    agregar(resultadosDuplicados.duplicados_rfc || []);
+    agregar(resultadosDuplicados.duplicados_curp || []);
+    agregar(resultadosDuplicados.duplicados_nombre_fecha || []);
+    agregar(resultadosDuplicados.duplicados_email || []);
+    agregar(resultadosDuplicados.alertas_impersonamiento || []);
+
+    const csv = filas.map(f => f.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `Alertas_Duplicidad_KYC_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------------------------------------------------------------
+     INTEGRACIÓN CON TABLA PRINCIPAL: ícono 🔍 si ya fue validado
+     Llama a renderizarTabla() y luego inyecta los íconos de validación
+     sobre las filas ya renderizadas, sin modificar la función original.
+     --------------------------------------------------------------- */
+  function inyectarIconosValidacion() {
+    if (!resultadosValidacion.length) return;
+    const tooltips = { alto: 'Alerta RENAPO Alta', medio: 'Alerta RENAPO Media', ok: 'Validado OK', bajo: 'CURP inválida' };
+    document.querySelectorAll('#tablaBody tr').forEach(tr => {
+      const idCell = tr.querySelector('td:first-child');
+      if (!idCell || idCell.querySelector('.validado-icon')) return;
+      const idNum = parseInt(String(idCell.textContent).replace(/\D/g, ''));
+      if (!idNum) return;
+      const rv = resultadosValidacion.find(r => r.id_cliente === idNum);
+      if (rv) {
+        const icon = document.createElement('span');
+        icon.className = 'validado-icon';
+        icon.title = tooltips[rv.nivel_alerta] || 'Validado';
+        icon.textContent = ' 🔍';
+        idCell.appendChild(icon);
+      }
+    });
+  }
+
+  // Inicializar verificación de backend en segundo plano
+  verificarBackend();
 
   </script>
 </body>

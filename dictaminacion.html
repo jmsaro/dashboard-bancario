@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dictaminación Legal Inteligente — Actinver</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  :root {
+    --actinver-gold: #C9A84C;
+    --actinver-dark: #1A1F36;
+    --actinver-navy: #0D1B3E;
+    --actinver-blue: #1E3A8A;
+    --verde: #10B981;
+    --amarillo: #F59E0B;
+    --rojo: #EF4444;
+  }
+
+  /* ───── Sidebar ───── */
+  .sidebar { background: linear-gradient(180deg, #0D1B3E 0%, #1A1F36 100%); }
+  .nav-item { transition: all 0.2s; border-left: 3px solid transparent; }
+  .nav-item:hover, .nav-item.active {
+    background: rgba(201,168,76,0.12);
+    border-left-color: #C9A84C;
+    color: #C9A84C;
+  }
+  .nav-item.active { font-weight: 600; }
+
+  /* ───── Screens ───── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  /* ───── Semáforo badges ───── */
+  .badge-verde  { background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7; }
+  .badge-amarillo { background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; }
+  .badge-rojo   { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
+  .badge-gris   { background:#F3F4F6; color:#374151; border:1px solid #D1D5DB; }
+
+  /* ───── Cards ───── */
+  .kpi-card { background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.08); transition: box-shadow 0.2s; }
+  .kpi-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+  .card { background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.08); }
+
+  /* ───── Drag-drop zone ───── */
+  .drop-zone {
+    border: 2px dashed #C9A84C;
+    border-radius: 12px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    background: rgba(201,168,76,0.06);
+    border-color: #1E3A8A;
+  }
+
+  /* ───── Progress bar ───── */
+  .progress-bar { height: 6px; border-radius: 3px; background: #E5E7EB; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 1.2s ease; }
+
+  /* ───── Timeline ───── */
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px; top: 8px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #C9A84C;
+    border: 2px solid white;
+    box-shadow: 0 0 0 3px #C9A84C44;
+  }
+  .timeline-line { border-left: 2px solid #E5E7EB; }
+
+  /* ───── API code block ───── */
+  .code-block { background: #0F172A; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.7; }
+  .code-block .keyword { color: #93C5FD; }
+  .code-block .string  { color: #86EFAC; }
+  .code-block .number  { color: #FCD34D; }
+  .code-block .comment { color: #6B7280; }
+  .code-block .key     { color: #F9A8D4; }
+
+  /* ───── Architecture diagram ───── */
+  .arch-box {
+    border-radius: 10px;
+    border: 2px solid;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+  .arch-arrow { color: #9CA3AF; font-size: 20px; }
+
+  /* ───── Accordion ───── */
+  .accordion-body { display: none; }
+  .accordion-body.open { display: block; animation: fadeIn 0.2s; }
+
+  /* ───── Upload animation ───── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin 1s linear infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .pulse { animation: pulse 1.5s ease-in-out infinite; }
+
+  /* ───── Highlight extraction ───── */
+  .highlight-box { border-left: 3px solid #C9A84C; background: #FEFCE8; }
+
+  /* ───── Scrollbar ───── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C9A84C44; border-radius: 3px; }
+
+  /* ───── Tab pills ───── */
+  .tab-pill { cursor: pointer; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; transition: all 0.2s; color: #6B7280; }
+  .tab-pill.active { background: #1E3A8A; color: white; }
+
+  /* ───── Risk gauge ───── */
+  .gauge-container { position: relative; display: inline-block; }
+
+  /* ───── Tooltip ───── */
+  .tooltip-trigger { position: relative; cursor: help; }
+  .tooltip-trigger:hover .tooltip-box { display: block; }
+  .tooltip-box { display: none; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: #1F2937; color: white; font-size: 11px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 50; }
+
+  /* ───── Integration status dot ───── */
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .status-ok   { background: #10B981; box-shadow: 0 0 0 3px #10B98133; }
+  .status-warn { background: #F59E0B; box-shadow: 0 0 0 3px #F59E0B33; }
+  .status-err  { background: #EF4444; box-shadow: 0 0 0 3px #EF444433; }
+
+  /* ───── Responsive ───── */
+  @media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .nav-label { display: none; }
+  }
+
+  /* ───── Print / export helpers ───── */
+  .gold-gradient { background: linear-gradient(135deg, #C9A84C, #E8C96A); }
+  .navy-gradient { background: linear-gradient(135deg, #0D1B3E, #1E3A8A); }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900" style="margin:0;padding:0;">
+
+<!-- ══════════════════════════════════════════════════════
+     TOP HEADER BAR
+══════════════════════════════════════════════════════ -->
+<div class="flex h-screen overflow-hidden">
+
+<!-- ══════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════ -->
+<aside class="sidebar w-64 flex-shrink-0 flex flex-col h-screen overflow-y-auto">
+  <!-- Logo -->
+  <div class="p-5 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg gold-gradient flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-white font-bold text-sm leading-tight">Dictaminación</div>
+        <div class="text-yellow-400 text-xs font-medium">Legal Inteligente</div>
+      </div>
+    </div>
+    <div class="mt-3 text-gray-400 text-xs">Powered by IA · Actinver</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 py-4 px-3 space-y-1">
+    <div class="text-gray-500 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Principal</div>
+
+    <div class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('dashboard')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('ingesta')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="nav-label">Ingesta Documental</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('extraccion')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+      <span class="nav-label">OCR + Extracción NLP</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('dictaminacion')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span class="nav-label">Motor de Dictaminación</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('trazabilidad')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span class="nav-label">Trazabilidad E2E</span>
+    </div>
+
+    <div class="text-gray-500 text-xs font-semibold uppercase tracking-wider px-3 mt-4 mb-2">Integraciones</div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('integraciones')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      <span class="nav-label">Conectores</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('apis')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span class="nav-label">APIs &amp; Docs</span>
+    </div>
+
+    <div class="text-gray-500 text-xs font-semibold uppercase tracking-wider px-3 mt-4 mb-2">Propuesta</div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('arquitectura')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+      <span class="nav-label">Arquitectura</span>
+    </div>
+
+    <div class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-gray-300 text-sm" onclick="navigate('propuesta')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span class="nav-label">Propuesta Funcional</span>
+    </div>
+  </nav>
+
+  <!-- User -->
+  <div class="p-4 border-t border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-white text-xs font-bold">AL</div>
+      <div>
+        <div class="text-white text-xs font-medium">Ana López</div>
+        <div class="text-gray-400 text-xs">Oficial de Cumplimiento</div>
+      </div>
+      <div class="ml-auto"><span class="status-dot status-ok"></span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════════════════ -->
+<main class="flex-1 flex flex-col overflow-hidden">
+
+  <!-- Top Bar -->
+  <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div id="headerTitle" class="text-lg font-semibold text-gray-800">Dashboard Principal</div>
+      <div class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Versión 2.4.1 · Demo RFP</div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="text-xs text-gray-500">Entorno: <span class="font-medium text-blue-600">UAT Actinver</span></div>
+      <div class="relative">
+        <div class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer">
+          <svg width="18" height="18" fill="none" stroke="#6B7280" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold">3</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-gray-500">
+        <div class="status-dot status-ok"></div>
+        <span>Sistemas conectados</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Scrollable content area -->
+  <div class="flex-1 overflow-y-auto p-6">
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 1: DASHBOARD
+══════════════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen active">
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="kpi-card p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Expedientes Activos</div>
+          <div class="text-3xl font-bold text-gray-900">248</div>
+          <div class="text-xs text-green-600 mt-1 font-medium">↑ +12 esta semana</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+          <svg width="20" height="20" fill="none" stroke="#1E3A8A" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Dictámenes Hoy</div>
+          <div class="text-3xl font-bold text-gray-900">34</div>
+          <div class="flex gap-1 mt-1">
+            <span class="badge-verde text-xs px-2 py-0.5 rounded-full font-medium">18 ✓</span>
+            <span class="badge-amarillo text-xs px-2 py-0.5 rounded-full font-medium">11 !</span>
+            <span class="badge-rojo text-xs px-2 py-0.5 rounded-full font-medium">5 ✗</span>
+          </div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+          <svg width="20" height="20" fill="none" stroke="#065F46" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Tiempo Promedio</div>
+          <div class="text-3xl font-bold text-gray-900">4.2<span class="text-lg text-gray-400 font-normal">min</span></div>
+          <div class="text-xs text-blue-600 mt-1 font-medium">SLA objetivo: ≤ 8 min</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center">
+          <svg width="20" height="20" fill="none" stroke="#92400E" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Precisión OCR</div>
+          <div class="text-3xl font-bold text-gray-900">98.7<span class="text-lg text-gray-400 font-normal">%</span></div>
+          <div class="text-xs text-green-600 mt-1 font-medium">↑ +1.2% vs. mes anterior</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+          <svg width="20" height="20" fill="none" stroke="#6D28D9" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts + Table row -->
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <!-- Bar chart -->
+    <div class="card p-5 col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <div class="font-semibold text-gray-800">Dictámenes por Semana</div>
+        <div class="flex gap-2">
+          <span class="tab-pill active">30 días</span>
+          <span class="tab-pill">90 días</span>
+        </div>
+      </div>
+      <canvas id="chartDictamenes" height="110"></canvas>
+    </div>
+    <!-- Donut -->
+    <div class="card p-5">
+      <div class="font-semibold text-gray-800 mb-4">Resultado Semáforo</div>
+      <canvas id="chartSemaforo" height="140"></canvas>
+      <div class="mt-3 space-y-2 text-xs">
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>Verde (Aprobado)</span><span class="font-semibold">53%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>Amarillo (Revisión)</span><span class="font-semibold">32%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>Rojo (Rechazado)</span><span class="font-semibold">15%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent expedientes -->
+  <div class="card p-5">
+    <div class="flex items-center justify-between mb-4">
+      <div class="font-semibold text-gray-800">Expedientes Recientes</div>
+      <button class="text-xs text-blue-600 font-medium hover:underline" onclick="navigate('ingesta')">Ver todos →</button>
+    </div>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-xs text-gray-500 font-semibold uppercase tracking-wide border-b">
+          <th class="text-left pb-2">Folio</th>
+          <th class="text-left pb-2">Razón Social</th>
+          <th class="text-left pb-2">Tipo</th>
+          <th class="text-left pb-2">Documentos</th>
+          <th class="text-left pb-2">Estado</th>
+          <th class="text-left pb-2">Dictamen</th>
+          <th class="text-left pb-2">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50">
+        <tr class="hover:bg-gray-50 cursor-pointer" onclick="openExpediente('EXP-2024-0891')">
+          <td class="py-3 font-mono text-xs text-blue-600">EXP-2024-0891</td>
+          <td class="py-3 font-medium">Grupo Industrial Norteño S.A. de C.V.</td>
+          <td class="py-3"><span class="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">S.A. de C.V.</span></td>
+          <td class="py-3">
+            <div class="flex gap-1">
+              <span class="bg-green-100 text-green-700 text-xs px-1.5 py-0.5 rounded">8/8</span>
+            </div>
+          </td>
+          <td class="py-3"><span class="text-xs text-green-600 font-medium">Completo</span></td>
+          <td class="py-3"><span class="badge-verde px-2 py-0.5 rounded-full text-xs font-semibold">VERDE</span></td>
+          <td class="py-3"><button class="text-xs text-blue-600 hover:underline" onclick="event.stopPropagation();navigate('dictaminacion')">Ver dictamen</button></td>
+        </tr>
+        <tr class="hover:bg-gray-50 cursor-pointer">
+          <td class="py-3 font-mono text-xs text-blue-600">EXP-2024-0890</td>
+          <td class="py-3 font-medium">Distribuidora Central del Bajío S.C.</td>
+          <td class="py-3"><span class="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">S.C.</span></td>
+          <td class="py-3"><span class="bg-yellow-100 text-yellow-700 text-xs px-1.5 py-0.5 rounded">6/8</span></td>
+          <td class="py-3"><span class="text-xs text-yellow-600 font-medium">Incompleto</span></td>
+          <td class="py-3"><span class="badge-amarillo px-2 py-0.5 rounded-full text-xs font-semibold">AMARILLO</span></td>
+          <td class="py-3"><button class="text-xs text-yellow-600 hover:underline">Completar</button></td>
+        </tr>
+        <tr class="hover:bg-gray-50 cursor-pointer">
+          <td class="py-3 font-mono text-xs text-blue-600">EXP-2024-0889</td>
+          <td class="py-3 font-medium">Inmobiliaria Pedregal Trust S.A.P.I.</td>
+          <td class="py-3"><span class="bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">S.A.P.I.</span></td>
+          <td class="py-3"><span class="bg-green-100 text-green-700 text-xs px-1.5 py-0.5 rounded">8/8</span></td>
+          <td class="py-3"><span class="text-xs text-red-600 font-medium">Alerta legal</span></td>
+          <td class="py-3"><span class="badge-rojo px-2 py-0.5 rounded-full text-xs font-semibold">ROJO</span></td>
+          <td class="py-3"><button class="text-xs text-red-600 hover:underline">Revisar</button></td>
+        </tr>
+        <tr class="hover:bg-gray-50 cursor-pointer">
+          <td class="py-3 font-mono text-xs text-blue-600">EXP-2024-0888</td>
+          <td class="py-3 font-medium">Tecnologías Avanzadas del Norte S.A.</td>
+          <td class="py-3"><span class="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">S.A.</span></td>
+          <td class="py-3"><span class="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">2/8</span></td>
+          <td class="py-3"><span class="text-xs text-gray-500 font-medium">En proceso</span></td>
+          <td class="py-3"><span class="badge-gris px-2 py-0.5 rounded-full text-xs font-semibold">PENDIENTE</span></td>
+          <td class="py-3"><button class="text-xs text-gray-500 hover:underline" onclick="event.stopPropagation();navigate('extraccion')">Ver OCR</button></td>
+        </tr>
+        <tr class="hover:bg-gray-50 cursor-pointer">
+          <td class="py-3 font-mono text-xs text-blue-600">EXP-2024-0887</td>
+          <td class="py-3 font-medium">Agroindustrias Valle Verde S. de R.L.</td>
+          <td class="py-3"><span class="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">S. de R.L.</span></td>
+          <td class="py-3"><span class="bg-green-100 text-green-700 text-xs px-1.5 py-0.5 rounded">8/8</span></td>
+          <td class="py-3"><span class="text-xs text-green-600 font-medium">Completo</span></td>
+          <td class="py-3"><span class="badge-verde px-2 py-0.5 rounded-full text-xs font-semibold">VERDE</span></td>
+          <td class="py-3"><button class="text-xs text-blue-600 hover:underline">Ver dictamen</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLA panel -->
+  <div class="grid grid-cols-3 gap-4 mt-4">
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-3">SLA Disponibilidad</div>
+      <div class="text-2xl font-bold text-gray-900 mb-1">99.94<span class="text-sm text-gray-400 font-normal">%</span></div>
+      <div class="progress-bar mb-1"><div class="progress-fill bg-green-500" style="width:99.94%"></div></div>
+      <div class="text-xs text-gray-400">Objetivo: 99.9% · Último mes</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-3">SLA Dictaminación</div>
+      <div class="text-2xl font-bold text-gray-900 mb-1">96.2<span class="text-sm text-gray-400 font-normal">%</span></div>
+      <div class="progress-bar mb-1"><div class="progress-fill bg-blue-500" style="width:96.2%"></div></div>
+      <div class="text-xs text-gray-400">% casos resueltos ≤ 8 min</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-3">Integraciones Activas</div>
+      <div class="text-2xl font-bold text-gray-900 mb-1">4<span class="text-sm text-gray-400 font-normal">/4</span></div>
+      <div class="flex gap-2 mt-2 text-xs">
+        <span class="flex items-center gap-1"><span class="status-dot status-ok"></span> OpenText</span>
+        <span class="flex items-center gap-1"><span class="status-dot status-ok"></span> Salesforce</span>
+        <span class="flex items-center gap-1"><span class="status-dot status-ok"></span> AD/SSO</span>
+        <span class="flex items-center gap-1"><span class="status-dot status-ok"></span> Workflow</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 2: INGESTA DOCUMENTAL
+══════════════════════════════════════════════════════ -->
+<div id="screen-ingesta" class="screen">
+  <div class="grid grid-cols-5 gap-6">
+
+    <!-- Left: Upload -->
+    <div class="col-span-3 space-y-5">
+      <div class="card p-6">
+        <div class="font-semibold text-gray-800 mb-1">Nuevo Expediente — Persona Moral</div>
+        <div class="text-xs text-gray-400 mb-5">Ingesta y clasificación automática de documentos legales</div>
+
+        <!-- Drop zone -->
+        <div class="drop-zone p-10 text-center mb-5" id="dropZone" onclick="simulateUpload()">
+          <div class="w-14 h-14 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg width="28" height="28" fill="none" stroke="#C9A84C" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="text-gray-700 font-medium mb-1">Arrastra documentos aquí o haz clic para seleccionar</div>
+          <div class="text-gray-400 text-xs">PDF, TIFF, JPG · Máx. 50MB por archivo · Encriptación AES-256 en tránsito</div>
+          <button class="mt-4 gold-gradient text-white text-sm font-semibold px-5 py-2 rounded-lg">Seleccionar archivos</button>
+        </div>
+
+        <!-- Document checklist -->
+        <div class="font-medium text-sm text-gray-700 mb-3">Documentos requeridos para Persona Moral</div>
+        <div id="docChecklist" class="space-y-2">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Expediente info -->
+    <div class="col-span-2 space-y-4">
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-4">Datos del Expediente</div>
+        <div class="space-y-3 text-sm">
+          <div>
+            <label class="text-xs text-gray-500 font-medium">Folio</label>
+            <div class="mt-1 bg-gray-50 rounded-lg px-3 py-2 font-mono text-xs text-blue-700 font-bold">EXP-2024-0892</div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 font-medium">Razón Social *</label>
+            <input type="text" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" placeholder="Ej: Empresa XYZ S.A. de C.V." value="Constructora Meridiano S.A. de C.V.">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 font-medium">RFC *</label>
+            <input type="text" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 font-mono" placeholder="CME123456ABC" value="CME850312AB7">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 font-medium">Tipo de Sociedad</label>
+            <select class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+              <option>S.A. de C.V.</option><option>S.A.</option><option>S. de R.L.</option><option>S.A.P.I.</option><option>S.C.</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 font-medium">Ejecutivo Asignado</label>
+            <input type="text" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" value="Luis García Morales">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 font-medium">Segmento</label>
+            <select class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+              <option>Empresarial</option><option>PYME</option><option>Corporativo</option><option>Patrimonial</option>
+            </select>
+          </div>
+        </div>
+        <button class="mt-4 w-full navy-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition" onclick="navigate('extraccion')">
+          Iniciar procesamiento OCR →
+        </button>
+      </div>
+
+      <!-- Integración OpenText -->
+      <div class="card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="status-dot status-ok"></span>
+          <span class="text-xs font-semibold text-gray-700">Sincronización OpenText</span>
+        </div>
+        <div class="text-xs text-gray-500">Los documentos se almacenarán automáticamente en el repositorio documental de Actinver bajo la carpeta:</div>
+        <div class="mt-2 bg-gray-50 rounded px-3 py-2 font-mono text-xs text-gray-600">/DICTAMINACION/PM/2024/EXP-2024-0892/</div>
+        <div class="mt-2 text-xs text-green-600 font-medium">✓ Índice documental configurado · Retención: 10 años</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 3: OCR + EXTRACCIÓN NLP
+══════════════════════════════════════════════════════ -->
+<div id="screen-extraccion" class="screen">
+  <div class="grid grid-cols-5 gap-6">
+
+    <!-- Document preview -->
+    <div class="col-span-2">
+      <div class="card p-5 h-full">
+        <div class="font-semibold text-gray-800 mb-1">Documento en Análisis</div>
+        <div class="text-xs text-gray-400 mb-4">Acta Constitutiva — Constructora Meridiano S.A. de C.V.</div>
+
+        <!-- Simulated document with highlights -->
+        <div class="bg-gray-50 rounded-xl p-5 text-xs leading-7 text-gray-700 border border-gray-100 font-serif relative" style="height:420px;overflow-y:auto;line-height:2;">
+          <div class="text-center font-bold text-gray-800 mb-2 text-sm">TESTIMONIO DE ESCRITURA PÚBLICA N° 18,421</div>
+          <div class="text-center text-gray-500 mb-4">Volumen CCXIV · Notario Público N° 87 del D.F.</div>
+          <p>En la Ciudad de México, siendo las <span class="bg-yellow-200 px-1 rounded cursor-help" title="Fecha de constitución">diez horas del día quince de agosto del año dos mil ocho</span>, ante mí, <span class="bg-blue-100 px-1 rounded">Lic. Roberto Sánchez Pérez</span>, Notario Público número ochenta y siete...</p>
+          <p class="mt-2">...comparecen en representación de la sociedad denominada <span class="bg-green-100 px-1 rounded font-bold cursor-help" title="Razón Social extraída">CONSTRUCTORA MERIDIANO, SOCIEDAD ANÓNIMA DE CAPITAL VARIABLE</span>, con domicilio en <span class="bg-yellow-100 px-1 rounded">Av. Insurgentes Sur 1234, Col. Del Valle, C.P. 03100, Ciudad de México</span>...</p>
+          <p class="mt-2">...el capital social fijo es de <span class="bg-purple-100 px-1 rounded font-bold">$5,000,000.00 (CINCO MILLONES DE PESOS 00/100 M.N.)</span>, representado por <span class="bg-purple-100 px-1 rounded">5,000 acciones</span> nominativas...</p>
+          <p class="mt-2">...actuando como representante legal con <span class="bg-orange-100 px-1 rounded">poderes para actos de dominio y administración</span>, el señor <span class="bg-blue-100 px-1 rounded font-bold">Ing. Carlos Ramírez Vega</span>, con INE folio <span class="bg-blue-100 px-1 rounded font-mono">1234567890123456</span>, RFC <span class="bg-blue-100 px-1 rounded font-mono">RAVC780412HDF</span>...</p>
+          <p class="mt-2">...el objeto social comprende: <span class="bg-green-50 px-1 rounded">construcción, remodelación, supervisión y gestión de proyectos de infraestructura civil y urbana</span>...</p>
+          <p class="mt-2">...duración de la sociedad: <span class="bg-yellow-200 px-1 rounded">INDEFINIDA</span>...</p>
+          <div class="mt-4 border-t pt-3 text-center text-gray-400 text-xs">— FIN DEL EXTRACTO —</div>
+        </div>
+
+        <!-- OCR confidence -->
+        <div class="mt-3 flex items-center gap-3">
+          <div class="flex-1">
+            <div class="text-xs text-gray-500 mb-1">Confianza OCR</div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:98.7%"></div></div>
+          </div>
+          <div class="text-green-600 font-bold text-sm">98.7%</div>
+        </div>
+        <div class="mt-2 flex gap-3 text-xs text-gray-400">
+          <span>Páginas: 23</span><span>|</span><span>Tiempo OCR: 2.1s</span><span>|</span><span>Motor: Tesseract 5.3 + GPT-4o</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extracted fields -->
+    <div class="col-span-3 space-y-4">
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="font-semibold text-gray-800">Datos Extraídos Automáticamente</div>
+          <div class="flex gap-2">
+            <span class="badge-verde text-xs px-2 py-0.5 rounded-full font-semibold">NLP: Completo</span>
+            <span class="text-xs text-gray-400 flex items-center gap-1">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Procesado en 3.8s
+            </span>
+          </div>
+        </div>
+
+        <!-- Extraction grid -->
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <!-- Each field -->
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Razón Social</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Constructora Meridiano S.A. de C.V.</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 99.2% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">RFC de la Sociedad</div>
+            <div class="font-semibold font-mono text-gray-800 mt-0.5">CME850312AB7</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ Validado SAT · Activo</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Tipo de Sociedad</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Sociedad Anónima de Capital Variable</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 100% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Fecha de Constitución</div>
+            <div class="font-semibold text-gray-800 mt-0.5">15 de agosto de 2008</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 97.8% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Capital Social Fijo</div>
+            <div class="font-semibold text-gray-800 mt-0.5">$5,000,000.00 MXN</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 99.1% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Notario Público</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Lic. Roberto Sánchez Pérez · N° 87</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 98.5% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Representante Legal</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Ing. Carlos Ramírez Vega</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ Identidad verificada · INE válida</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">RFC Representante</div>
+            <div class="font-semibold font-mono text-gray-800 mt-0.5">RAVC780412HDF</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ Validado SAT · Sin obligaciones</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Objeto Social</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Construcción e infraestructura civil</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ Clasificado SCIAN 2360</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Duración</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Indefinida</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ 100% confianza</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Tipo de Poderes</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Dominio y Administración</div>
+            <div class="text-xs text-yellow-600 mt-0.5">⚠ Revisar alcance Cláusula 14</div>
+          </div>
+          <div class="highlight-box pl-3 pr-2 py-2 rounded-r-lg">
+            <div class="text-xs text-gray-400 font-medium">Domicilio Social</div>
+            <div class="font-semibold text-gray-800 mt-0.5">Av. Insurgentes Sur 1234, CDMX</div>
+            <div class="text-xs text-green-600 mt-0.5">✓ Geolocalizado · C.P. válido</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 mt-5">
+          <button class="flex-1 navy-gradient text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90" onclick="navigate('dictaminacion')">
+            Generar Dictamen →
+          </button>
+          <button class="border border-gray-200 text-gray-700 text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50">
+            Editar campos
+          </button>
+          <button class="border border-gray-200 text-gray-700 text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-50">
+            Exportar JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Validation results -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Validaciones Cruzadas</div>
+        <div class="grid grid-cols-3 gap-3 text-xs">
+          <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+            <div class="font-semibold text-green-800 mb-1">✓ SAT / RFC</div>
+            <div class="text-green-700">Sociedad activa, sin créditos fiscales.</div>
+          </div>
+          <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+            <div class="font-semibold text-green-800 mb-1">✓ RENAPO / INE</div>
+            <div class="text-green-700">Representante legal verificado. CURP activa.</div>
+          </div>
+          <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+            <div class="font-semibold text-green-800 mb-1">✓ Listas Negras</div>
+            <div class="text-green-700">Sin coincidencias en OFAC, ONU, CNDH, DOF.</div>
+          </div>
+          <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+            <div class="font-semibold text-green-800 mb-1">✓ Buró de Crédito</div>
+            <div class="text-green-700">Sin alertas crediticias significativas.</div>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-3">
+            <div class="font-semibold text-yellow-800 mb-1">⚠ Poder Notarial</div>
+            <div class="text-yellow-700">Revisar vigencia y alcance Cláusula 14.</div>
+          </div>
+          <div class="bg-green-50 border border-green-100 rounded-lg p-3">
+            <div class="font-semibold text-green-800 mb-1">✓ IMSS / INFONAVIT</div>
+            <div class="text-green-700">Sin adeudos laborales detectados.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 4: MOTOR DE DICTAMINACIÓN
+══════════════════════════════════════════════════════ -->
+<div id="screen-dictaminacion" class="screen">
+  <div class="grid grid-cols-3 gap-6">
+
+    <!-- Left: Resultado principal -->
+    <div class="col-span-2 space-y-5">
+
+      <!-- Semáforo result -->
+      <div class="card p-8 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5" style="background: radial-gradient(circle at 50% 0%, #10B981, transparent 60%);"></div>
+        <div class="relative">
+          <div class="text-sm text-gray-500 font-medium mb-2">Folio: EXP-2024-0891</div>
+          <div class="text-gray-700 font-semibold mb-6">Grupo Industrial Norteño S.A. de C.V.</div>
+
+          <!-- Big semaphore -->
+          <div class="flex justify-center gap-6 mb-8">
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 rounded-full bg-red-200 opacity-30"></div>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 rounded-full bg-yellow-200 opacity-30"></div>
+            </div>
+            <div class="flex flex-col items-center relative">
+              <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center shadow-lg" style="box-shadow:0 0 30px rgba(16,185,129,0.5);">
+                <svg width="36" height="36" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div class="absolute -bottom-2 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+            </div>
+          </div>
+
+          <div class="text-5xl font-black text-green-600 mb-2">DICTAMEN VERDE</div>
+          <div class="text-gray-600 font-medium mb-2">Aprobado para Apertura de Cuenta</div>
+          <div class="text-xs text-gray-400">Generado: 13 May 2024 · 10:42:18 hrs · Modelo: DictIA v3.1</div>
+          <div class="mt-4 text-sm text-gray-700 max-w-lg mx-auto leading-relaxed bg-green-50 rounded-xl p-4 border border-green-100">
+            "El expediente de <strong>Grupo Industrial Norteño S.A. de C.V.</strong> cumple con la totalidad de los criterios legales, de identidad y de cumplimiento normativo establecidos en la política de onboarding de Actinver. Se recomienda proceder con la apertura de cuenta sin restricciones."
+          </div>
+        </div>
+      </div>
+
+      <!-- Score breakdown -->
+      <div class="card p-6">
+        <div class="font-semibold text-gray-800 mb-5">Desglose del Análisis Legal</div>
+        <div class="space-y-4">
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Documentación Completa</span>
+              <span class="font-bold text-green-600">100/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:100%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">8 de 8 documentos recibidos y validados · Todos legibles</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Validez Legal del Acta Constitutiva</span>
+              <span class="font-bold text-green-600">97/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:97%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">Escritura inscrita en RPC · Notario verificado · Sellos válidos</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Poderes Notariales</span>
+              <span class="font-bold text-green-600">95/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:95%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">Vigentes · Amplio alcance · Firmados ante notario</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Identidad Representante Legal</span>
+              <span class="font-bold text-green-600">99/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:99%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">INE vigente · RENAPO OK · Biometría validada</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Cumplimiento AML/PLD</span>
+              <span class="font-bold text-green-600">98/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:98%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">Sin coincidencias OFAC, DOF, ONU, Interpol · Beneficiario final declarado</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Situación Fiscal SAT</span>
+              <span class="font-bold text-green-600">100/100</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-500" style="width:100%"></div></div>
+            <div class="text-xs text-gray-400 mt-1">Activo · Sin créditos fiscales · Última declaración: Abr 2024</div>
+          </div>
+
+          <div class="border-t pt-4 flex justify-between items-center">
+            <span class="font-bold text-gray-800">Score Total de Dictaminación</span>
+            <span class="text-2xl font-black text-green-600">98.2 / 100</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-4">Acciones del Dictamen</div>
+        <div class="grid grid-cols-3 gap-3">
+          <button class="gold-gradient text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition flex items-center justify-center gap-2">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Exportar PDF
+          </button>
+          <button class="navy-gradient text-white py-3 rounded-xl text-sm font-bold hover:opacity-90 transition flex items-center justify-center gap-2" onclick="navigate('integraciones')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+            Enviar a CRM
+          </button>
+          <button class="border-2 border-green-500 text-green-700 py-3 rounded-xl text-sm font-bold hover:bg-green-50 transition flex items-center justify-center gap-2">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Aprobar y Firmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Details panel -->
+    <div class="space-y-4">
+      <!-- Semaphore examples -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Criterios del Semáforo</div>
+        <div class="space-y-3 text-xs">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div class="font-bold text-green-800 mb-1">🟢 VERDE — Aprobado</div>
+            <div class="text-green-700">Score ≥ 85 · Docs completos · Sin alertas AML · Identidad verificada · Poderes vigentes</div>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div class="font-bold text-yellow-800 mb-1">🟡 AMARILLO — Revisión manual</div>
+            <div class="text-yellow-700">Score 65–84 · Docs faltantes no críticos · Alertas menores · Poderes con restricciones</div>
+          </div>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div class="font-bold text-red-800 mb-1">🔴 ROJO — Rechazado / EDD</div>
+            <div class="text-red-700">Score &lt; 65 · Alerta AML · Docs falsificados · Representante en listas · Poderes vencidos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other expedientes -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Dictámenes Recientes</div>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
+            <div>
+              <div class="font-medium text-gray-700">EXP-2024-0890</div>
+              <div class="text-gray-400">Distribuidora Central</div>
+            </div>
+            <span class="badge-amarillo px-2 py-0.5 rounded-full font-semibold">AMARILLO</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
+            <div>
+              <div class="font-medium text-gray-700">EXP-2024-0889</div>
+              <div class="text-gray-400">Inmobiliaria Pedregal</div>
+            </div>
+            <span class="badge-rojo px-2 py-0.5 rounded-full font-semibold">ROJO</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
+            <div>
+              <div class="font-medium text-gray-700">EXP-2024-0887</div>
+              <div class="text-gray-400">Agroindustrias Valle</div>
+            </div>
+            <span class="badge-verde px-2 py-0.5 rounded-full font-semibold">VERDE</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5">
+            <div>
+              <div class="font-medium text-gray-700">EXP-2024-0886</div>
+              <div class="text-gray-400">Farmacias del Pacífico</div>
+            </div>
+            <span class="badge-verde px-2 py-0.5 rounded-full font-semibold">VERDE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regulatory basis -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Marco Normativo Aplicado</div>
+        <div class="space-y-2 text-xs text-gray-600">
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>LFPIORPI (Prevención de Lavado de Dinero)</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>Circular Única de Bancos (CNBV)</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>FATF / GAFI Recomendaciones 2023</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>Ley General de Sociedades Mercantiles</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>Código de Comercio México</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>Reglamento SAT — RFC y obligaciones</span></div>
+          <div class="flex gap-2"><span class="text-blue-500 font-bold">•</span><span>Política KYC/AML Actinver 2024</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 5: TRAZABILIDAD E2E
+══════════════════════════════════════════════════════ -->
+<div id="screen-trazabilidad" class="screen">
+  <div class="grid grid-cols-3 gap-6">
+
+    <div class="col-span-2">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <div class="font-semibold text-gray-800">Audit Trail — EXP-2024-0891</div>
+            <div class="text-xs text-gray-400">Grupo Industrial Norteño S.A. de C.V. · Trazabilidad completa E2E</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="border border-gray-200 text-xs text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50">Exportar CSV</button>
+            <button class="navy-gradient text-white text-xs px-3 py-1.5 rounded-lg">Ver en OpenText</button>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="pl-8 relative timeline-line space-y-0">
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Expediente creado</div>
+                <div class="text-xs text-gray-500 mt-0.5">Usuario: l.garcia@actinver.com.mx · IP: 10.12.34.56 · Sesión SSO SAML 2.0</div>
+                <div class="text-xs text-blue-600 mt-1">Folio generado: EXP-2024-0891 · Sistema: DICTIA-PROD</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:31:02</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Documentos ingresados (8 archivos)</div>
+                <div class="text-xs text-gray-500 mt-0.5">Acta Constitutiva, Poderes, INE ×2, RFC, Comprobante dom., Opinión cumplimiento, CSID</div>
+                <div class="text-xs text-gray-400 mt-1">Hash SHA-256: a3f8c1d9... · Almacenados en OpenText /DICTAMINACION/PM/2024/EXP-2024-0891/</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:32:45</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Proceso OCR iniciado</div>
+                <div class="text-xs text-gray-500 mt-0.5">Motor: Tesseract 5.3 + GPT-4o Vision · Idioma: Español MX</div>
+                <div class="text-xs text-green-600 mt-1">Completado en 2.1s · Confianza promedio: 98.7%</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:32:47</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Extracción NLP completada</div>
+                <div class="text-xs text-gray-500 mt-0.5">42 campos extraídos · Modelo: DictIA-NLP v3.1 · Fine-tuned en corpus legal MX</div>
+                <div class="text-xs text-green-600 mt-1">Sin campos inciertos · Revisión humana: No requerida</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:32:51</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Validaciones externas ejecutadas</div>
+                <div class="text-xs text-gray-500 mt-0.5">SAT RFC · RENAPO CURP · OFAC/ONU listas · Buró de Crédito · IMSS · Geolocalización</div>
+                <div class="text-xs text-green-600 mt-1">6/6 validaciones exitosas · 0 alertas críticas</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:33:18</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Dictamen generado — VERDE</div>
+                <div class="text-xs text-gray-500 mt-0.5">Score: 98.2/100 · Modelo DictIA v3.1 · Reglas aplicadas: 24/24</div>
+                <div class="text-xs text-green-600 mt-1">PDF generado · Hash: b7e2a4f1... · Firmado digitalmente (FIEL)</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:33:22</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Sincronización CRM Salesforce</div>
+                <div class="text-xs text-gray-500 mt-0.5">Oportunidad actualizada · ID Salesforce: OPP-0024891 · Stage → Contratación</div>
+                <div class="text-xs text-green-600 mt-1">✓ Datos enviados · ✓ Documentos adjuntados en Salesforce Files</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:33:25</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-gray-800">Workflow activado — Etapa: Contratación</div>
+                <div class="text-xs text-gray-500 mt-0.5">Tarea asignada a: Oficial de Cuenta · Notificación email enviada</div>
+                <div class="text-xs text-blue-600 mt-1">Próximo SLA: Firma de contrato ≤ 5 días hábiles</div>
+              </div>
+              <div class="text-xs text-gray-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">13 May 2024</div>
+                <div class="font-mono font-bold">10:33:28</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative timeline-item py-4 bg-blue-50 rounded-xl px-3 -mx-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold text-sm text-blue-800">⏳ Pendiente: Firma electrónica del cliente</div>
+                <div class="text-xs text-blue-600 mt-0.5">Link de firma enviado a: carlos.ramirez@grupo-norteno.com.mx</div>
+                <div class="text-xs text-blue-400 mt-1">SLA restante: 4d 23h 32m</div>
+              </div>
+              <div class="text-xs text-blue-400 text-right flex-shrink-0 ml-4">
+                <div class="font-mono">En espera</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total time -->
+        <div class="mt-6 pt-4 border-t flex items-center justify-between">
+          <div class="text-sm text-gray-600"><span class="font-semibold">Tiempo total de dictaminación:</span> <span class="text-green-600 font-bold">4 min 26 seg</span> <span class="text-gray-400 text-xs">(SLA objetivo: ≤ 8 min ✓)</span></div>
+          <div class="text-xs text-gray-400 font-mono">TRX-ID: 7f3a9c2e-b1d4-48ea-9f12-3c8e1a7d0b56</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security panel -->
+    <div class="space-y-4">
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-4">Seguridad &amp; Cifrado</div>
+        <div class="space-y-3 text-sm">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#065F46" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div>
+              <div class="font-medium text-gray-700 text-xs">Cifrado en Reposo</div>
+              <div class="text-green-600 text-xs font-semibold">AES-256-GCM</div>
+              <div class="text-gray-400 text-xs">Claves gestionadas por HSM</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#1E3A8A" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div class="font-medium text-gray-700 text-xs">Cifrado en Tránsito</div>
+              <div class="text-blue-600 text-xs font-semibold">TLS 1.3 + mTLS</div>
+              <div class="text-gray-400 text-xs">Certificados PKI Actinver CA</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#6D28D9" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="font-medium text-gray-700 text-xs">Autenticación</div>
+              <div class="text-purple-600 text-xs font-semibold">SSO / SAML 2.0</div>
+              <div class="text-gray-400 text-xs">Active Directory Actinver + MFA</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="16" height="16" fill="none" stroke="#92400E" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="font-medium text-gray-700 text-xs">Logs de Auditoría</div>
+              <div class="text-yellow-600 text-xs font-semibold">SIEM Inmutable</div>
+              <div class="text-gray-400 text-xs">Retención 10 años · ISO 27001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Integridad del Documento</div>
+        <div class="space-y-2 text-xs">
+          <div class="bg-gray-50 rounded p-2 font-mono text-gray-600 break-all">
+            <div class="text-gray-400 mb-1">SHA-256 Acta:</div>
+            a3f8c1d9e2b447fa8c912...d4e7
+          </div>
+          <div class="bg-gray-50 rounded p-2 font-mono text-gray-600 break-all">
+            <div class="text-gray-400 mb-1">SHA-256 Dictamen:</div>
+            b7e2a4f1c9386da2e7041...9b3c
+          </div>
+          <div class="text-green-600 font-semibold mt-2">✓ Hashes verificados · Documentos íntegros</div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Cumplimiento Regulatorio</div>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex items-center gap-2"><span class="status-dot status-ok"></span><span>LFPIORPI Art. 18 — Identificación PM</span></div>
+          <div class="flex items-center gap-2"><span class="status-dot status-ok"></span><span>CUB Disp. 115 — Expediente digital</span></div>
+          <div class="flex items-center gap-2"><span class="status-dot status-ok"></span><span>FATF Rec. 10 — Debida diligencia</span></div>
+          <div class="flex items-center gap-2"><span class="status-dot status-ok"></span><span>ISO 27001 — Seguridad de información</span></div>
+          <div class="flex items-center gap-2"><span class="status-dot status-ok"></span><span>PCI DSS 4.0 — Estándar de datos</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 6: INTEGRACIONES
+══════════════════════════════════════════════════════ -->
+<div id="screen-integraciones" class="screen">
+  <div class="space-y-5">
+
+    <!-- Integration status grid -->
+    <div class="grid grid-cols-2 gap-5">
+
+      <!-- OpenText -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-blue-900 flex items-center justify-center">
+              <svg width="26" height="26" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="font-bold text-gray-800">OpenText ECM</div>
+              <div class="text-xs text-gray-400">Repositorio Documental · v16.7</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-ok"></span>
+            <span class="text-xs font-semibold text-green-600">Conectado</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Documentos hoy</div><div class="font-bold text-gray-800 text-lg mt-0.5">1,247</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Latencia p95</div><div class="font-bold text-gray-800 text-lg mt-0.5">142ms</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Errores 24h</div><div class="font-bold text-green-600 text-lg mt-0.5">0</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Uptime mes</div><div class="font-bold text-gray-800 text-lg mt-0.5">99.98%</div></div>
+        </div>
+        <div class="space-y-2 text-xs text-gray-600">
+          <div class="font-semibold text-gray-700">Capacidades integradas:</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Ingesta automática</span>
+            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Versionamiento</span>
+            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Índice documental</span>
+            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Retención 10 años</span>
+            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">OpenText Extreme</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salesforce -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:#00A1E0;">
+              <svg width="26" height="26" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div>
+              <div class="font-bold text-gray-800">Salesforce CRM</div>
+              <div class="text-xs text-gray-400">Financial Services Cloud · v60.0</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-ok"></span>
+            <span class="text-xs font-semibold text-green-600">Conectado</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Sync hoy</div><div class="font-bold text-gray-800 text-lg mt-0.5">34</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Latencia p95</div><div class="font-bold text-gray-800 text-lg mt-0.5">89ms</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Errores 24h</div><div class="font-bold text-green-600 text-lg mt-0.5">0</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Oport. activas</div><div class="font-bold text-gray-800 text-lg mt-0.5">248</div></div>
+        </div>
+        <div class="space-y-2 text-xs text-gray-600">
+          <div class="font-semibold text-gray-700">Capacidades integradas:</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">Oportunidades</span>
+            <span class="bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">Actualización de stage</span>
+            <span class="bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">Salesforce Files</span>
+            <span class="bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">Tasks &amp; Activities</span>
+            <span class="bg-cyan-50 text-cyan-700 px-2 py-1 rounded-full">Einstein Analytics</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Directory -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-indigo-700 flex items-center justify-center">
+              <svg width="26" height="26" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div>
+              <div class="font-bold text-gray-800">Active Directory / SSO</div>
+              <div class="text-xs text-gray-400">SAML 2.0 + MFA · Azure AD B2B</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-ok"></span>
+            <span class="text-xs font-semibold text-green-600">Activo</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Usuarios activos</div><div class="font-bold text-gray-800 text-lg mt-0.5">47</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Sesiones hoy</div><div class="font-bold text-gray-800 text-lg mt-0.5">312</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Tokens MFA</div><div class="font-bold text-green-600 text-lg mt-0.5">100%</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Intentos fallidos</div><div class="font-bold text-gray-800 text-lg mt-0.5">2</div></div>
+        </div>
+        <div class="space-y-2 text-xs text-gray-600">
+          <div class="font-semibold text-gray-700">Grupos de acceso:</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">Oficial Cumplimiento</span>
+            <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">Gerente Legal</span>
+            <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">Ejecutivo Cuenta</span>
+            <span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">Auditor Read-Only</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow / BPM -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-600 flex items-center justify-center">
+              <svg width="26" height="26" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="font-bold text-gray-800">Workflow Onboarding</div>
+              <div class="text-xs text-gray-400">BPM Engine · Activiti 7 + REST API</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-dot status-ok"></span>
+            <span class="text-xs font-semibold text-green-600">Activo</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Tareas en cola</div><div class="font-bold text-gray-800 text-lg mt-0.5">23</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Completadas hoy</div><div class="font-bold text-gray-800 text-lg mt-0.5">34</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">SLA en riesgo</div><div class="font-bold text-yellow-600 text-lg mt-0.5">3</div></div>
+          <div class="bg-gray-50 rounded-lg p-3"><div class="text-gray-400">Escalamientos</div><div class="font-bold text-gray-800 text-lg mt-0.5">1</div></div>
+        </div>
+        <div class="space-y-2 text-xs text-gray-600">
+          <div class="font-semibold text-gray-700">Etapas del workflow:</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Ingesta →</span>
+            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Dictaminación →</span>
+            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Aprobación →</span>
+            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Contratación →</span>
+            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Alta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data flow diagram -->
+    <div class="card p-6">
+      <div class="font-semibold text-gray-800 mb-5">Flujo de Datos entre Sistemas</div>
+      <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2">
+
+        <div class="flex flex-col items-center gap-2">
+          <div class="arch-box" style="border-color:#1E3A8A;color:#1E3A8A;background:#EFF6FF;min-width:110px;">
+            <div class="text-base mb-1">👤</div>
+            <div>Cliente / Ejecutivo</div>
+          </div>
+          <div class="text-xs text-gray-400">Portal Web</div>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="flex flex-col items-center gap-2">
+          <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:#FEF9EE;min-width:120px;">
+            <div class="text-base mb-1">🧠</div>
+            <div>DictIA Platform</div>
+          </div>
+          <div class="text-xs text-gray-400">OCR + NLP + Motor</div>
+        </div>
+
+        <div class="flex flex-col gap-2 items-center">
+          <div class="arch-arrow">→</div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-arrow">→</div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="arch-box" style="border-color:#1D4ED8;color:#1D4ED8;background:#EFF6FF;font-size:11px;padding:6px 10px;">
+            📁 OpenText ECM
+          </div>
+          <div class="arch-box" style="border-color:#00A1E0;color:#0c4a6e;background:#E0F2FE;font-size:11px;padding:6px 10px;">
+            ☁ Salesforce CRM
+          </div>
+          <div class="arch-box" style="border-color:#EA580C;color:#EA580C;background:#FFF7ED;font-size:11px;padding:6px 10px;">
+            ⚡ BPM Workflow
+          </div>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="flex flex-col items-center gap-2">
+          <div class="arch-box" style="border-color:#6D28D9;color:#6D28D9;background:#F5F3FF;min-width:110px;">
+            <div class="text-base mb-1">🔐</div>
+            <div>Active Directory</div>
+          </div>
+          <div class="text-xs text-gray-400">SAML 2.0 + MFA</div>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="flex flex-col items-center gap-2">
+          <div class="arch-box" style="border-color:#065F46;color:#065F46;background:#ECFDF5;min-width:110px;">
+            <div class="text-base mb-1">📊</div>
+            <div>SIEM / Auditoría</div>
+          </div>
+          <div class="text-xs text-gray-400">Logs inmutables</div>
+        </div>
+      </div>
+      <div class="mt-4 text-xs text-gray-400 text-center">Todos los canales cifrados con TLS 1.3 · Autenticación mTLS entre servicios · Zero-trust networking</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 7: APIs & DOCS
+══════════════════════════════════════════════════════ -->
+<div id="screen-apis" class="screen">
+  <div class="grid grid-cols-3 gap-6">
+
+    <!-- Left: Endpoint list -->
+    <div class="col-span-1">
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-4">Endpoints REST API v2</div>
+        <div class="space-y-1 text-xs" id="apiEndpointList">
+
+          <div class="text-gray-400 font-semibold uppercase tracking-wide text-xs mb-2">Expedientes</div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2" onclick="showEndpoint('createExpediente')">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/expedientes</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2" onclick="showEndpoint('getExpediente')">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/expedientes/{id}</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/expedientes</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-yellow-100 text-yellow-700 font-bold px-1.5 py-0.5 rounded text-xs">PATCH</span>
+            <span class="font-mono text-gray-700">/v2/expedientes/{id}</span>
+          </div>
+
+          <div class="text-gray-400 font-semibold uppercase tracking-wide text-xs mt-3 mb-2">Documentos</div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2" onclick="showEndpoint('uploadDoc')">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/documentos/upload</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/documentos/ocr</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/documentos/{id}/status</span>
+          </div>
+
+          <div class="text-gray-400 font-semibold uppercase tracking-wide text-xs mt-3 mb-2">Dictaminación</div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2" onclick="showEndpoint('genDictamen')">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/dictamen/generar</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/dictamen/{id}</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/dictamen/{id}/pdf</span>
+          </div>
+
+          <div class="text-gray-400 font-semibold uppercase tracking-wide text-xs mt-3 mb-2">Integraciones</div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/sync/salesforce</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded text-xs">POST</span>
+            <span class="font-mono text-gray-700">/v2/sync/opentext</span>
+          </div>
+          <div class="api-endpoint py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded text-xs">GET</span>
+            <span class="font-mono text-gray-700">/v2/health</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Endpoint detail -->
+    <div class="col-span-2 space-y-4">
+      <div class="card p-6" id="endpointDetail">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="bg-green-100 text-green-700 font-bold px-2 py-1 rounded text-sm">POST</span>
+          <span class="font-mono font-bold text-gray-800 text-lg">/v2/dictamen/generar</span>
+          <span class="ml-auto text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-semibold">Auth: Bearer Token</span>
+        </div>
+        <div class="text-sm text-gray-500 mb-5">Genera el dictamen legal automatizado de un expediente. Ejecuta el motor DictIA completo: reglas legales, validaciones externas y modelo ML.</div>
+
+        <!-- Request -->
+        <div class="mb-4">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Request Body</div>
+          <div class="code-block p-4 text-white overflow-x-auto">
+<span class="comment">// POST /v2/dictamen/generar</span>
+<span class="comment">// Content-Type: application/json</span>
+<span class="comment">// Authorization: Bearer &lt;JWT&gt;</span>
+
+{
+  <span class="key">"expedienteId"</span>: <span class="string">"EXP-2024-0891"</span>,
+  <span class="key">"tipoSociedad"</span>: <span class="string">"SA_CV"</span>,
+  <span class="key">"modelVersion"</span>: <span class="string">"dictia-v3.1"</span>,
+  <span class="key">"syncTargets"</span>: [<span class="string">"salesforce"</span>, <span class="string">"opentext"</span>, <span class="string">"workflow"</span>],
+  <span class="key">"options"</span>: {
+    <span class="key">"generatePDF"</span>: <span class="keyword">true</span>,
+    <span class="key">"notifyExecutive"</span>: <span class="keyword">true</span>,
+    <span class="key">"eddThreshold"</span>: <span class="number">65</span>,
+    <span class="key">"language"</span>: <span class="string">"es-MX"</span>
+  }
+}
+          </div>
+        </div>
+
+        <!-- Response -->
+        <div class="mb-4">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Response 200 OK</div>
+          <div class="code-block p-4 text-white overflow-x-auto">
+{
+  <span class="key">"dictamenId"</span>: <span class="string">"DICT-2024-1847"</span>,
+  <span class="key">"expedienteId"</span>: <span class="string">"EXP-2024-0891"</span>,
+  <span class="key">"semaforo"</span>: <span class="string">"VERDE"</span>,
+  <span class="key">"scoreTotal"</span>: <span class="number">98.2</span>,
+  <span class="key">"breakdown"</span>: {
+    <span class="key">"documentacion"</span>: <span class="number">100</span>,
+    <span class="key">"validezActa"</span>: <span class="number">97</span>,
+    <span class="key">"poderesNotariales"</span>: <span class="number">95</span>,
+    <span class="key">"identidadRL"</span>: <span class="number">99</span>,
+    <span class="key">"cumplimientoAML"</span>: <span class="number">98</span>,
+    <span class="key">"situacionFiscal"</span>: <span class="number">100</span>
+  },
+  <span class="key">"alertas"</span>: [],
+  <span class="key">"recomendacion"</span>: <span class="string">"APERTURA_SIN_RESTRICCIONES"</span>,
+  <span class="key">"modelVersion"</span>: <span class="string">"dictia-v3.1"</span>,
+  <span class="key">"processingTimeMs"</span>: <span class="number">3820</span>,
+  <span class="key">"pdfUrl"</span>: <span class="string">"https://dictia.actinver.com.mx/dictamenes/DICT-2024-1847.pdf"</span>,
+  <span class="key">"pdfSha256"</span>: <span class="string">"b7e2a4f1c938..."</span>,
+  <span class="key">"syncResults"</span>: {
+    <span class="key">"salesforce"</span>: { <span class="key">"status"</span>: <span class="string">"ok"</span>, <span class="key">"opportunityId"</span>: <span class="string">"OPP-0024891"</span> },
+    <span class="key">"opentext"</span>: { <span class="key">"status"</span>: <span class="string">"ok"</span>, <span class="key">"nodeId"</span>: <span class="string">"OT-9182734"</span> },
+    <span class="key">"workflow"</span>: { <span class="key">"status"</span>: <span class="string">"ok"</span>, <span class="key">"taskId"</span>: <span class="string">"TASK-7651"</span> }
+  },
+  <span class="key">"timestamp"</span>: <span class="string">"2024-05-13T10:33:22Z"</span>,
+  <span class="key">"trxId"</span>: <span class="string">"7f3a9c2e-b1d4-48ea-9f12"</span>
+}
+          </div>
+        </div>
+
+        <!-- Error codes -->
+        <div>
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Códigos de Error</div>
+          <table class="w-full text-xs">
+            <thead><tr class="text-gray-400 font-semibold border-b"><th class="text-left pb-1">Código</th><th class="text-left pb-1">HTTP</th><th class="text-left pb-1">Descripción</th></tr></thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr class="py-1"><td class="py-1.5 font-mono text-red-600">EXPEDIENTE_NOT_FOUND</td><td class="py-1.5">404</td><td class="py-1.5 text-gray-600">Expediente no encontrado</td></tr>
+              <tr><td class="py-1.5 font-mono text-red-600">DOCS_INCOMPLETE</td><td class="py-1.5">422</td><td class="py-1.5 text-gray-600">Documentos obligatorios faltantes</td></tr>
+              <tr><td class="py-1.5 font-mono text-red-600">OCR_CONFIDENCE_LOW</td><td class="py-1.5">422</td><td class="py-1.5 text-gray-600">Confianza OCR insuficiente (&lt;70%)</td></tr>
+              <tr><td class="py-1.5 font-mono text-red-600">VALIDATION_TIMEOUT</td><td class="py-1.5">504</td><td class="py-1.5 text-gray-600">Timeout en validación externa</td></tr>
+              <tr><td class="py-1.5 font-mono text-red-600">UNAUTHORIZED</td><td class="py-1.5">401</td><td class="py-1.5 text-gray-600">Token inválido o expirado</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Auth info -->
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Autenticación &amp; Seguridad</div>
+        <div class="grid grid-cols-3 gap-4 text-xs">
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="font-semibold text-gray-700 mb-1">OAuth 2.0 + JWT</div>
+            <div class="text-gray-500">Token expira en 3600s. Refresh token disponible. Scopes: dictamen:read, dictamen:write, admin.</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="font-semibold text-gray-700 mb-1">Rate Limiting</div>
+            <div class="text-gray-500">1000 req/min por cliente. Headers: X-RateLimit-Remaining, X-RateLimit-Reset.</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="font-semibold text-gray-700 mb-1">Base URL</div>
+            <div class="text-gray-500 font-mono">https://api.dictia.actinver.com.mx</div>
+            <div class="text-gray-400 mt-1">TLS 1.3 obligatorio · mTLS para B2B</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 8: ARQUITECTURA
+══════════════════════════════════════════════════════ -->
+<div id="screen-arquitectura" class="screen">
+  <div class="space-y-6">
+
+    <!-- Architecture diagram -->
+    <div class="card p-8">
+      <div class="font-bold text-xl text-gray-800 mb-2">Arquitectura Técnica de la Solución</div>
+      <div class="text-sm text-gray-500 mb-8">Plataforma de Dictaminación Legal Inteligente — Actinver · v2.0</div>
+
+      <!-- Layer diagram -->
+      <div class="space-y-4">
+
+        <!-- Layer 1: Presentation -->
+        <div class="border-2 border-blue-200 rounded-2xl p-5 bg-blue-50">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-4">Capa de Presentación</div>
+          <div class="flex gap-4 flex-wrap">
+            <div class="arch-box" style="border-color:#1E3A8A;color:#1E3A8A;background:white;flex:1;min-width:130px;">
+              <div class="text-xl mb-1">🌐</div>
+              <div>Portal Web</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">React 18 + TypeScript</div>
+            </div>
+            <div class="arch-box" style="border-color:#1E3A8A;color:#1E3A8A;background:white;flex:1;min-width:130px;">
+              <div class="text-xl mb-1">📱</div>
+              <div>App Móvil</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">React Native (iOS / Android)</div>
+            </div>
+            <div class="arch-box" style="border-color:#1E3A8A;color:#1E3A8A;background:white;flex:1;min-width:130px;">
+              <div class="text-xl mb-1">🔐</div>
+              <div>SSO / SAML 2.0</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Active Directory + MFA</div>
+            </div>
+            <div class="arch-box" style="border-color:#1E3A8A;color:#1E3A8A;background:white;flex:1;min-width:130px;">
+              <div class="text-xl mb-1">🔗</div>
+              <div>API Gateway</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Kong · Rate Limit · WAF</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center text-2xl text-gray-300">↕</div>
+
+        <!-- Layer 2: AI Engine -->
+        <div class="border-2 rounded-2xl p-5" style="border-color:#C9A84C;background:#FEFCE8;">
+          <div class="text-xs font-bold uppercase tracking-widest mb-4" style="color:#92400E;">Motor de IA — DictIA Engine</div>
+          <div class="flex gap-4 flex-wrap">
+            <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">🔍</div>
+              <div>OCR Engine</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Tesseract 5.3 + GPT-4o Vision</div>
+            </div>
+            <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">🧠</div>
+              <div>NLP Extractor</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">spaCy 3.7 + Fine-tuned LLM</div>
+            </div>
+            <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">⚖️</div>
+              <div>Rules Engine</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Drools 8 · 200+ reglas</div>
+            </div>
+            <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">🎯</div>
+              <div>ML Classifier</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">XGBoost · Explicabilidad SHAP</div>
+            </div>
+            <div class="arch-box" style="border-color:#C9A84C;color:#92400E;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">🟢</div>
+              <div>Semáforo</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Score + Dictamen PDF</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center text-2xl text-gray-300">↕</div>
+
+        <!-- Layer 3: Integration -->
+        <div class="border-2 border-purple-200 rounded-2xl p-5 bg-purple-50">
+          <div class="text-xs font-bold text-purple-700 uppercase tracking-widest mb-4">Capa de Integración — ESB / API</div>
+          <div class="flex gap-4 flex-wrap">
+            <div class="arch-box" style="border-color:#7C3AED;color:#7C3AED;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">📁</div>
+              <div>OpenText ECM</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">REST + CMIS · TLS 1.3</div>
+            </div>
+            <div class="arch-box" style="border-color:#7C3AED;color:#7C3AED;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">☁</div>
+              <div>Salesforce</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">REST API v60 · OAuth 2.0</div>
+            </div>
+            <div class="arch-box" style="border-color:#7C3AED;color:#7C3AED;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">⚡</div>
+              <div>BPM / Workflow</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Activiti 7 · REST · Events</div>
+            </div>
+            <div class="arch-box" style="border-color:#7C3AED;color:#7C3AED;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">✍️</div>
+              <div>Firma Electrónica</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">NOM-151 · FIEL · e.firma</div>
+            </div>
+            <div class="arch-box" style="border-color:#7C3AED;color:#7C3AED;background:white;flex:1;min-width:120px;">
+              <div class="text-xl mb-1">🔎</div>
+              <div>Validaciones</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">SAT, RENAPO, OFAC, Buró</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center text-2xl text-gray-300">↕</div>
+
+        <!-- Layer 4: Infrastructure -->
+        <div class="border-2 border-gray-200 rounded-2xl p-5 bg-gray-50">
+          <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Capa de Infraestructura &amp; Seguridad</div>
+          <div class="flex gap-4 flex-wrap">
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">🏗️</div>
+              <div>Kubernetes</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">On-premise / Híbrido</div>
+            </div>
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">🗄️</div>
+              <div>PostgreSQL 16</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">HA + TDE + Audit logs</div>
+            </div>
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">⚡</div>
+              <div>Redis Cluster</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Cache + Session store</div>
+            </div>
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">🔐</div>
+              <div>HSM / Vault</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">AES-256 · Gestión de claves</div>
+            </div>
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">📊</div>
+              <div>Observabilidad</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Prometheus + Grafana + ELK</div>
+            </div>
+            <div class="arch-box" style="border-color:#374151;color:#374151;background:white;flex:1;min-width:110px;">
+              <div class="text-xl mb-1">🛡️</div>
+              <div>SIEM / SOC</div>
+              <div style="font-size:10px;color:#6B7280;font-weight:400;margin-top:2px;">Splunk · Alertas 24/7</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical specs -->
+    <div class="grid grid-cols-3 gap-5">
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">SLAs Comprometidos</div>
+        <div class="space-y-3 text-xs">
+          <div class="flex justify-between border-b pb-2"><span class="text-gray-600">Disponibilidad plataforma</span><span class="font-bold text-green-600">99.9%</span></div>
+          <div class="flex justify-between border-b pb-2"><span class="text-gray-600">Tiempo dictaminación</span><span class="font-bold text-blue-600">≤ 8 min</span></div>
+          <div class="flex justify-between border-b pb-2"><span class="text-gray-600">Precisión OCR</span><span class="font-bold text-green-600">≥ 97%</span></div>
+          <div class="flex justify-between border-b pb-2"><span class="text-gray-600">Latencia API p99</span><span class="font-bold text-blue-600">≤ 500ms</span></div>
+          <div class="flex justify-between border-b pb-2"><span class="text-gray-600">RTO (Recuperación)</span><span class="font-bold text-gray-700">≤ 4 horas</span></div>
+          <div class="flex justify-between"><span class="text-gray-600">RPO (Punto recuperación)</span><span class="font-bold text-gray-700">≤ 1 hora</span></div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Stack Tecnológico</div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between"><span class="text-gray-500">Frontend</span><span class="font-medium text-gray-700">React 18 + TypeScript</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Backend</span><span class="font-medium text-gray-700">Python 3.12 + FastAPI</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">OCR</span><span class="font-medium text-gray-700">Tesseract + GPT-4o Vision</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">NLP</span><span class="font-medium text-gray-700">spaCy 3.7 + LLM fine-tuned</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Reglas</span><span class="font-medium text-gray-700">Drools 8 / BPMN 2.0</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">ML</span><span class="font-medium text-gray-700">XGBoost + SHAP</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">DB</span><span class="font-medium text-gray-700">PostgreSQL 16 + Redis</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Infra</span><span class="font-medium text-gray-700">Kubernetes + Helm</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">CI/CD</span><span class="font-medium text-gray-700">GitLab CI + ArgoCD</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Seguridad</span><span class="font-medium text-gray-700">Vault + HSM + SIEM</span></div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="font-semibold text-gray-800 mb-3">Certificaciones &amp; Normas</div>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">ISO 27001 — Seguridad de información</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">ISO 27017 — Cloud security</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">PCI DSS 4.0</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">NOM-151 — Firma electrónica MX</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">LFPIORPI — Prevención de lavado</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">CNBV — Circular Única Bancos</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✓</span><span class="text-gray-700">SOC 2 Type II</span></div>
+          <div class="flex items-center gap-2"><span class="w-5 h-5 rounded bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs">↻</span><span class="text-gray-700">DORA — Digital Operational Resilience</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 9: PROPUESTA FUNCIONAL
+══════════════════════════════════════════════════════ -->
+<div id="screen-propuesta" class="screen">
+  <div class="space-y-6">
+
+    <!-- Process flow -->
+    <div class="card p-6">
+      <div class="font-bold text-xl text-gray-800 mb-2">Flujo del Proceso de Onboarding — Persona Moral</div>
+      <div class="text-sm text-gray-500 mb-8">End-to-end desde solicitud hasta alta en sistemas Actinver</div>
+
+      <!-- Flow steps -->
+      <div class="relative">
+        <div class="flex items-start gap-0 overflow-x-auto pb-4">
+
+          <!-- Step 1 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full navy-gradient flex items-center justify-center text-white text-xl font-black shadow-lg">1</div>
+            <div class="w-full h-1 bg-blue-200 mt-7 hidden"></div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Solicitud</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Cliente / Ejecutivo inicia expediente en portal</div>
+              <div class="mt-2 bg-blue-50 rounded-lg p-2 text-xs text-blue-700">
+                <div>⏱ SLA: Inmediato</div>
+                <div>Actor: Ejecutivo</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full gold-gradient flex items-center justify-center text-white text-xl font-black shadow-lg">2</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Ingesta Documental</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Carga y clasificación automática de 8 documentos</div>
+              <div class="mt-2 bg-yellow-50 rounded-lg p-2 text-xs text-yellow-700">
+                <div>⏱ SLA: 30 min</div>
+                <div>Actor: Sistema</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center text-white text-xl font-black shadow-lg">3</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">OCR + NLP</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Extracción automática de 42 campos legales</div>
+              <div class="mt-2 bg-purple-50 rounded-lg p-2 text-xs text-purple-700">
+                <div>⏱ SLA: 3 min</div>
+                <div>Actor: IA Engine</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white text-xl font-black shadow-lg">4</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Validaciones</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">SAT, RENAPO, OFAC, Buró, IMSS</div>
+              <div class="mt-2 bg-orange-50 rounded-lg p-2 text-xs text-orange-700">
+                <div>⏱ SLA: 2 min</div>
+                <div>Actor: APIs externas</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full bg-teal-600 flex items-center justify-center text-white text-xl font-black shadow-lg">5</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Dictaminación</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Motor DictIA genera semáforo + PDF firmado</div>
+              <div class="mt-2 bg-teal-50 rounded-lg p-2 text-xs text-teal-700">
+                <div>⏱ SLA: 1 min</div>
+                <div>Actor: IA Engine</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-lg">6</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Sync Sistemas</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">OpenText + Salesforce + Workflow notificados</div>
+              <div class="mt-2 bg-indigo-50 rounded-lg p-2 text-xs text-indigo-700">
+                <div>⏱ SLA: &lt; 30s</div>
+                <div>Actor: Integraciones</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center text-white text-xl font-black shadow-lg">7</div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Contratación</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Firma electrónica NOM-151 y alta en CRM</div>
+              <div class="mt-2 bg-green-50 rounded-lg p-2 text-xs text-green-700">
+                <div>⏱ SLA: 5 días hábiles</div>
+                <div>Actor: Cliente + Oficial</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center mt-7 flex-shrink-0" style="width:40px;">
+            <div class="w-full h-0.5 bg-gray-300"></div>
+            <div class="text-gray-400 ml-1">→</div>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="flex flex-col items-center" style="min-width:140px;">
+            <div class="w-14 h-14 rounded-full gold-gradient flex items-center justify-center shadow-lg">
+              <svg width="28" height="28" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-semibold text-sm text-gray-800">Alta Completada</div>
+              <div class="text-xs text-gray-400 mt-1 leading-relaxed">Cliente activo en Actinver · Cuenta operativa</div>
+              <div class="mt-2 bg-green-50 rounded-lg p-2 text-xs text-green-700">
+                <div>Total: ≤ 8 días</div>
+                <div>vs. 30-45 días actual</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits + Documents -->
+    <div class="grid grid-cols-2 gap-5">
+      <div class="card p-6">
+        <div class="font-semibold text-gray-800 mb-4">Beneficios Cuantificables</div>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600">Reducción tiempo onboarding</span>
+              <span class="font-bold text-green-600">-75%</span>
+            </div>
+            <div class="flex gap-2 items-center text-xs text-gray-400">
+              <span>30-45 días</span>
+              <div class="flex-1 h-2 rounded-full bg-red-100 relative">
+                <div class="absolute right-0 top-0 h-2 rounded-r-full bg-green-400" style="width:25%"></div>
+              </div>
+              <span class="text-green-600 font-medium">≤ 8 días</span>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600">Reducción errores manuales</span>
+              <span class="font-bold text-green-600">-92%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-green-400" style="width:92%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600">Costo por expediente</span>
+              <span class="font-bold text-green-600">-68%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill bg-blue-400" style="width:68%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600">Capacidad de procesamiento</span>
+              <span class="font-bold text-green-600">+400%</span>
+            </div>
+            <div class="text-xs text-gray-400">De 15 expedientes/día a 80+ sin aumentar headcount</div>
+          </div>
+          <div class="bg-green-50 border border-green-100 rounded-xl p-4 mt-4">
+            <div class="text-sm font-bold text-green-800">ROI Estimado: 340% en 18 meses</div>
+            <div class="text-xs text-green-600 mt-1">Payback estimado: 7-9 meses · TCO 3 años: -62% vs. proceso manual</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <div class="font-semibold text-gray-800 mb-4">Documentos Requeridos — Persona Moral</div>
+        <div class="space-y-2">
+          <div id="docList" class="space-y-2 text-sm">
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Acta Constitutiva</div><div class="text-xs text-gray-400">Escritura pública inscrita en RPC · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Poderes Notariales Vigentes</div><div class="text-xs text-gray-400">Del representante legal · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">INE / Pasaporte del Representante Legal</div><div class="text-xs text-gray-400">Ambos lados vigente · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">JPG/PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Cédula de Identificación Fiscal (RFC)</div><div class="text-xs text-gray-400">Constancia de situación fiscal SAT · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">5</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Comprobante de Domicilio</div><div class="text-xs text-gray-400">No mayor a 3 meses · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">6</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Opinión Cumplimiento SAT</div><div class="text-xs text-gray-400">Positiva · No mayor a 30 días · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">7</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Estados Financieros</div><div class="text-xs text-gray-400">Últimos 2 años auditados · Condicional</div></div>
+              <span class="badge-amarillo text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">8</span>
+              <div class="flex-1"><div class="font-medium text-gray-700">Declaración Beneficiario Final (CSID)</div><div class="text-xs text-gray-400">Formato LFPIORPI Art. 18 · Obligatorio</div></div>
+              <span class="badge-gris text-xs px-2 py-0.5 rounded-full">PDF</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Implementation roadmap -->
+    <div class="card p-6">
+      <div class="font-semibold text-gray-800 mb-5">Roadmap de Implementación</div>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="border-l-4 border-blue-500 pl-4">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1">Fase 1 · Semanas 1-6</div>
+          <div class="font-semibold text-gray-800 mb-2">Fundamentos</div>
+          <div class="text-xs text-gray-500 space-y-1">
+            <div>• Infraestructura K8s</div>
+            <div>• Integración SSO/SAML 2.0</div>
+            <div>• Conectores OpenText</div>
+            <div>• Pipeline OCR base</div>
+          </div>
+        </div>
+        <div class="border-l-4 border-yellow-500 pl-4">
+          <div class="text-xs font-bold text-yellow-600 uppercase tracking-wide mb-1">Fase 2 · Semanas 7-14</div>
+          <div class="font-semibold text-gray-800 mb-2">Motor IA</div>
+          <div class="text-xs text-gray-500 space-y-1">
+            <div>• NLP extractor entrenado</div>
+            <div>• Rules engine Drools</div>
+            <div>• Motor dictaminación v1</div>
+            <div>• APIs REST publicadas</div>
+          </div>
+        </div>
+        <div class="border-l-4 border-purple-500 pl-4">
+          <div class="text-xs font-bold text-purple-600 uppercase tracking-wide mb-1">Fase 3 · Semanas 15-22</div>
+          <div class="font-semibold text-gray-800 mb-2">Integraciones</div>
+          <div class="text-xs text-gray-500 space-y-1">
+            <div>• Salesforce FSC sync</div>
+            <div>• BPM Workflow</div>
+            <div>• Validaciones externas</div>
+            <div>• Firma electrónica</div>
+          </div>
+        </div>
+        <div class="border-l-4 border-green-500 pl-4">
+          <div class="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">Fase 4 · Semanas 23-28</div>
+          <div class="font-semibold text-gray-800 mb-2">Go-Live</div>
+          <div class="text-xs text-gray-500 space-y-1">
+            <div>• UAT con Actinver</div>
+            <div>• Capacitación usuarios</div>
+            <div>• Piloto 50 expedientes</div>
+            <div>• Producción completa</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 bg-gray-50 rounded-xl p-4 text-sm text-gray-600 flex items-center gap-3">
+        <svg width="20" height="20" fill="none" stroke="#6D28D9" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        <span><strong>Tiempo total de implementación: 28 semanas (7 meses)</strong> · Metodología: Agile Scrum · Sprints de 2 semanas · Entrega continua de valor</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- end scrollable content -->
+</main>
+</div><!-- end flex -->
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+// ── Navigation ──────────────────────────────────────────
+const screenTitles = {
+  dashboard:      'Dashboard Principal',
+  ingesta:        'Ingesta Documental',
+  extraccion:     'OCR + Extracción NLP',
+  dictaminacion:  'Motor de Dictaminación',
+  trazabilidad:   'Trazabilidad E2E',
+  integraciones:  'Conectores e Integraciones',
+  apis:           'APIs & Documentación',
+  arquitectura:   'Arquitectura Técnica',
+  propuesta:      'Propuesta Funcional'
+};
+
+function navigate(screen) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('screen-' + screen);
+  if (target) target.classList.add('active');
+
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  const clicked = event && event.currentTarget;
+  if (clicked) clicked.classList.add('active');
+
+  // Update header title
+  document.getElementById('headerTitle').textContent = screenTitles[screen] || screen;
+
+  // Re-init charts if dashboard
+  if (screen === 'dashboard') { initCharts(); }
+}
+
+// ── Charts ───────────────────────────────────────────────
+function initCharts() {
+  // Bar chart
+  const ctx1 = document.getElementById('chartDictamenes');
+  if (ctx1 && !ctx1._chartInitialized) {
+    ctx1._chartInitialized = true;
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'],
+        datasets: [
+          { label: 'Verde', data: [18,22,25,20,18], backgroundColor: '#10B981', borderRadius: 6 },
+          { label: 'Amarillo', data: [8,10,9,12,11], backgroundColor: '#F59E0B', borderRadius: 6 },
+          { label: 'Rojo', data: [3,4,2,5,5], backgroundColor: '#EF4444', borderRadius: 6 }
+        ]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: '#F3F4F6' } }
+        },
+        responsive: true, maintainAspectRatio: true
+      }
+    });
+  }
+
+  // Donut chart
+  const ctx2 = document.getElementById('chartSemaforo');
+  if (ctx2 && !ctx2._chartInitialized) {
+    ctx2._chartInitialized = true;
+    new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Verde','Amarillo','Rojo'],
+        datasets: [{ data: [53,32,15], backgroundColor: ['#10B981','#F59E0B','#EF4444'], borderWidth: 0, hoverOffset: 6 }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        cutout: '68%',
+        responsive: true, maintainAspectRatio: true
+      }
+    });
+  }
+}
+
+// ── Document checklist ───────────────────────────────────
+const docs = [
+  { name: 'Acta Constitutiva', status: 'uploaded', date: '13 May 2024' },
+  { name: 'Poderes Notariales', status: 'uploaded', date: '13 May 2024' },
+  { name: 'INE Representante Legal (frente)', status: 'uploaded', date: '13 May 2024' },
+  { name: 'INE Representante Legal (reverso)', status: 'uploaded', date: '13 May 2024' },
+  { name: 'Cédula RFC', status: 'processing', date: null },
+  { name: 'Comprobante de Domicilio', status: 'pending', date: null },
+  { name: 'Opinión Cumplimiento SAT', status: 'pending', date: null },
+  { name: 'Declaración Beneficiario Final', status: 'pending', date: null }
+];
+
+function renderChecklist() {
+  const container = document.getElementById('docChecklist');
+  if (!container) return;
+  container.innerHTML = docs.map((doc, i) => {
+    let icon, badge, rowClass;
+    if (doc.status === 'uploaded') {
+      icon = `<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"><svg width="14" height="14" fill="none" stroke="#065F46" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>`;
+      badge = `<span class="badge-verde text-xs px-2 py-0.5 rounded-full font-medium">✓ Cargado</span>`;
+      rowClass = 'border border-green-100 bg-green-50';
+    } else if (doc.status === 'processing') {
+      icon = `<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center"><svg class="spinner" width="14" height="14" fill="none" stroke="#92400E" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg></div>`;
+      badge = `<span class="badge-amarillo text-xs px-2 py-0.5 rounded-full font-medium pulse">Procesando</span>`;
+      rowClass = 'border border-yellow-100 bg-yellow-50';
+    } else {
+      icon = `<div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm font-bold">${i+1}</div>`;
+      badge = `<span class="badge-gris text-xs px-2 py-0.5 rounded-full font-medium">Pendiente</span>`;
+      rowClass = 'border border-gray-100';
+    }
+    return `<div class="flex items-center gap-3 p-3 rounded-lg ${rowClass}">
+      ${icon}
+      <div class="flex-1">
+        <div class="text-sm font-medium text-gray-700">${doc.name}</div>
+        ${doc.date ? `<div class="text-xs text-gray-400">Recibido: ${doc.date}</div>` : '<div class="text-xs text-gray-400">Esperando carga</div>'}
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+// ── Simulate upload ──────────────────────────────────────
+function simulateUpload() {
+  const zone = document.getElementById('dropZone');
+  if (!zone) return;
+  zone.innerHTML = `<div class="py-4">
+    <div class="flex justify-center mb-3"><svg class="spinner" width="32" height="32" fill="none" stroke="#C9A84C" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg></div>
+    <div class="text-gray-600 font-medium">Procesando documentos…</div>
+    <div class="text-gray-400 text-xs mt-1">Clasificando con IA · Cifrando con AES-256 · Enviando a OpenText</div>
+  </div>`;
+  setTimeout(() => {
+    zone.innerHTML = `<div class="py-4">
+      <div class="flex justify-center mb-3 text-4xl">✅</div>
+      <div class="text-green-700 font-bold">3 documentos cargados exitosamente</div>
+      <div class="text-gray-400 text-xs mt-1">Clasificados automáticamente · Almacenados en OpenText · Hash verificado</div>
+    </div>`;
+    docs[4].status = 'uploaded'; docs[4].date = '13 May 2024';
+    docs[5].status = 'processing';
+    renderChecklist();
+  }, 2500);
+}
+
+// ── API endpoint detail ──────────────────────────────────
+function showEndpoint(ep) {
+  // Could expand with different endpoint details
+  const detail = document.getElementById('endpointDetail');
+  if (detail) {
+    detail.style.animation = 'none';
+    detail.offsetHeight;
+    detail.style.animation = 'fadeIn 0.3s ease';
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initCharts();
+  renderChecklist();
+
+  // Animate progress bars
+  setTimeout(() => {
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+      const w = bar.style.width;
+      bar.style.width = '0';
+      requestAnimationFrame(() => { bar.style.width = w; });
+    });
+  }, 200);
+});
+</script>
+</body>
+</html>

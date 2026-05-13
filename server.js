@@ -744,6 +744,285 @@ app.get('/api/health', (req, res) => {
 });
 
 /* ================================================================
+   MÓDULO: DICTAMINACIÓN LEGAL INTELIGENTE — APIs v2
+   Plataforma de Dictaminación Persona Moral · Actinver
+   ================================================================ */
+
+// Almacenamiento en memoria para el módulo de dictaminación
+const expedientesDB  = new Map();
+const dictamenesDB   = new Map();
+
+/**
+ * Genera un dictamen simulado con lógica de semáforo y scoring.
+ * En producción, este motor invoca: Drools rules engine, modelo XGBoost,
+ * validaciones SAT/RENAPO/OFAC y GPT-4o para extracción NLP.
+ */
+function calcularDictamen(expediente) {
+  const scores = {
+    documentacion:       expediente.documentosCompletos === 8 ? 100 : Math.round((expediente.documentosCompletos / 8) * 100),
+    validezActa:         expediente.actaValida ? 97 : 30,
+    poderesNotariales:   expediente.poderesVigentes ? 95 : 20,
+    identidadRL:         expediente.ineValida ? 99 : 0,
+    cumplimientoAML:     expediente.sinAlertasAML ? 98 : 0,
+    situacionFiscal:     expediente.rfcActivo ? 100 : 40,
+  };
+
+  const scoreTotal = parseFloat(
+    Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length
+  ).toFixed(1);
+
+  let semaforo, recomendacion;
+  if (scoreTotal >= 85) {
+    semaforo = 'VERDE';
+    recomendacion = 'APERTURA_SIN_RESTRICCIONES';
+  } else if (scoreTotal >= 65) {
+    semaforo = 'AMARILLO';
+    recomendacion = 'REVISION_MANUAL_REQUERIDA';
+  } else {
+    semaforo = 'ROJO';
+    recomendacion = 'RECHAZADO_EDD_REQUERIDO';
+  }
+
+  const alertas = [];
+  if (!expediente.poderesVigentes)   alertas.push({ codigo: 'PODERES_VENCIDOS',    nivel: 'alto',  descripcion: 'Poderes notariales vencidos o con restricciones.' });
+  if (!expediente.rfcActivo)         alertas.push({ codigo: 'RFC_INACTIVO',         nivel: 'alto',  descripcion: 'RFC no activo en el SAT.' });
+  if (!expediente.sinAlertasAML)     alertas.push({ codigo: 'ALERTA_AML',           nivel: 'critico', descripcion: 'Coincidencia detectada en listas OFAC/DOF.' });
+  if (!expediente.actaValida)        alertas.push({ codigo: 'ACTA_INVALIDA',        nivel: 'alto',  descripcion: 'Acta constitutiva no inscrita en RPC.' });
+  if (expediente.documentosCompletos < 8) alertas.push({ codigo: 'DOCS_INCOMPLETOS', nivel: 'medio', descripcion: `Faltan ${8 - expediente.documentosCompletos} documento(s) obligatorio(s).` });
+
+  return { scores, scoreTotal: parseFloat(scoreTotal), semaforo, recomendacion, alertas };
+}
+
+/* ─── POST /api/v2/expedientes ─────────────────────────── */
+app.post('/api/v2/expedientes', (req, res) => {
+  const { razonSocial, rfc, tipoSociedad, ejecutivo, segmento } = req.body;
+  if (!razonSocial || !rfc) {
+    return res.status(422).json({ error: 'DATOS_REQUERIDOS', message: 'razonSocial y rfc son obligatorios.' });
+  }
+
+  const id = `EXP-${new Date().getFullYear()}-${String(expedientesDB.size + 900).padStart(4, '0')}`;
+  const expediente = {
+    id, razonSocial, rfc, tipoSociedad: tipoSociedad || 'SA_CV',
+    ejecutivo: ejecutivo || null, segmento: segmento || 'Empresarial',
+    documentosCompletos: 0,
+    actaValida: false, poderesVigentes: false, ineValida: false,
+    sinAlertasAML: true, rfcActivo: true,
+    estado: 'EN_PROCESO',
+    creadoEn: new Date().toISOString(),
+    actualizadoEn: new Date().toISOString(),
+  };
+  expedientesDB.set(id, expediente);
+  return res.status(201).json({ expedienteId: id, expediente });
+});
+
+/* ─── GET /api/v2/expedientes ──────────────────────────── */
+app.get('/api/v2/expedientes', (req, res) => {
+  const lista = Array.from(expedientesDB.values()).sort((a, b) =>
+    new Date(b.creadoEn) - new Date(a.creadoEn)
+  );
+  return res.json({ total: lista.length, expedientes: lista });
+});
+
+/* ─── GET /api/v2/expedientes/:id ──────────────────────── */
+app.get('/api/v2/expedientes/:id', (req, res) => {
+  const exp = expedientesDB.get(req.params.id);
+  if (!exp) return res.status(404).json({ error: 'EXPEDIENTE_NOT_FOUND', message: 'Expediente no encontrado.' });
+  return res.json(exp);
+});
+
+/* ─── PATCH /api/v2/expedientes/:id ────────────────────── */
+app.patch('/api/v2/expedientes/:id', (req, res) => {
+  const exp = expedientesDB.get(req.params.id);
+  if (!exp) return res.status(404).json({ error: 'EXPEDIENTE_NOT_FOUND', message: 'Expediente no encontrado.' });
+  const allowed = ['documentosCompletos','actaValida','poderesVigentes','ineValida','sinAlertasAML','rfcActivo','estado','ejecutivo','segmento'];
+  for (const key of allowed) {
+    if (key in req.body) exp[key] = req.body[key];
+  }
+  exp.actualizadoEn = new Date().toISOString();
+  expedientesDB.set(exp.id, exp);
+  return res.json(exp);
+});
+
+/* ─── POST /api/v2/documentos/upload ───────────────────── */
+app.post('/api/v2/documentos/upload', (req, res) => {
+  const { expedienteId, tipoDocumento, nombreArchivo } = req.body;
+  if (!expedienteId || !tipoDocumento) {
+    return res.status(422).json({ error: 'DATOS_REQUERIDOS', message: 'expedienteId y tipoDocumento son obligatorios.' });
+  }
+  const exp = expedientesDB.get(expedienteId);
+  if (!exp) return res.status(404).json({ error: 'EXPEDIENTE_NOT_FOUND' });
+
+  const docId = uuidv4();
+  const sha256 = [...Array(16)].map(() => Math.floor(Math.random() * 16).toString(16)).join('') + '...';
+
+  // Simular incremento de documentos
+  if (exp.documentosCompletos < 8) exp.documentosCompletos++;
+  if (tipoDocumento === 'ACTA_CONSTITUTIVA') exp.actaValida = true;
+  if (tipoDocumento === 'PODERES_NOTARIALES') exp.poderesVigentes = true;
+  if (tipoDocumento === 'INE_RL') exp.ineValida = true;
+  exp.actualizadoEn = new Date().toISOString();
+  expedientesDB.set(expedienteId, exp);
+
+  return res.status(201).json({
+    documentoId: docId,
+    expedienteId,
+    tipoDocumento,
+    nombreArchivo: nombreArchivo || 'documento.pdf',
+    sha256,
+    openTextNodeId: `OT-${Math.floor(Math.random() * 9000000) + 1000000}`,
+    ocrStatus: 'ENCOLADO',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/* ─── POST /api/v2/documentos/ocr ──────────────────────── */
+app.post('/api/v2/documentos/ocr', (req, res) => {
+  const { documentoId, expedienteId } = req.body;
+  if (!documentoId || !expedienteId) {
+    return res.status(422).json({ error: 'DATOS_REQUERIDOS' });
+  }
+  // Simular extracción OCR + NLP
+  const camposExtraidos = {
+    razonSocial:          'Constructora Meridiano S.A. de C.V.',
+    rfc:                  'CME850312AB7',
+    tipoSociedad:         'S.A. de C.V.',
+    fechaConstitucion:    '2008-08-15',
+    capitalSocialFijo:    5000000,
+    notarioNumero:        87,
+    notarioNombre:        'Lic. Roberto Sánchez Pérez',
+    representanteLegal:   'Ing. Carlos Ramírez Vega',
+    rfcRepresentante:     'RAVC780412HDF',
+    objetoSocial:         'Construcción e infraestructura civil',
+    duracion:             'INDEFINIDA',
+    tiposPoderes:         ['DOMINIO', 'ADMINISTRACION'],
+    domicilioSocial:      'Av. Insurgentes Sur 1234, CDMX',
+  };
+
+  return res.json({
+    documentoId,
+    expedienteId,
+    ocrConfianza:       98.7,
+    nlpConfianza:       97.2,
+    camposExtraidos,
+    totalCampos:        Object.keys(camposExtraidos).length,
+    motorOCR:           'Tesseract 5.3 + GPT-4o Vision',
+    motorNLP:           'DictIA-NLP v3.1',
+    tiempoProcesamientoMs: 3820,
+    timestamp:          new Date().toISOString(),
+  });
+});
+
+/* ─── POST /api/v2/dictamen/generar ────────────────────── */
+app.post('/api/v2/dictamen/generar', (req, res) => {
+  const { expedienteId, tipoSociedad, modelVersion, syncTargets, options } = req.body;
+  if (!expedienteId) {
+    return res.status(422).json({ error: 'DATOS_REQUERIDOS', message: 'expedienteId es obligatorio.' });
+  }
+
+  const exp = expedientesDB.get(expedienteId);
+  if (!exp) return res.status(404).json({ error: 'EXPEDIENTE_NOT_FOUND' });
+  if (exp.documentosCompletos === 0) {
+    return res.status(422).json({ error: 'DOCS_INCOMPLETE', message: 'El expediente no tiene documentos ingresados.' });
+  }
+
+  const { scores, scoreTotal, semaforo, recomendacion, alertas } = calcularDictamen(exp);
+  const dictamenId = `DICT-${new Date().getFullYear()}-${String(dictamenesDB.size + 1800).padStart(4, '0')}`;
+  const trxId = uuidv4();
+  const sha256Dict = [...Array(16)].map(() => Math.floor(Math.random() * 16).toString(16)).join('') + '...';
+
+  const syncResults = {};
+  if (!syncTargets || syncTargets.includes('salesforce')) {
+    syncResults.salesforce = { status: 'ok', opportunityId: `OPP-${Math.floor(Math.random() * 90000) + 10000}` };
+  }
+  if (!syncTargets || syncTargets.includes('opentext')) {
+    syncResults.opentext = { status: 'ok', nodeId: `OT-${Math.floor(Math.random() * 9000000) + 1000000}` };
+  }
+  if (!syncTargets || syncTargets.includes('workflow')) {
+    syncResults.workflow = { status: 'ok', taskId: `TASK-${Math.floor(Math.random() * 9000) + 1000}` };
+  }
+
+  const dictamen = {
+    dictamenId,
+    expedienteId,
+    razonSocial:    exp.razonSocial,
+    semaforo,
+    scoreTotal,
+    breakdown:      scores,
+    alertas,
+    recomendacion,
+    modelVersion:   modelVersion || 'dictia-v3.1',
+    processingTimeMs: Math.floor(Math.random() * 2000) + 2500,
+    pdfUrl:         `https://dictia.actinver.com.mx/dictamenes/${dictamenId}.pdf`,
+    pdfSha256:      sha256Dict,
+    syncResults,
+    options:        options || {},
+    timestamp:      new Date().toISOString(),
+    trxId,
+  };
+
+  dictamenesDB.set(dictamenId, dictamen);
+  exp.estado = `DICTAMINADO_${semaforo}`;
+  exp.dictamenId = dictamenId;
+  exp.actualizadoEn = new Date().toISOString();
+  expedientesDB.set(expedienteId, exp);
+
+  return res.status(201).json(dictamen);
+});
+
+/* ─── GET /api/v2/dictamen/:id ─────────────────────────── */
+app.get('/api/v2/dictamen/:id', (req, res) => {
+  const dictamen = dictamenesDB.get(req.params.id);
+  if (!dictamen) return res.status(404).json({ error: 'DICTAMEN_NOT_FOUND', message: 'Dictamen no encontrado.' });
+  return res.json(dictamen);
+});
+
+/* ─── POST /api/v2/sync/salesforce ─────────────────────── */
+app.post('/api/v2/sync/salesforce', (req, res) => {
+  const { expedienteId, dictamenId, stage } = req.body;
+  if (!expedienteId) return res.status(422).json({ error: 'DATOS_REQUERIDOS' });
+  return res.json({
+    status: 'ok',
+    expedienteId,
+    dictamenId: dictamenId || null,
+    salesforceOpportunityId: `OPP-${Math.floor(Math.random() * 90000) + 10000}`,
+    stage: stage || 'Dictaminacion',
+    syncedAt: new Date().toISOString(),
+  });
+});
+
+/* ─── POST /api/v2/sync/opentext ───────────────────────── */
+app.post('/api/v2/sync/opentext', (req, res) => {
+  const { expedienteId, documentoIds } = req.body;
+  if (!expedienteId) return res.status(422).json({ error: 'DATOS_REQUERIDOS' });
+  return res.json({
+    status: 'ok',
+    expedienteId,
+    openTextFolder: `/DICTAMINACION/PM/${new Date().getFullYear()}/${expedienteId}/`,
+    nodeId: `OT-${Math.floor(Math.random() * 9000000) + 1000000}`,
+    documentosIndexados: documentoIds ? documentoIds.length : 0,
+    syncedAt: new Date().toISOString(),
+  });
+});
+
+/* ─── GET /api/v2/health ────────────────────────────────── */
+app.get('/api/v2/health', (req, res) => {
+  return res.json({
+    status: 'ok',
+    version: '2.4.1',
+    serviceName: 'DictIA Platform',
+    integraciones: {
+      opentext:   { status: 'ok', latencyMs: 142 },
+      salesforce: { status: 'ok', latencyMs: 89  },
+      activedi:   { status: 'ok', latencyMs: 34  },
+      workflow:   { status: 'ok', latencyMs: 67  },
+    },
+    expedientesActivos: expedientesDB.size,
+    dictamenesGenerados: dictamenesDB.size,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/* ================================================================
    ARRANQUE DEL SERVIDOR
    ================================================================ */
 async function iniciar() {
